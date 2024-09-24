@@ -54,53 +54,15 @@ const getModifierLabel = (modifier) => {
 };
 
 const createItem = () => {
-    console.log("Creating item...");
-    console.log(item.value.id);
-    console.log(modifiers.value);
-
     postCreateItem(item.value.id, modifiers.value);
 };
 
 const postCreateItem = async (id, modifiers) => {
     loadingCreateOrUpdate.value = true;
 
+    item.value.modifiers = modifiers;
+
     emit("item-created", item.value);
-
-    // try {
-    //     const itemHandlerRoute = item.value.is_template
-    //         ? "api.items.create"
-    //         : "api.items.update";
-    //     const response = await axios.post(route(itemHandlerRoute), {
-    //         item_id: id,
-    //         modifiers: modifiers,
-    //     });
-
-    //     // Success
-    //     item.value = response.data.item;
-
-    //     emit("item-created", item.value);
-    // } catch (error) {
-    //     if (error.response && error.response.status === 422) {
-    //         // Validation error
-    //         const responseErrors = error.response.data.errors;
-
-    //         Object.keys(responseErrors).forEach((key) => {
-    //             // Set error based on key. E.g. modifiers.2
-    //             const index = key.split(".").pop();
-    //             if (!errors.value["modifiers"]) {
-    //                 errors.value["modifiers"] = {};
-    //             }
-
-    //             errors.value["modifiers"][index] = responseErrors[key][0];
-    //         });
-
-    //         console.log(errors.value);
-    //     } else {
-    //         console.error(error);
-    //     }
-    // } finally {
-    //     loadingCreateOrUpdate.value = false;
-    // }
 };
 
 const fullName = computed(() => {

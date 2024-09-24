@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import { router } from "@inertiajs/vue3";
 import InputPlaceholder from "@/Components/InputPlaceholder.vue";
+import ModifierInput from "@/Components/ModifierInput.vue";
 import AppButton from "@/Components/AppButton.vue";
 
 const props = defineProps({
@@ -10,6 +11,8 @@ const props = defineProps({
         required: true,
     },
 });
+
+const showingDebug = ref(false);
 
 const nameColor = computed(() => {
     switch (props.item.item_type) {
@@ -84,11 +87,45 @@ const compactModifiers = computed(() => {
                 </p>
             </div>
 
-            <p>Debug:</p>
-            <div class="text-xs text-zinc-200">
-                <code>
-                    <pre>{{ compactModifiers }}</pre>
-                </code>
+            <div class="mt-6">
+                <h2 class="font-bold text-xl">Item Editor</h2>
+                <p class="text-sm text-zinc-500 mb-3">
+                    Edit the modifiers of the item.
+                </p>
+
+                <div class="space-y-1">
+                    <ModifierInput
+                        v-for="modifier in sortedModifiers"
+                        :key="modifier"
+                        :modifier="modifier"
+                    />
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <AppButton
+                    plain
+                    @click="showingDebug = !showingDebug"
+                    class="w-full"
+                    >{{ showingDebug ? "Hide" : "Show" }} debug</AppButton
+                >
+                <transition
+                    enter-active-class="transition transform ease-out duration-200"
+                    enter-from-class="opacity-0 scale-95"
+                    enter-to-class="opacity-100 scale-100"
+                    leave-active-class="transition transform ease-in duration-200"
+                    leave-from-class="opacity-100 scale-100"
+                    leave-to-class="opacity-0 scale-95"
+                >
+                    <div
+                        class="text-xs text-green-400 bg-black/50 p-3 mt-3 rounded-lg"
+                        v-show="showingDebug"
+                    >
+                        <code>
+                            <pre>{{ compactModifiers }}</pre>
+                        </code>
+                    </div>
+                </transition>
             </div>
         </div>
     </div>

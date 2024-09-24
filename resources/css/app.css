@@ -11,3 +11,18 @@
       -moz-appearance: textfield !important;
     }
  }
+
+ .slide-enter-active, .slide-leave-active {
+    transition: all 0.3s ease;
+  }
+
+  .slide-enter, .slide-leave-to {
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  .slide-enter-to, .slide-leave {
+    height: auto;
+    opacity: 1;
+  }

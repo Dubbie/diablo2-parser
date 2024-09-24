@@ -1,5 +1,7 @@
 <script setup>
+import AppButton from "@/Components/AppButton.vue";
 import CharacterInventory from "@/Components/CharacterInventory.vue";
+import CharacterStats from "@/Components/CharacterStats.vue";
 import ItemEditor from "@/Components/ItemEditor.vue";
 import ItemFinder from "@/Components/ItemFinder.vue";
 import SelectInput from "@/Components/SelectInput.vue";
@@ -7,12 +9,13 @@ import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { useForm } from "@inertiajs/vue3";
 import { IconSearch } from "@tabler/icons-vue";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
 const showItemFinder = ref(false);
 
 const debug = false;
 
+const activeCharacterPanel = ref("inventory");
 const selectedItem = ref(null);
 
 const pdollSlots = ref({
@@ -69,6 +72,10 @@ const characterClassOptions = [
     },
 ];
 
+const allItems = computed(() => {
+    return Object.values(pdollSlots.value).filter((item) => !!item);
+});
+
 // Method to handle filter update from ItemFinder
 const updateFilter = (newSearch) => {
     filter.value = { ...filter.value, search: newSearch };
@@ -89,9 +96,9 @@ const handleItemSelected = (item) => {
 const handleItemCreated = (item) => {
     pdollSlots.value[filter.value.slot] = item;
 
-    if (item.base_stats?.min_2h_damage > 0) {
-        pdollSlots.value.rarm = item;
-    }
+    // if (item.base_stats?.min_2h_damage > 0) {
+    //     pdollSlots.value.rarm = item;
+    // }
 };
 
 // Method to handle reset items
@@ -131,10 +138,10 @@ watch(
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout title="Planner" wide>
         <h1 class="font-bold text-3xl">Planner</h1>
         <p class="text-zinc-400 text-sm mb-6">
-            Choose the items you wish to equip.
+            Play around with the planner to find the best items for your.
         </p>
 
         <div class="flex space-x-6">
@@ -154,22 +161,24 @@ watch(
                     />
                 </div>
 
-                <CharacterInventory
-                    :filter="filter"
-                    :larm="pdollSlots.larm"
-                    :rarm="pdollSlots.rarm"
-                    :helm="pdollSlots.helm"
-                    :boot="pdollSlots.boot"
-                    :tors="pdollSlots.tors"
-                    :belt="pdollSlots.belt"
-                    :glov="pdollSlots.glov"
-                    :amul="pdollSlots.amul"
-                    :lrin="pdollSlots.lrin"
-                    :rrin="pdollSlots.rrin"
-                    @unequip-item="pdollSlots[filter.slot] = null"
-                    @set-filter="handleSetFilter"
-                    @reset-items="handleResetItems"
-                />
+                <div class="w-[320px]">
+                    <CharacterInventory
+                        :filter="filter"
+                        :larm="pdollSlots.larm"
+                        :rarm="pdollSlots.rarm"
+                        :helm="pdollSlots.helm"
+                        :boot="pdollSlots.boot"
+                        :tors="pdollSlots.tors"
+                        :belt="pdollSlots.belt"
+                        :glov="pdollSlots.glov"
+                        :amul="pdollSlots.amul"
+                        :lrin="pdollSlots.lrin"
+                        :rrin="pdollSlots.rrin"
+                        @unequip-item="pdollSlots[filter.slot] = null"
+                        @set-filter="handleSetFilter"
+                        @reset-items="handleResetItems"
+                    />
+                </div>
             </div>
 
             <div class="flex-1">
@@ -203,6 +212,10 @@ watch(
                         />
                     </div>
                 </div>
+            </div>
+
+            <div>
+                <CharacterStats :items="allItems" />
             </div>
         </div>
     </AppLayout>

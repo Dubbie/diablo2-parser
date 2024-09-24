@@ -110,20 +110,20 @@ const handleUneqip = ($event, slot) => {
     // emitter.emit("unequip-item", slot);
 };
 
-const twoHandedInRightHand = () => {
-    if (
-        props.rarm &&
-        props.rarm.weapon &&
-        props.rarm.weapon.damage_type === "Two-Hand Damage"
-    ) {
-        return true;
+const setFilter = (element) => {
+    emit("set-filter", element);
+};
+
+const isTwoHandedInRightHand = (element) => {
+    if (element === "rarm" && props.rarm) {
+        const baseStats = JSON.parse(props.rarm.base_stats);
+
+        if (baseStats?.min_2h_damage > 0) {
+            return true;
+        }
     }
 
     return false;
-};
-
-const setFilter = (element) => {
-    emit("set-filter", element);
 };
 
 const emit = defineEmits(["set-filter", "reset-items"]);
@@ -132,7 +132,7 @@ const emit = defineEmits(["set-filter", "reset-items"]);
 <template>
     <div class="relative">
         <img
-            src="/inventory.png"
+            src="/img/inventory.png"
             alt="Character Inventory"
             class="block w-full"
         />
@@ -149,7 +149,7 @@ const emit = defineEmits(["set-filter", "reset-items"]);
             class="absolute flex justify-center items-center hover:bg-yellow-600/30"
             :style="itemPositions[element]"
             :class="{
-                'opacity-50': element === 'rarm' && twoHandedInRightHand(),
+                'opacity-70': isTwoHandedInRightHand(element),
                 'hover:bg-yellow-300/20': filter.slot !== element,
                 'bg-yellow-300/20': filter.slot === element,
             }"

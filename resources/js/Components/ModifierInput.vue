@@ -10,6 +10,10 @@ const props = defineProps({
         type: Number,
         required: true,
     },
+    triggerOnMount: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const getDefaultValue = () => {
@@ -64,12 +68,37 @@ const processString = (input) => {
 // Reactive variable to hold the processed parts
 const processedParts = ref(processString(props.modifier.template));
 
+const isIncorrect = computed(() => {
+    if (!props.modifier.range) {
+        return false;
+    }
+
+    return (
+        modelValue.value === "" ||
+        (parseInt(modelValue.value) && parseInt(modelValue.value)) <
+            props.modifier.range.min ||
+        (parseInt(modelValue.value) && parseInt(modelValue.value)) >
+            props.modifier.range.max
+    );
+});
+
+const focusRingClasses = computed(() => {
+    if (isIncorrect.value) {
+        return "focus:ring-red-500";
+    } else {
+        return "focus:ring-blue-500";
+    }
+});
+
 const handleUpdate = (newValue) => {
     modelValue.value = newValue;
-    emit("update:modifier", {
-        index: props.index,
-        value: newValue,
-    });
+
+    if (!isIncorrect.value) {
+        emit("update:modifier", {
+            index: props.index,
+            value: newValue,
+        });
+    }
 };
 
 const handleFocus = () => {
@@ -81,12 +110,22 @@ const handleFocus = () => {
 const handleBlur = () => {
     showingRangeTooltip.value = false;
 
+    if (isIncorrect.value) {
+        handleUpdate(getDefaultValue());
+    }
+
     emit("unhighlight", props.index);
 };
 
 const maxWidth = computed(() => {
     if (props.modifier?.range?.max) {
         return props.modifier.range.max.toString().length + 1 + "ch";
+    }
+});
+
+onMounted(() => {
+    if (props.triggerOnMount) {
+        handleUpdate(modelValue.value);
     }
 });
 </script>
@@ -98,8 +137,9 @@ const maxWidth = computed(() => {
             <div v-else class="relative">
                 <input
                     :value="modelValue"
-                    type="tel"
+                    type="number"
                     class="text-center text-sm py-0.5 px-0 bg-white/5 border-none ring-1 ring-white/15"
+                    :class="focusRingClasses"
                     :style="{ width: maxWidth }"
                     :min="modifier.min"
                     :max="modifier.max"

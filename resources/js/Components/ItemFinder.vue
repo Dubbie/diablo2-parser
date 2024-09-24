@@ -29,10 +29,13 @@ const fetchItems = async () => {
     searched.value = true;
     loading.value = true;
     try {
+        console.log(props.filter);
+
         const response = await axios.get(route("api.items.fetch"), {
             params: {
                 slot: props.filter.slot,
-                search: searchText.value,
+                templates: props.filter.templates,
+                q: searchText.value,
             },
             signal: abortController.signal, // Attach the signal to the request
         });

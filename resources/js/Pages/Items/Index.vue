@@ -12,7 +12,7 @@ const loading = ref(true);
 const delay = 300;
 const items = ref([]);
 const form = useForm({
-    search: "",
+    q: "",
 });
 
 const fetchItems = async () => {
@@ -56,7 +56,7 @@ onMounted(() => {
 });
 
 watch(
-    () => form.search,
+    () => form.q,
     () => {
         handleUpdate();
     }
@@ -69,7 +69,7 @@ watch(
 
         <div>
             <TextInput
-                v-model="form.search"
+                v-model="form.q"
                 placeholder="Search..."
                 class="text-sm w-full"
             />

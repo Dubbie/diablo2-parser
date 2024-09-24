@@ -18,15 +18,31 @@ class ItemController
 
     public function fetch(Request $request)
     {
-        $data = $request->validate([
-            'search' => 'nullable|string',
-            'slot' => 'nullable|string',
-        ]);
+        $q = $request->input('q');
+        $itemType = $request->input('item_type');
+        $templates = $request->all()['templates'] && $request->all()['templates'] == 'true' ? true : false;
 
-        $searchValue = $data['search'] ?? "";
-        $items = Item::searchByName($searchValue)->get();
+        $items = Item::query();
 
-        return $items;
+        if ($q) {
+            $items = $items->searchByName($q);
+        }
+
+        if ($itemType) {
+            $items = $items->byItemType($itemType);
+        }
+
+        if ($templates) {
+            $items = $items->where('is_template', true);
+        }
+
+        return response()->json($items->get());
+    }
+
+    public function details(Item $item)
+    {
+        $item = $item->append('modifiers');
+        return response()->json($item);
     }
 
     public function create(CreateItemRequest $request)

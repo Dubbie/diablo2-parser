@@ -62,10 +62,14 @@ const blockSize = 35;
                     'bg-black/40': background,
                 }"
             >
-                <img :src="`/img/${item.image}.png`" alt="" />
+                <img
+                    :src="`/img/${item.image}.png`"
+                    :alt="fullName"
+                    class="p-3"
+                />
             </div>
 
-            <div
+            <!-- <div
                 class="mt-3 text-sm font-bold text-center"
                 :style="{ color: nameColor }"
             >
@@ -74,7 +78,7 @@ const blockSize = 35;
                 <p v-if="!item.is_template" class="text-white font-semibold">
                     (Rolled)
                 </p>
-            </div>
+            </div> -->
         </component>
     </div>
 </template>

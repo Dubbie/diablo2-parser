@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('skills', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->unsignedBigInteger('id')->primary();
+            $table->string('name');
+            $table->string('character_class')->nullable();
+            $table->string('original_name');
+            $table->unsignedTinyInteger('required_level');
+            $table->unsignedTinyInteger('max_level')->nullable();
         });
     }
 

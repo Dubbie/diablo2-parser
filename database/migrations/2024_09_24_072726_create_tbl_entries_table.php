@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tbl_entries', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->string('key')->primary();
+            $table->text('value');
         });
     }
 

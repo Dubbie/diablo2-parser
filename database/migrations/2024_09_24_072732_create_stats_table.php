@@ -12,8 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('stats', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->string('stat')->primary();
+            $table->unsignedBigInteger('id')->unique();
+            $table->boolean('direct')->nullable();
+            $table->string('max_stat')->nullable();
+            $table->boolean('item_specific')->default(false);
+            $table->boolean('damage_related')->default(false);
+
+            // Foreign keys
+            $table->foreign('max_stat')->references('stat')->on('stats')->cascadeOnDelete();
         });
     }
 

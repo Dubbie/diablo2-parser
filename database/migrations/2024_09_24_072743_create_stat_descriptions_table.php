@@ -12,8 +12,28 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('stat_descriptions', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->string('stat')->primary();
+            $table->unsignedMediumInteger('priority')->nullable();
+            $table->unsignedSmallInteger('function')->nullable();
+            $table->unsignedTinyInteger('value')->nullable();
+            $table->string('positive_code')->nullable();
+            $table->string('negative_code')->nullable();
+            $table->string('extra_code')->nullable()->comment('descstr2');
+            $table->string('positive')->nullable();
+            $table->string('negative')->nullable();
+            $table->string('extra')->nullable();
+            $table->unsignedMediumInteger('group')->nullable();
+            $table->unsignedSmallInteger('group_function')->nullable();
+            $table->unsignedTinyInteger('group_value')->nullable();
+            $table->string('group_positive_code')->nullable();
+            $table->string('group_negative_code')->nullable();
+            $table->string('group_extra_code')->nullable()->comment('dgrpstr2');
+            $table->string('group_positive')->nullable();
+            $table->string('group_negative')->nullable();
+            $table->string('group_extra')->nullable();
+
+            // Foreign keys
+            $table->foreign('stat')->references('stat')->on('stats')->cascadeOnDelete();
         });
     }
 

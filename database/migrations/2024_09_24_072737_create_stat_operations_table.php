@@ -13,7 +13,17 @@ return new class extends Migration
     {
         Schema::create('stat_operations', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('stat');
+            $table->unsignedSmallInteger('operation')->nullable();
+            $table->unsignedSmallInteger('parameter')->nullable();
+            $table->unsignedSmallInteger('value')->nullable();
+            $table->string('base')->nullable()->comment('Base value to get from, this is a stat.');
+            $table->string('affected_stat')->nullable();
+
+            // Foreign keys
+            $table->foreign('stat')->references('stat')->on('stats')->cascadeOnDelete();
+            $table->foreign('base')->references('stat')->on('stats')->cascadeOnDelete();
+            $table->foreign('affected_stat')->references('stat')->on('stats')->cascadeOnDelete();
         });
     }
 

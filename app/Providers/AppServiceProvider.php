@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Factories\CustomDescriptionHandlerFactory;
+use App\Factories\DescriptionFunctionHandlerFactory;
 use App\Factories\PropertyHandlerFactory;
 use App\Factories\StatFunctionHandlerFactory;
 use Illuminate\Support\Facades\Vite;
@@ -20,6 +22,14 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(StatFunctionHandlerFactory::class, function ($app) {
             return new StatFunctionHandlerFactory($app);
+        });
+
+        $this->app->bind(DescriptionFunctionHandlerFactory::class, function ($app) {
+            return new DescriptionFunctionHandlerFactory($app);
+        });
+
+        $this->app->bind(CustomDescriptionHandlerFactory::class, function ($app) {
+            return new CustomDescriptionHandlerFactory($app);
         });
     }
 

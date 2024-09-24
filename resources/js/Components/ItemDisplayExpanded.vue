@@ -26,6 +26,12 @@ const wikiSearch = computed(() => {
         props.item.name
     );
 });
+
+const sortedModifiers = computed(() => {
+    return props.item.modifiers.sort((a, b) => {
+        return a.priority + b.priority;
+    });
+});
 </script>
 
 <template>
@@ -47,9 +53,14 @@ const wikiSearch = computed(() => {
             </div>
         </div>
         <div class="flex-1">
-            <p>Transformed data:</p>
+            <div class="text-sm text-center bg-black text-blue-400">
+                <p v-for="modifier in sortedModifiers" :key="modifier">
+                    {{ modifier.label }}
+                </p>
+            </div>
 
-            <div class="text-xs bg-black text-zinc-200">
+            <p>Debug:</p>
+            <div class="text-xs text-zinc-200">
                 <code>
                     <pre>{{ item.modifiers }}</pre>
                 </code>

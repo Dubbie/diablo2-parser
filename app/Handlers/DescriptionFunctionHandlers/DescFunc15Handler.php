@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Handlers\DescriptionFunctionHandlers;
+
+use App\Handlers\DescriptionFunctionHandlerInterface;
+use App\Services\SkillService;
+use App\ValueObjects\Modifier;
+use Exception;
+
+class DescFunc15Handler implements DescriptionFunctionHandlerInterface
+{
+    private SkillService $skillService;
+
+    public function __construct(SkillService $skillService)
+    {
+        $this->skillService = $skillService;
+    }
+
+    // +[value] [string1]
+    public function handle(Modifier $modifier): string
+    {
+        $values = $modifier->getValues();
+        $level = $values[0];
+        $skillParameter = $values[1];
+        $chance = $values[2];
+
+        $stat = $modifier->getStat();
+        $template = "[string1]";
+        $descValue = $stat->description->value;
+        $string = $stat->description->positive;
+
+        if ($descValue !== null) {
+            switch ($descValue) {
+                case 0:
+                    $template = '[string1]';
+                    break;
+                case 1:
+                case 2:
+                default:
+                    throw new Exception("Desc Func 15 Handler Desc Value " . $descValue . " not implemented");
+                    break;
+            }
+        }
+
+        $statString = str_replace('[string1]', $string, $template);
+
+        $skill = $this->skillService->findByParam($skillParameter);
+        if (!$skill) {
+            throw new Exception("Skill not found with param: " . $skillParameter);
+        }
+
+        // Replace placeholders
+        $template = str_replace('[string1]', $string, $template);
+        $statString = str_replace('[value]', $level, $template);
+
+        return $statString;
+    }
+}

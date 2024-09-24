@@ -24,8 +24,8 @@ class DefaultStatFunctionHandler implements StatFunctionHandlerInterface
         }
 
         $modifier->setName($mappedStat->getStat()->stat);
+        $modifier->setStat($mappedStat->getStat());
         $modifier->setPriority($mappedStat->getStat()->description->priority ?? 999);
-        $modifier->setLabel($label);
 
         return $modifier;
     }

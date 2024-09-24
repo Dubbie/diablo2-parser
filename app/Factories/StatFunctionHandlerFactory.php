@@ -19,6 +19,7 @@ class StatFunctionHandlerFactory
         // Define the mapping between function IDs and handler classes
         $this->handlers = [
             11 => \App\Handlers\StatFunctionHandlers\StatFunction11Handler::class,
+            24 => \App\Handlers\StatFunctionHandlers\StatFunction24Handler::class
         ];
 
         // Define the default handler class
@@ -29,9 +30,7 @@ class StatFunctionHandlerFactory
      * Get the handler instance for a given function ID.
      *
      * @param int $functionId
-     * @return PropertyStatFunctionHandlerInterface
-     *
-     * @throws InvalidArgumentException
+     * @return StatFunctionHandlerInterface
      */
     public function getHandler(?int $functionId): StatFunctionHandlerInterface
     {

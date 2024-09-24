@@ -2,17 +2,32 @@
 
 namespace App\ValueObjects;
 
+use App\Factories\CustomDescriptionHandlerFactory;
+use App\Factories\DescriptionFunctionHandlerFactory;
+use App\Models\Stat;
+use Exception;
+use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 use JsonSerializable;
 
 class Modifier implements JsonSerializable
 {
     private string $name;
     private array $values = [];
-    private string $label;
+    private ?Stat $stat = null;
     private bool $corrupted = false;
     private int $priority;
     private ?int $min = null;
     private ?int $max = null;
+
+    private DescriptionFunctionHandlerFactory $descriptionFunctionHandlerFactory;
+    private CustomDescriptionHandlerFactory $customDescriptionHandlerFactory;
+
+    public function __construct()
+    {
+        $this->descriptionFunctionHandlerFactory = app(DescriptionFunctionHandlerFactory::class);
+        $this->customDescriptionHandlerFactory = app(CustomDescriptionHandlerFactory::class);
+    }
 
     /**
      * Get the value of name
@@ -51,21 +66,46 @@ class Modifier implements JsonSerializable
     }
 
     /**
+     * Get the value of stat
+     */
+    public function getStat(): ?Stat
+    {
+        return $this->stat;
+    }
+
+    /**
+     * Set the value of stat
+     */
+    public function setStat(?Stat $stat): self
+    {
+        $this->stat = $stat;
+
+        return $this;
+    }
+
+    /**
      * Get the value of label
      */
     public function getLabel(): string
     {
-        return $this->label;
-    }
+        // Label generation for modifiers
+        try {
+            $handler = null;
 
-    /**
-     * Set the value of label
-     */
-    public function setLabel(string $label): self
-    {
-        $this->label = $label;
+            if ($this->stat === null) {
+                $handler = $this->customDescriptionHandlerFactory->getHandler($this->name);
+            } else {
+                $handler = $this->descriptionFunctionHandlerFactory->getHandler($this->stat->description->function);
+            }
 
-        return $this;
+            return $handler->handle($this);
+        } catch (InvalidArgumentException $e) {
+            $descFunc = $this->stat->description->function ?? 'N/A';
+            return $this->name . ' (Desc_func: ' . $descFunc . ')';
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return $this->name;
+        }
     }
 
     /**
@@ -149,10 +189,12 @@ class Modifier implements JsonSerializable
     {
         $result = [
             'name' => $this->name,
+            'stat' => $this->stat ? $this->stat->toArray() : null,
             'values' => $this->values,
-            'label' => $this->label,
+            'label' => $this->getLabel(),
             'corrupted' => $this->corrupted,
             'priority' => $this->priority,
+            'desc_func' => $this->stat->description->function ?? null,
         ];
 
         if (isset($this->min) && isset($this->max)) {

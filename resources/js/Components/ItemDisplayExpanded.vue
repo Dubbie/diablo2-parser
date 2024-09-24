@@ -28,8 +28,33 @@ const wikiSearch = computed(() => {
 });
 
 const sortedModifiers = computed(() => {
-    return props.item.modifiers.sort((a, b) => {
-        return a.priority + b.priority;
+    return [...props.item.modifiers].sort((a, b) => a.priority < b.priority);
+});
+
+const compactModifiers = computed(() => {
+    // Sort modifiers by priority
+    const modifiers = [...props.item.modifiers].sort(
+        (a, b) => a.priority < b.priority
+    );
+
+    return modifiers.map((modifier) => {
+        let result = {
+            label: modifier.label,
+            name: modifier.name,
+            priority: modifier.priority,
+            values: modifier.values,
+        };
+
+        if (modifier.corrupted) {
+            result["corrupted"] = modifier.corrupted;
+        }
+
+        if (modifier.min && modifier.max) {
+            result["min"] = modifier.min;
+            result["max"] = modifier.max;
+        }
+
+        return result;
     });
 });
 </script>
@@ -62,7 +87,7 @@ const sortedModifiers = computed(() => {
             <p>Debug:</p>
             <div class="text-xs text-zinc-200">
                 <code>
-                    <pre>{{ item.modifiers }}</pre>
+                    <pre>{{ compactModifiers }}</pre>
                 </code>
             </div>
         </div>

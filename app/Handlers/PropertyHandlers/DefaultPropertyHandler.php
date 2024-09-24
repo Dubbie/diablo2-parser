@@ -16,7 +16,7 @@ class DefaultPropertyHandler implements PropertyHandlerInterface
         $mappedProperty->setProperty($itemProperty->baseProperty);
         $mappedProperty->setMin($itemProperty->min);
         $mappedProperty->setMax($itemProperty->max);
-        $mappedProperty->setParam($itemProperty->param);
+        $mappedProperty->setParam($itemProperty->parameter);
 
         $stats = [];
         foreach ($itemProperty->baseProperty->propertyStats as $propertyStat) {

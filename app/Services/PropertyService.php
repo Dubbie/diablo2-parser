@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Factories\PropertyHandlerFactory;
+use App\Factories\StatFunctionHandlerFactory;
 use App\Models\Item;
 use App\Models\ItemProperty;
 use App\ValueObjects\MappedProperty;
@@ -10,8 +11,8 @@ use Illuminate\Database\Eloquent\Collection;
 
 class PropertyService
 {
-    // private StatFunctionHandlerFactory $statFunctionHandlerFactory;
     private PropertyHandlerFactory $propertyHandlerFactory;
+    private StatFunctionHandlerFactory $statFunctionHandlerFactory;
     private Collection $properties;
     protected Item $item;
     protected array $mappedProperties = [];
@@ -19,7 +20,7 @@ class PropertyService
 
     public function __construct()
     {
-        // $this->statFunctionHandlerFactory = app(StatFunctionHandlerFactory::class);
+        $this->statFunctionHandlerFactory = app(StatFunctionHandlerFactory::class);
         $this->propertyHandlerFactory = app(PropertyHandlerFactory::class);
     }
 
@@ -33,8 +34,20 @@ class PropertyService
             $this->mappedProperties[] = $this->handleMappingProperty($itemProperty);
         }
 
+        // Get all the stats with their values
+        foreach ($this->mappedProperties as $i => $mappedProperty) {
+            foreach ($mappedProperty->getStats() as $stat) {
+                $this->modifiers[] = $this->statFunctionHandlerFactory->getHandler($stat->getFunction())
+                    ->handle(
+                        $mappedProperty->getMin(),
+                        $mappedProperty->getMax(),
+                        $mappedProperty->getParam(),
+                        $stat
+                    );
+            }
+        }
 
-        return $this->mappedProperties;
+        return $this->modifiers;
     }
 
     private function handleMappingProperty(ItemProperty $itemProperty): MappedProperty

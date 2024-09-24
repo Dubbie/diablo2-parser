@@ -69,7 +69,7 @@ class MappedStat implements JsonSerializable
     /**
      * Get the value of function
      */
-    public function getFunction(): int
+    public function getFunction(): ?int
     {
         return $this->function;
     }

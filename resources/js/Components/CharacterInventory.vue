@@ -115,12 +115,12 @@ const setFilter = (element) => {
 };
 
 const isTwoHandedInRightHand = (element) => {
-    if (element === "rarm" && props.rarm) {
-        const baseStats = JSON.parse(props.rarm.base_stats);
-
-        if (baseStats?.min_2h_damage > 0) {
-            return true;
-        }
+    if (
+        element === "rarm" &&
+        props.rarm &&
+        props.rarm.base_stats?.min_2h_damage > 0
+    ) {
+        return true;
     }
 
     return false;

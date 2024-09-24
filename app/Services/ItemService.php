@@ -17,6 +17,11 @@ class ItemService
             $itemAttributes = $item->getAttributes();
             $itemAttributes['is_template'] = false;
 
+            // If base_stats is a JSON string, decode it into an array before saving
+            if (isset($itemAttributes['base_stats']) && is_string($itemAttributes['base_stats'])) {
+                $itemAttributes['base_stats'] = json_decode($itemAttributes['base_stats'], true);
+            }
+
             $createdItem = Item::create($itemAttributes);
 
             $cleanedModifiers = array_map(function ($modifier) {
@@ -36,7 +41,7 @@ class ItemService
 
             return response()->json([
                 'message' => 'Item created successfully',
-                'item' => $createdItem,
+                'item' => $createdItem->append('modifiers')->toArray(),
                 'success' => true
             ], 201);
         } catch (QueryException $e) {
@@ -57,7 +62,13 @@ class ItemService
             $item = Item::find($itemId);
 
             $itemAttributes = $item->getAttributes();
+            $itemAttributes = $item->getAttributes();
             $itemAttributes['is_template'] = false;
+
+            // If base_stats is a JSON string, decode it into an array before saving
+            if (isset($itemAttributes['base_stats']) && is_string($itemAttributes['base_stats'])) {
+                $itemAttributes['base_stats'] = json_decode($itemAttributes['base_stats'], true);
+            }
 
             $item->update($itemAttributes);
 

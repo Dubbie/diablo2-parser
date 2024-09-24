@@ -89,13 +89,9 @@ const handleItemSelected = (item) => {
 const handleItemCreated = (item) => {
     pdollSlots.value[filter.value.slot] = item;
 
-    const baseStats = JSON.parse(item.base_stats);
-
-    if (baseStats?.min_2h_damage > 0) {
+    if (item.base_stats?.min_2h_damage > 0) {
         pdollSlots.value.rarm = item;
     }
-    selectedItem.value = null;
-    filter.value.slot = null;
 };
 
 // Method to handle reset items

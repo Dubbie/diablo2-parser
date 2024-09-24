@@ -158,7 +158,6 @@ const emit = defineEmits(["set-filter", "reset-items"]);
             <ItemDisplay
                 v-if="props[element]"
                 :item="props[element]"
-                :background="false"
                 :padded="false"
                 @click.right="handleUneqip($event, element)"
             />

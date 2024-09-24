@@ -64,41 +64,43 @@ const createItem = () => {
 const postCreateItem = async (id, modifiers) => {
     loadingCreateOrUpdate.value = true;
 
-    try {
-        const itemHandlerRoute = item.value.is_template
-            ? "api.items.create"
-            : "api.items.update";
-        const response = await axios.post(route(itemHandlerRoute), {
-            item_id: id,
-            modifiers: modifiers,
-        });
+    emit("item-created", item.value);
 
-        // Success
-        item.value = response.data.item;
+    // try {
+    //     const itemHandlerRoute = item.value.is_template
+    //         ? "api.items.create"
+    //         : "api.items.update";
+    //     const response = await axios.post(route(itemHandlerRoute), {
+    //         item_id: id,
+    //         modifiers: modifiers,
+    //     });
 
-        emit("item-created", item.value);
-    } catch (error) {
-        if (error.response && error.response.status === 422) {
-            // Validation error
-            const responseErrors = error.response.data.errors;
+    //     // Success
+    //     item.value = response.data.item;
 
-            Object.keys(responseErrors).forEach((key) => {
-                // Set error based on key. E.g. modifiers.2
-                const index = key.split(".").pop();
-                if (!errors.value["modifiers"]) {
-                    errors.value["modifiers"] = {};
-                }
+    //     emit("item-created", item.value);
+    // } catch (error) {
+    //     if (error.response && error.response.status === 422) {
+    //         // Validation error
+    //         const responseErrors = error.response.data.errors;
 
-                errors.value["modifiers"][index] = responseErrors[key][0];
-            });
+    //         Object.keys(responseErrors).forEach((key) => {
+    //             // Set error based on key. E.g. modifiers.2
+    //             const index = key.split(".").pop();
+    //             if (!errors.value["modifiers"]) {
+    //                 errors.value["modifiers"] = {};
+    //             }
 
-            console.log(errors.value);
-        } else {
-            console.error(error);
-        }
-    } finally {
-        loadingCreateOrUpdate.value = false;
-    }
+    //             errors.value["modifiers"][index] = responseErrors[key][0];
+    //         });
+
+    //         console.log(errors.value);
+    //     } else {
+    //         console.error(error);
+    //     }
+    // } finally {
+    //     loadingCreateOrUpdate.value = false;
+    // }
 };
 
 const fullName = computed(() => {
@@ -135,6 +137,13 @@ const handleModifierChange = (data) => {
 };
 
 const getDetails = async () => {
+    if (props.item.modifiers) {
+        modifiers.value = props.item.modifiers;
+        item.value = props.item;
+        loading.value = false;
+        return;
+    }
+
     try {
         const response = await axios.get(
             route("api.items.details", props.item.id)

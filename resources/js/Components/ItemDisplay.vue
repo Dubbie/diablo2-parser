@@ -55,18 +55,11 @@ const blockSize = 35;
         >
             <div
                 class="flex justify-center items-center"
-                :style="`height: ${blockSize * item.height}px; width: ${
-                    blockSize * item.width
-                }px;`"
                 :class="{
                     'bg-black/40': background,
                 }"
             >
-                <img
-                    :src="`/img/${item.image}.png`"
-                    :alt="fullName"
-                    class="p-3"
-                />
+                <img :src="`/img/${item.image}.png`" :alt="fullName" />
             </div>
 
             <!-- <div

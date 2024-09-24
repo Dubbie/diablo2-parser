@@ -120,7 +120,12 @@ const handleCancel = () => {
 watch(
     () => filter.value.slot,
     () => {
-        showItemFinder.value = !!filter.value.slot;
+        if (pdollSlots.value[filter.value.slot]) {
+            selectedItem.value = pdollSlots.value[filter.value.slot];
+            showItemFinder.value = false;
+        } else {
+            showItemFinder.value = !!filter.value.slot;
+        }
     }
 );
 </script>

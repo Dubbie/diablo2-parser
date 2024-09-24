@@ -4,6 +4,7 @@ import { router } from "@inertiajs/vue3";
 import InputPlaceholder from "@/Components/InputPlaceholder.vue";
 import ModifierInput from "@/Components/ModifierInput.vue";
 import AppButton from "@/Components/AppButton.vue";
+import InputError from "@/Components/InputError.vue";
 
 const props = defineProps({
     item: {
@@ -16,6 +17,7 @@ const loading = ref(false);
 const item = ref(props.item);
 const showingDebug = ref(false);
 const showingTooltip = ref(false);
+const errors = ref({});
 const highlighted = ref(null);
 const buttonLabel = computed(() => {
     if (loading.value) {
@@ -105,7 +107,24 @@ const postCreateItem = async (id, modifiers) => {
         // Success
         item.value = response.data.item;
     } catch (error) {
-        console.error(error);
+        if (error.response && error.response.status === 422) {
+            // Validation error
+            const responseErrors = error.response.data.errors;
+
+            Object.keys(responseErrors).forEach((key) => {
+                // Set error based on key. E.g. modifiers.2
+                const index = key.split(".").pop();
+                if (!errors.value["modifiers"]) {
+                    errors.value["modifiers"] = {};
+                }
+
+                errors.value["modifiers"][index] = responseErrors[key][0];
+            });
+
+            console.log(errors.value);
+        } else {
+            console.error(error);
+        }
     }
 
     loading.value = false;
@@ -123,8 +142,25 @@ const fullName = computed(() => {
     }
 });
 
+const clearError = (index) => {
+    // Clear the error
+    if (errors.value["modifiers"]) {
+        delete errors.value["modifiers"][index];
+    }
+
+    if (
+        errors.value.modifiers &&
+        Object.keys(errors.value.modifiers).length === 0
+    ) {
+        errors.value = {};
+    }
+};
+
 const handleModifierChange = (data) => {
     modifiers.value[data.index]["values"] = [parseInt(data.value)];
+
+    // Clear the error
+    clearError(data.index);
 };
 </script>
 
@@ -194,15 +230,23 @@ const handleModifierChange = (data) => {
                 </p>
 
                 <div class="space-y-1">
-                    <ModifierInput
+                    <div
                         v-for="(modifier, index) in sortedModifiers"
                         :key="modifier"
-                        :modifier="modifier"
-                        :index="index"
-                        @update:modifier="handleModifierChange"
-                        @highlight="(index) => (highlighted = index)"
-                        @unhighlight="highlighted = null"
-                    />
+                    >
+                        <ModifierInput
+                            :modifier="modifier"
+                            :index="index"
+                            @update:modifier="handleModifierChange"
+                            @highlight="(index) => (highlighted = index)"
+                            @unhighlight="highlighted = null"
+                        />
+                        <InputError
+                            class="ml-3"
+                            v-if="errors.modifiers"
+                            :message="errors.modifiers[index] || ''"
+                        />
+                    </div>
                 </div>
 
                 <div class="mt-6 flex space-x-1">

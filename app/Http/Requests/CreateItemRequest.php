@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class CreateItemRequest extends FormRequest
 {
@@ -23,7 +24,33 @@ class CreateItemRequest extends FormRequest
     {
         return [
             'item_id' => 'required|exists:items,id',
-            'modifiers' => 'required',
+            'modifiers' => 'required|array',
+        ];
+    }
+
+    /**
+     * Get the "after" validation callables for the request.
+     */
+    public function after(): array
+    {
+        return [
+            function (Validator $validator) {
+                // Check range is ok
+                $modifiers = $validator->getData()['modifiers'];
+
+                foreach ($modifiers as $i => $modifier) {
+                    if (!array_key_exists('min', $modifier) || !array_key_exists('max', $modifier)) {
+                        continue;
+                    }
+
+                    $value = $modifier['values'][0];
+                    if ($value < $modifier['min'] || $value > $modifier['max']) {
+                        $validator
+                            ->errors()
+                            ->add("modifiers.{$i}", 'Value must be between ' . $modifier['min'] . ' and ' . $modifier['max']);
+                    }
+                }
+            }
         ];
     }
 }

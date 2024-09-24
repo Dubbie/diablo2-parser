@@ -83,6 +83,12 @@ const handleBlur = () => {
 
     emit("unhighlight", props.index);
 };
+
+const maxWidth = computed(() => {
+    if (props.modifier?.range?.max) {
+        return props.modifier.range.max.toString().length + 1 + "ch";
+    }
+});
 </script>
 
 <template>
@@ -93,7 +99,8 @@ const handleBlur = () => {
                 <input
                     :value="modelValue"
                     type="tel"
-                    class="w-12 text-center text-sm py-1 px-2 bg-white/5 border-none"
+                    class="text-center text-sm py-0.5 px-0 bg-white/5 border-none ring-1 ring-white/15"
+                    :style="{ width: maxWidth }"
                     :min="modifier.min"
                     :max="modifier.max"
                     @focus="handleFocus"

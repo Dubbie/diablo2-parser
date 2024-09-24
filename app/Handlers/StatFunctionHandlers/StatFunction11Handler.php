@@ -12,11 +12,17 @@ class StatFunction11Handler implements StatFunctionHandlerInterface
     {
         // Create a modifier
         $modifier = new Modifier();
-        $label = $mappedStat->getStat()->stat;
+        $values = [];
+        $values[] = $param;
 
-        $modifier->setValues([$max, $param, $min]);
-        $label .= sprintf(', 0: %s, 1: %s, 2: %s', $max, $param, $min);
+        if ($min !== $max) {
+            $values[] = $min;
+            $values[] = $max;
+        } else {
+            $values[] = $max;
+        }
 
+        $modifier->setValues($values);
         $modifier->setName($mappedStat->getStat()->stat);
         $modifier->setStat($mappedStat->getStat());
         $modifier->setPriority($mappedStat->getStat()->description->priority ?? 999);

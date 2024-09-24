@@ -11,8 +11,8 @@ class DescFunc1Handler implements DescriptionFunctionHandlerInterface
     // +[value] [string1]
     public function handle(Modifier $modifier): string
     {
-        $min = $modifier->getMin();
-        $max = $modifier->getMax();
+        $min = $modifier->getMin() ?? $modifier->getValues()[0];
+        $max = $modifier->getMax() ?? $modifier->getValues()[0];
         $stat = $modifier->getStat();
         $template = "+[value] [string1]";
         $descValue = $stat->description->value;

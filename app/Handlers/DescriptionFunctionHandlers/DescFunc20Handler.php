@@ -6,14 +6,15 @@ use App\Handlers\DescriptionFunctionHandlerInterface;
 use App\Services\StatFormatter;
 use App\ValueObjects\Modifier;
 
-class DescFunc4Handler implements DescriptionFunctionHandlerInterface
+class DescFunc20Handler implements DescriptionFunctionHandlerInterface
 {
+    // [value * -1]% [string1]
     public function handle(Modifier $modifier): string
     {
         $min = $modifier->getMin() ?? $modifier->getValues()[0];
         $max = $modifier->getMax() ?? $modifier->getValues()[0];
         $stat = $modifier->getStat();
-        $template = "+[value]% [string1]";
+        $template = "-[value]% [string1]";
         $descValue = $stat->description->value;
         $string = $stat->description->positive;
         $formattedValue = StatFormatter::formatValue($min, $max);
@@ -24,19 +25,11 @@ class DescFunc4Handler implements DescriptionFunctionHandlerInterface
                     $template = '[string1]';
                     break;
                 case 2:
-                    $template = '[string1] +[value]%';
+                    $template = '[string1] -[value]%';
                     break;
                 default:
                     break;
             }
-        }
-
-        $isNegative = is_numeric($min) && $min < 0;
-        if ($isNegative) {
-            $min = abs($min);
-            $max = abs($max);
-            $string = $stat->description->negative;
-            $template = str_replace('+', '', $template);
         }
 
         // Replace placeholders

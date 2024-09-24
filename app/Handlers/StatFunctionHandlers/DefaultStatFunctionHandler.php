@@ -15,9 +15,12 @@ class DefaultStatFunctionHandler implements StatFunctionHandlerInterface
         $label = $mappedStat->getStat()->stat;
 
         if (is_numeric($min) && is_numeric($max)) {
-            $modifier->setMin($min);
-            $modifier->setMax($max);
-            $label .= sprintf(', Min: %s, Max: %s', $min, $max);
+            if ($min === $max) {
+                $modifier->setValues([$min]);
+            } else {
+                $modifier->setMin($min);
+                $modifier->setMax($max);
+            }
         } else {
             $modifier->setValues([$param, $min, $max]);
             $label .= sprintf(', Param: %s, Min: %s, Max: %s', $param, $min, $max);

@@ -6,13 +6,13 @@ use App\Handlers\StatFunctionHandlerInterface;
 use App\ValueObjects\MappedStat;
 use App\ValueObjects\Modifier;
 
-class StatFunction24Handler implements StatFunctionHandlerInterface
+class StatFunction10Handler implements StatFunctionHandlerInterface
 {
     public function handle(mixed $min, mixed $max, mixed $param, MappedStat $mappedStat): Modifier
     {
         // Create a modifier
         $modifier = new Modifier();
-
+        $label = $mappedStat->getStat()->stat;
         $values = [];
         $values[] = $param;
 

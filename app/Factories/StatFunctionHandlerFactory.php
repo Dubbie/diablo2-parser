@@ -18,6 +18,7 @@ class StatFunctionHandlerFactory
 
         // Define the mapping between function IDs and handler classes
         $this->handlers = [
+            10 => \App\Handlers\StatFunctionHandlers\StatFunction10Handler::class,
             11 => \App\Handlers\StatFunctionHandlers\StatFunction11Handler::class,
             24 => \App\Handlers\StatFunctionHandlers\StatFunction24Handler::class
         ];

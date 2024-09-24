@@ -121,6 +121,10 @@ class PropertyService
                         continue;
                     }
 
+                    // if ($stat->getStat()->stat === 'item_addskill_tab') {
+                    //     dd($stat->getFunction());
+                    // }
+
                     $this->modifiers[] = $this->statFunctionHandlerFactory->getHandler($stat->getFunction())
                         ->handle(
                             $mappedProperty->getMin(),

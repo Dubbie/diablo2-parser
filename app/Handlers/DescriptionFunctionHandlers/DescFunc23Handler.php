@@ -6,6 +6,7 @@ use App\Handlers\DescriptionFunctionHandlerInterface;
 use App\Services\MonsterService;
 use App\Services\StatFormatter;
 use App\ValueObjects\Modifier;
+use App\ValueObjects\ModifierLabel;
 use Exception;
 
 class DescFunc23Handler implements DescriptionFunctionHandlerInterface
@@ -18,10 +19,10 @@ class DescFunc23Handler implements DescriptionFunctionHandlerInterface
     }
 
     // monster
-    public function handle(Modifier $modifier): string
+    public function handle(Modifier $modifier): ModifierLabel
     {
         $statModel = $modifier->getStat();
-        $template = sprintf('+[value]%% %s [monster]', $statModel->description->positive);
+        $template = sprintf('+[range]%% %s [monster]', $statModel->description->positive);
 
         $values = $modifier->getValues();
         $param = $values[0];
@@ -36,8 +37,19 @@ class DescFunc23Handler implements DescriptionFunctionHandlerInterface
         }
 
         $template = str_replace('[monster]', $monster->name, $template);
-        $statString = str_replace('[value]', $formattedValue, $template);
 
-        return $statString;
+        // Check for range
+        $range = $modifier->getRange();
+        if ($range['min'] === null && $range['max'] === null) {
+            $template = str_replace('[range]', $formattedValue, $template);
+        } else {
+            if ($range['min'] === $range['max']) {
+                $template = str_replace('[range]', $range['min'], $template);
+            }
+        }
+
+        $statString = str_replace('[range]', $formattedValue, $template);
+
+        return new ModifierLabel($statString, $template);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\PropertyService;
+use App\ValueObjects\Modifier;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
@@ -57,6 +58,8 @@ class Item extends Model
         'gem_apply_type',
         'unique',
         'skip_base_name',
+        'item_type',
+        'is_template',
     ];
 
     protected $casts = [
@@ -66,6 +69,11 @@ class Item extends Model
     public function itemProperties()
     {
         return $this->hasMany(ItemProperty::class, 'item_id', 'id');
+    }
+
+    public function itemModifiers()
+    {
+        return $this->hasMany(ItemModifier::class, 'item_id', 'id');
     }
 
     public function scopeSearchByName($query, $name)
@@ -87,7 +95,29 @@ class Item extends Model
 
     private function getModifiers()
     {
-        $propertyService = new PropertyService();
-        return $propertyService->mapProperties($this);
+        if ($this->is_template) {
+            $propertyService = new PropertyService();
+            return $propertyService->mapProperties($this);
+        }
+
+        // Do magic with the item modifiers.
+        /** @var ItemModifier $itemModifier */
+        $modifiers = [];
+        foreach ($this->itemModifiers as $itemModifier) {
+            $stat = $itemModifier->stat ? Stat::find($itemModifier->stat) : null;
+            $modifier = new Modifier();
+            $modifier->setName($itemModifier->name);
+            $modifier->setValues($itemModifier->values);
+            $modifier->setPriority($itemModifier->priority);
+            $modifier->setMin($itemModifier->min);
+            $modifier->setMax($itemModifier->max);
+            if ($stat) {
+                $modifier->setStat($stat);
+            }
+
+            $modifiers[] = $modifier;
+        }
+
+        return $modifiers;
     }
 }

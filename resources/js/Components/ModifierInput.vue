@@ -1,15 +1,28 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 
 const props = defineProps({
     modifier: {
         type: Object,
         required: true,
     },
+    index: {
+        type: Number,
+        required: true,
+    },
 });
 
-const value = ref(props.modifier.max ? props.modifier.max.toString() : "");
+const getDefaultValue = () => {
+    if (props.modifier.values.length === 1) {
+        return props.modifier.values[0];
+    }
+
+    return props.modifier.max ? props.modifier.max.toString() : "";
+};
+
+const modelValue = ref(getDefaultValue());
 const showingRangeTooltip = ref(false);
+const emit = defineEmits(["update:modifier", "highlight", "unhighlight"]);
 
 // Function to process each string
 const processString = (input) => {
@@ -49,7 +62,27 @@ const processString = (input) => {
 };
 
 // Reactive variable to hold the processed parts
-const processedParts = ref(processString(props.modifier.label));
+const processedParts = ref(processString(props.modifier.template));
+
+const handleUpdate = (newValue) => {
+    modelValue.value = newValue;
+    emit("update:modifier", {
+        index: props.index,
+        value: newValue,
+    });
+};
+
+const handleFocus = () => {
+    showingRangeTooltip.value = true;
+
+    emit("highlight", props.index);
+};
+
+const handleBlur = () => {
+    showingRangeTooltip.value = false;
+
+    emit("unhighlight", props.index);
+};
 </script>
 
 <template>
@@ -58,13 +91,14 @@ const processedParts = ref(processString(props.modifier.label));
             <p v-if="part !== '[range]'">{{ part }}</p>
             <div v-else class="relative">
                 <input
-                    v-model="value"
+                    :value="modelValue"
                     type="tel"
                     class="w-12 text-center text-sm py-1 px-2 bg-white/5 border-none"
                     :min="modifier.min"
                     :max="modifier.max"
-                    @focus="showingRangeTooltip = true"
-                    @blur="showingRangeTooltip = false"
+                    @focus="handleFocus"
+                    @blur="handleBlur"
+                    @input="handleUpdate($event.target.value)"
                 />
 
                 <div

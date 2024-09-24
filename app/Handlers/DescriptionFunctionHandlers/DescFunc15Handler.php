@@ -5,6 +5,7 @@ namespace App\Handlers\DescriptionFunctionHandlers;
 use App\Handlers\DescriptionFunctionHandlerInterface;
 use App\Services\SkillService;
 use App\ValueObjects\Modifier;
+use App\ValueObjects\ModifierLabel;
 use Exception;
 
 class DescFunc15Handler implements DescriptionFunctionHandlerInterface
@@ -17,7 +18,7 @@ class DescFunc15Handler implements DescriptionFunctionHandlerInterface
     }
 
     // +[value] [string1]
-    public function handle(Modifier $modifier): string
+    public function handle(Modifier $modifier): ModifierLabel
     {
         $values = $modifier->getValues();
         $level = $values[0];
@@ -53,6 +54,6 @@ class DescFunc15Handler implements DescriptionFunctionHandlerInterface
         $template = str_replace('[string1]', $string, $template);
         $statString = str_replace('[value]', $level, $template);
 
-        return $statString;
+        return new ModifierLabel($statString, $statString);
     }
 }

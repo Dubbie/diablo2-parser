@@ -39,19 +39,6 @@ class PropertyService
             $this->mappedProperties[] = $this->handleMappingProperty($itemProperty);
         }
 
-        // Get all the stats with their values
-        // foreach ($this->mappedProperties as $i => $mappedProperty) {
-        //     foreach ($mappedProperty->getStats() as $stat) {
-        //         $this->modifiers[] = $this->statFunctionHandlerFactory->getHandler($stat->getFunction())
-        //             ->handle(
-        //                 $mappedProperty->getMin(),
-        //                 $mappedProperty->getMax(),
-        //                 $mappedProperty->getParam(),
-        //                 $stat
-        //             );
-        //     }
-        // }
-
         // Combine all modifiers
         $this->combineModifiers();
 
@@ -115,15 +102,10 @@ class PropertyService
             }
 
             if (!$mapped) {
-
                 foreach ($mappedProperty->getStats() as $stat) {
                     if ($stat->getStat()->stat === 'item_numsockets') {
                         continue;
                     }
-
-                    // if ($stat->getStat()->stat === 'item_addskill_tab') {
-                    //     dd($stat->getFunction());
-                    // }
 
                     $this->modifiers[] = $this->statFunctionHandlerFactory->getHandler($stat->getFunction())
                         ->handle(

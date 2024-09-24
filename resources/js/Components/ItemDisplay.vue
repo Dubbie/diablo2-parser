@@ -29,14 +29,14 @@ const fullName = computed(() => {
         : props.item.base_name;
 });
 
-const itemNameColor = () => {
-    switch (props.item.rarity) {
+const nameColor = computed(() => {
+    switch (props.item.item_type) {
         case "unique":
             return "rgb(199, 179, 119)";
         default:
             return "rgb(255, 255, 255)";
     }
-};
+});
 
 const blockSize = 35;
 </script>
@@ -67,10 +67,13 @@ const blockSize = 35;
 
             <div
                 class="mt-3 text-sm font-bold text-center"
-                :style="{ color: itemNameColor }"
+                :style="{ color: nameColor }"
             >
                 <p v-if="item.name">{{ item.name }}</p>
                 <p v-if="!item.skip_base_name">{{ item.base_name }}</p>
+                <p v-if="!item.is_template" class="text-white font-semibold">
+                    (Rolled)
+                </p>
             </div>
         </component>
     </div>

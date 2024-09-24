@@ -19,6 +19,7 @@ class Modifier implements JsonSerializable
     private int $priority;
     private ?int $min = null;
     private ?int $max = null;
+    private string $template = "";
 
     private DescriptionFunctionHandlerFactory $descriptionFunctionHandlerFactory;
     private CustomDescriptionHandlerFactory $customDescriptionHandlerFactory;
@@ -98,7 +99,12 @@ class Modifier implements JsonSerializable
                 $handler = $this->descriptionFunctionHandlerFactory->getHandler($this->stat->description->function);
             }
 
-            return $handler->handle($this);
+            $result = $handler->handle($this);
+
+            // Update the template based on result
+            $this->template = $result->template;
+
+            return $result->label;
         } catch (InvalidArgumentException $e) {
             $descFunc = $this->stat->description->function ?? 'N/A';
             return $this->name . ' (Desc_func: ' . $descFunc . ')';
@@ -180,6 +186,18 @@ class Modifier implements JsonSerializable
         return $this;
     }
 
+    /**
+     * Get the range
+     */
+    public function getRange(): array
+    {
+        // Label generation for modifiers
+        return [
+            'min' => $this->min,
+            'max' => $this->max
+        ];
+    }
+
     public function __toString(): string
     {
         return $this->name;
@@ -187,19 +205,26 @@ class Modifier implements JsonSerializable
 
     public function toArray(): array
     {
+        $label = $this->getLabel();
+
         $result = [
             'name' => $this->name,
             'stat' => $this->stat ? $this->stat->toArray() : null,
             'values' => $this->values,
-            'label' => $this->getLabel(),
+            'label' => $label,
             'corrupted' => $this->corrupted,
             'priority' => $this->priority,
-            'desc_func' => $this->stat->description->function ?? null,
+            'template' => $this->template,
+            'desc_func' => $this->stat ? $this->stat->description->function : null
         ];
 
         if (isset($this->min) && isset($this->max)) {
             $result['min'] = $this->min;
             $result['max'] = $this->max;
+
+            if ($this->min !== $this->max) {
+                $result['range'] = $this->getRange();
+            }
         }
 
         return $result;

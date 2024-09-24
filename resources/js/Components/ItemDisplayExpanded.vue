@@ -12,10 +12,21 @@ const props = defineProps({
     },
 });
 
+const loading = ref(false);
+const item = ref(props.item);
 const showingDebug = ref(false);
+const showingTooltip = ref(false);
+const highlighted = ref(null);
+const buttonLabel = computed(() => {
+    if (loading.value) {
+        return "Processing...";
+    }
+
+    return item.value.is_template ? "Create Item" : "Update Item";
+});
 
 const nameColor = computed(() => {
-    switch (props.item.item_type) {
+    switch (item.value.item_type) {
         case "unique":
             return "rgb(199, 179, 119)";
         default:
@@ -26,17 +37,17 @@ const nameColor = computed(() => {
 const wikiSearch = computed(() => {
     return (
         "https://wiki.projectdiablo2.com/wiki/Special:Search?go=Go&search=" +
-        props.item.name
+        item.value.name
     );
 });
 
 const sortedModifiers = computed(() => {
-    return [...props.item.modifiers].sort((a, b) => a.priority < b.priority);
+    return [...item.value.modifiers].sort((a, b) => a.priority < b.priority);
 });
 
 const compactModifiers = computed(() => {
     // Sort modifiers by priority
-    const modifiers = [...props.item.modifiers].sort(
+    const modifiers = [...item.value.modifiers].sort(
         (a, b) => a.priority < b.priority
     );
 
@@ -60,12 +71,107 @@ const compactModifiers = computed(() => {
         return result;
     });
 });
+
+const modifiers = ref(sortedModifiers.value);
+
+const getModifierLabel = (modifier) => {
+    if (modifier.values.length === 1) {
+        return modifier.template.replace("[range]", modifier.values[0]);
+    }
+
+    return modifier.label;
+};
+
+const createItem = () => {
+    console.log("Creating item...");
+    console.log(item.value.id);
+    console.log(modifiers.value);
+
+    postCreateItem(item.value.id, modifiers.value);
+};
+
+const postCreateItem = async (id, modifiers) => {
+    loading.value = true;
+
+    try {
+        const itemHandlerRoute = item.value.is_template
+            ? "api.items.create"
+            : "api.items.update";
+        const response = await axios.post(route(itemHandlerRoute), {
+            item_id: id,
+            modifiers: modifiers,
+        });
+
+        // Success
+        item.value = response.data.item;
+    } catch (error) {
+        console.error(error);
+    }
+
+    loading.value = false;
+};
+
+const fullName = computed(() => {
+    if (item.value.skip_base_name) {
+        return item.value.name;
+    } else {
+        let name = item.value.base_name;
+
+        if (item.value.name) {
+            name = name + " " + item.value.name;
+        }
+    }
+});
+
+const handleModifierChange = (data) => {
+    modifiers.value[data.index]["values"] = [parseInt(data.value)];
+};
 </script>
 
 <template>
     <div class="flex space-x-6 items-start">
         <div class="flex flex-col items-center">
-            <img :src="`/img/${item.image}.png`" alt="" />
+            <div class="relative">
+                <img
+                    :src="`/img/${item.image}.png`"
+                    :alt="fullName"
+                    class="p-4"
+                    @mouseenter="showingTooltip = true"
+                    @mouseleave="showingTooltip = false"
+                />
+
+                <transition
+                    enter-active-class="transition transform ease-out duration-200"
+                    enter-from-class="-translate-x-3 opacity-0"
+                    enter-to-class="translate-x-0 opacity-100"
+                    leave-active-class="transition transform ease-in duration-200"
+                    leave-from-class="translate-x-0 opacity-100"
+                    leave-to-class="-translate-x-3 opacity-0"
+                >
+                    <div
+                        class="absolute ml-3 left-full top-1/2 -translate-y-1/2 text-sm text-center p-4 bg-black text-blue-400 whitespace-nowrap z-10"
+                        v-show="showingTooltip"
+                    >
+                        <p
+                            v-for="(modifier, index) in modifiers"
+                            :key="modifier"
+                            class="flex space-x-2 justify-center"
+                            :class="{
+                                'bg-yellow-600/20': highlighted === index,
+                            }"
+                        >
+                            <span>{{ getModifierLabel(modifier) }}</span>
+                            <span
+                                v-if="modifier.range"
+                                class="text-green-600"
+                                >{{
+                                    `[${modifier.range.min} - ${modifier.range.max}]`
+                                }}</span
+                            >
+                        </p>
+                    </div>
+                </transition>
+            </div>
             <div
                 class="text-center font-bold text-sm"
                 :style="{ color: nameColor }"
@@ -81,13 +187,7 @@ const compactModifiers = computed(() => {
             </div>
         </div>
         <div class="flex-1">
-            <div class="text-sm text-center bg-black text-blue-400">
-                <p v-for="modifier in sortedModifiers" :key="modifier">
-                    {{ modifier.label }}
-                </p>
-            </div>
-
-            <div class="mt-6">
+            <div>
                 <h2 class="font-bold text-xl">Item Editor</h2>
                 <p class="text-sm text-zinc-500 mb-3">
                     Edit the modifiers of the item.
@@ -95,20 +195,27 @@ const compactModifiers = computed(() => {
 
                 <div class="space-y-1">
                     <ModifierInput
-                        v-for="modifier in sortedModifiers"
+                        v-for="(modifier, index) in sortedModifiers"
                         :key="modifier"
                         :modifier="modifier"
+                        :index="index"
+                        @update:modifier="handleModifierChange"
+                        @highlight="(index) => (highlighted = index)"
+                        @unhighlight="highlighted = null"
                     />
+                </div>
+
+                <div class="mt-6 flex space-x-1">
+                    <AppButton @click="createItem" :disabled="loading">{{
+                        buttonLabel
+                    }}</AppButton>
+                    <AppButton plain @click="showingDebug = !showingDebug"
+                        >{{ showingDebug ? "Hide" : "Show" }} debug</AppButton
+                    >
                 </div>
             </div>
 
             <div class="mt-6">
-                <AppButton
-                    plain
-                    @click="showingDebug = !showingDebug"
-                    class="w-full"
-                    >{{ showingDebug ? "Hide" : "Show" }} debug</AppButton
-                >
                 <transition
                     enter-active-class="transition transform ease-out duration-200"
                     enter-from-class="opacity-0 scale-95"

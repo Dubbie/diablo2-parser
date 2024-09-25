@@ -20,7 +20,7 @@ class ItemController
     {
         $q = $request->input('q');
         $itemType = $request->input('item_type');
-        $templates = $request->all()['templates'] && $request->all()['templates'] == 'true' ? true : false;
+        $templates = array_key_exists('templates', $request->all()) && $request->all()['templates'] == 'true' ? true : false;
 
         $items = Item::query();
 

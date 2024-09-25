@@ -35,11 +35,8 @@ const processString = (input) => {
         return [input]; // Return original string if no brackets
     }
 
-    // Replace the contents inside the brackets with "[range]"
-    const replaced = input.replace(/\[[^\]]*\]/g, "[range]");
-
     // Split the string based on the occurrence of '[range]'
-    const parts = replaced.split(/(\[range\])/);
+    const parts = input.split(/(\[range\])/);
 
     // Trim parts and filter out empty strings
     const trimmedParts = parts.map((part) => part.trim()).filter(Boolean);
@@ -132,32 +129,37 @@ onMounted(() => {
 
 <template>
     <div class="flex space-x-1 items-center">
-        <template v-for="part in processedParts" :key="part">
-            <p v-if="part !== '[range]'">{{ part }}</p>
-            <div v-else class="relative">
-                <input
-                    :value="modelValue"
-                    type="number"
-                    class="text-center text-sm py-0.5 px-0 bg-white/5 border-none ring-1 ring-white/15"
-                    :class="focusRingClasses"
-                    :style="{ width: maxWidth }"
-                    :min="modifier.min"
-                    :max="modifier.max"
-                    @focus="handleFocus"
-                    @blur="handleBlur"
-                    @input="handleUpdate($event.target.value)"
-                />
+        <template v-if="processedParts.includes('[range]')">
+            <template v-for="part in processedParts" :key="part">
+                <p v-if="part !== '[range]'">{{ part }}</p>
+                <div v-else class="relative">
+                    <input
+                        :value="modelValue"
+                        type="number"
+                        class="text-center text-sm py-0.5 px-0 bg-white/5 border-none ring-1 ring-white/15"
+                        :class="focusRingClasses"
+                        :style="{ width: maxWidth }"
+                        :min="modifier.min"
+                        :max="modifier.max"
+                        @focus="handleFocus"
+                        @blur="handleBlur"
+                        @input="handleUpdate($event.target.value)"
+                    />
 
-                <div
-                    class="absolute bottom-full left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur p-2 whitespace-nowrap"
-                    v-show="showingRangeTooltip"
-                >
-                    <p class="text-xs text-zinc-400">Range</p>
-                    <p class="font-bold text-sm">
-                        {{ modifier.min }} - {{ modifier.max }}
-                    </p>
+                    <div
+                        class="absolute bottom-full left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur p-2 whitespace-nowrap"
+                        v-show="showingRangeTooltip"
+                    >
+                        <p class="text-xs text-zinc-400">Range</p>
+                        <p class="font-bold text-sm">
+                            {{ modifier.min }} - {{ modifier.max }}
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </template>
+        </template>
+        <template v-else>
+            <p>{{ modifier.label }}</p>
         </template>
     </div>
 </template>

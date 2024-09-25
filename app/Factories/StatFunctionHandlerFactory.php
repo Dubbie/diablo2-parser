@@ -20,6 +20,7 @@ class StatFunctionHandlerFactory
         $this->handlers = [
             10 => \App\Handlers\StatFunctionHandlers\StatFunction10Handler::class,
             11 => \App\Handlers\StatFunctionHandlers\StatFunction11Handler::class,
+            17 => \App\Handlers\StatFunctionHandlers\StatFunction17Handler::class,
             24 => \App\Handlers\StatFunctionHandlers\StatFunction24Handler::class
         ];
 

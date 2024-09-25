@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from "vue";
 import { Link } from "@inertiajs/vue3";
+import ItemTooltip from "./ItemTooltip.vue";
 
 const props = defineProps({
     item: {
@@ -19,6 +20,10 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
+    tooltipPosition: {
+        type: String,
+        default: "right",
+    },
 });
 
 const showingTooltip = ref(false);
@@ -28,50 +33,39 @@ const fullName = computed(() => {
         ? `${props.item.name} ${props.item.base_name}`
         : props.item.base_name;
 });
-
-const nameColor = computed(() => {
-    switch (props.item.item_type) {
-        case "unique":
-            return "rgb(199, 179, 119)";
-        default:
-            return "rgb(255, 255, 255)";
-    }
-});
-
-const blockSize = 35;
 </script>
 
 <template>
-    <div class="relative">
+    <div class="relative flex justify-center items-center">
         <component
             :is="attachLink ? Link : 'div'"
             :href="attachLink ? route('items.show', item.id) : ''"
-            @mouseenter="showingTooltip = true"
-            @mouseleave="showingTooltip = false"
-            class="flex flex-col h-full w-full justify-start items-center item-box"
-            :class="{
-                'px-2 py-4': padded,
-            }"
+            class="inline-block relative"
         >
             <div
-                class="flex justify-center items-center"
+                class="inline-flex justify-center items-center"
                 :class="{
                     'bg-black/40': background,
                 }"
+                @mouseenter="showingTooltip = true"
+                @mouseleave="showingTooltip = false"
             >
                 <img :src="`/img/${item.image}.png`" :alt="fullName" />
             </div>
-
-            <!-- <div
-                class="mt-3 text-sm font-bold text-center"
-                :style="{ color: nameColor }"
+            <transition
+                enter-active-class="transition transform ease-out duration-200"
+                enter-from-class="-translate-x-3 opacity-0"
+                enter-to-class="translate-x-0 opacity-100"
+                leave-active-class="transition transform ease-in duration-100"
+                leave-from-class="translate-x-0 opacity-100"
+                leave-to-class="-translate-x-3 opacity-0"
             >
-                <p v-if="item.name">{{ item.name }}</p>
-                <p v-if="!item.skip_base_name">{{ item.base_name }}</p>
-                <p v-if="!item.is_template" class="text-white font-semibold">
-                    (Rolled)
-                </p>
-            </div> -->
+                <ItemTooltip
+                    :item="item"
+                    v-show="showingTooltip"
+                    :position="tooltipPosition"
+                />
+            </transition>
         </component>
     </div>
 </template>

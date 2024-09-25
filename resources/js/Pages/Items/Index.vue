@@ -85,7 +85,7 @@ watch(
             mode="out-in"
         >
             <div v-if="!loading">
-                <div class="grid grid-cols-6 gap-6 mt-12">
+                <div class="grid grid-cols-6 gap-6 mt-12 items-center">
                     <ItemDisplay
                         v-for="item in items"
                         :key="item.id"

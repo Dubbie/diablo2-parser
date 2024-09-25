@@ -1,9 +1,10 @@
 <script setup>
 import AppButton from "@/Components/AppButton.vue";
-import ItemDisplayExpanded from "@/Components/ItemDisplayExpanded.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
+import ItemDisplay from "@/Components/ItemDisplay.vue";
 import { Link } from "@inertiajs/vue3";
-import { computed } from "vue";
+import { computed, ref } from "vue";
+import ItemEditor from "@/Components/ItemEditor.vue";
 
 const props = defineProps({
     item: Object,
@@ -14,6 +15,8 @@ const props = defineProps({
     previousId: Number,
     nextId: Number,
 });
+
+const showingDebug = ref(false);
 
 const previousLink = computed(() => {
     if (props.previousId) {
@@ -26,22 +29,6 @@ const previousLink = computed(() => {
 const nextLink = computed(() => {
     if (props.nextId) {
         return route("items.show", props.nextId);
-    }
-
-    return null;
-});
-
-const previous = computed(() => {
-    if (props.item.id > 0) {
-        return route("items.show", props.item.id - 1);
-    }
-
-    return null;
-});
-
-const next = computed(() => {
-    if (props.item.id < props.max) {
-        return route("items.show", props.item.id + 1);
     }
 
     return null;
@@ -80,6 +67,27 @@ const next = computed(() => {
             <AppButton v-if="nextLink" :href="nextLink">Next</AppButton>
         </div>
 
-        <ItemDisplayExpanded :item="item" />
+        <div>
+            <ItemEditor :item="item" />
+
+            <p class="mt-3 text-sm font-bold mb-2">Original labels:</p>
+            <div class="text-green-400">
+                <p v-for="modifier in item.modifiers" :key="modifier">
+                    {{ modifier.label }}
+                </p>
+            </div>
+
+            <div class="mt-12">
+                <AppButton color="green" @click="showingDebug = !showingDebug"
+                    >{{ showingDebug ? "Hide" : "Show" }} Debug</AppButton
+                >
+
+                <div v-show="showingDebug" class="text-xs font-mono">
+                    <code>
+                        <pre>{{ item.modifiers }}</pre>
+                    </code>
+                </div>
+            </div>
+        </div>
     </AppLayout>
 </template>

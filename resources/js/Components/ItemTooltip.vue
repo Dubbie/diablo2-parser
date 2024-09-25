@@ -19,14 +19,6 @@ const positionClasses = computed(() => {
     }[props.position];
 });
 
-const getModifierLabel = (modifier) => {
-    if (modifier.values.length === 1) {
-        return modifier.template.replace("[range]", modifier.values[0]);
-    }
-
-    return modifier.label;
-};
-
 const nameColor = computed(() => {
     switch (props.item.item_type) {
         case "unique":
@@ -35,6 +27,14 @@ const nameColor = computed(() => {
             return "rgb(255, 255, 255)";
     }
 });
+
+const getModifierLabel = (modifier) => {
+    if (modifier.values.length === 1) {
+        return modifier.template.replace("[range]", modifier.values[0]);
+    }
+
+    return modifier.label;
+};
 </script>
 
 <template>

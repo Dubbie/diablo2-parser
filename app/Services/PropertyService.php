@@ -179,6 +179,11 @@ class PropertyService
                 'priority' => 'firemindam',
                 'stats' => ['firemindam', 'firemaxdam'],
             ],
+            [
+                'name' => 'dmg_poison',
+                'priority' => 'poisonmindam',
+                'stats' => ['poisonmindam', 'poisonmaxdam', 'poisonlength'],
+            ]
         ];
 
         foreach ($additionalMappings as $mapping) {
@@ -211,15 +216,20 @@ class PropertyService
 
         foreach ($foundModifiers as $modifier) {
             $isMin = strpos($modifier->getName(), 'min') !== false;
+            $isMax = strpos($modifier->getName(), 'max') !== false;
+            $isLength = strpos($modifier->getName(), 'length') !== false;
             $fixedValue = $modifier->getValues()[0] ?? null;
-
 
             if ($isMin) {
                 $range['minValue']['min'] = $fixedValue ?? $modifier->getRange()['value']['min'];
                 $range['minValue']['max'] = $fixedValue ?? $modifier->getRange()['value']['max'];
-            } else {
+            }
+            if ($isMax) {
                 $range['maxValue']['min'] = $fixedValue ?? $modifier->getRange()['value']['min'];
                 $range['maxValue']['max'] = $fixedValue ?? $modifier->getRange()['value']['max'];
+            }
+            if ($isLength) {
+                $newModifier->setValues($modifier->getValues());
             }
 
             if ($modifier->getName() === $mapping['priority']) {

@@ -24,7 +24,7 @@ class DescFunc2Handler implements DescriptionFunctionHandlerInterface
 
         // Set the stat string based on the description
         $stat = $modifier->getStat();
-        $template = "[range]% [string1]";
+        $template = "[value]% [string1]";
         $descValue = $stat->description->value;
         $string = $stat->description->positive;
         $formattedValue = StatFormatter::formatValue($min, $max);
@@ -35,7 +35,7 @@ class DescFunc2Handler implements DescriptionFunctionHandlerInterface
                     $template = '[string1]';
                     break;
                 case 2:
-                    $template = '[string1] [range]%';
+                    $template = '[string1] [value]%';
                     break;
                 default:
                     break;
@@ -54,15 +54,15 @@ class DescFunc2Handler implements DescriptionFunctionHandlerInterface
 
         // Check for range
         $range = $modifier->getRange();
-        if ($range['min'] === null && $range['max'] === null) {
-            $template = str_replace('[range]', $formattedValue, $template);
+        if (empty($range) || $range['value']['min'] === null && $range['value']['max'] === null) {
+            $template = str_replace('[value]', $formattedValue, $template);
         } else {
-            if ($range['min'] === $range['max']) {
-                $template = str_replace('[range]', $range['min'], $template);
+            if ($range['value']['min'] === $range['value']['max']) {
+                $template = str_replace('[value]', $range['value']['min'], $template);
             }
         }
 
-        $statString = str_replace('[range]', $formattedValue, $template);
+        $statString = str_replace('[value]', $formattedValue, $template);
 
         return new ModifierLabel($statString, $template);
     }

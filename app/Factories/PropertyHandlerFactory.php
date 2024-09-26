@@ -18,6 +18,8 @@ class PropertyHandlerFactory
         // Define the mapping between function IDs and handler classes
         $this->handlers = [
             'dmg%' => \App\Handlers\PropertyHandlers\DmgPercentPropertyHandler::class,
+            'dmg-min' => \App\Handlers\PropertyHandlers\DmgMinPropertyHandler::class,
+            'dmg-max' => \App\Handlers\PropertyHandlers\DmgMaxPropertyHandler::class
         ];
 
         // Define the default handler class

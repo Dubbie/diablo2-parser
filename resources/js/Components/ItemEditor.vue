@@ -4,6 +4,7 @@ import { computed, ref } from "vue";
 import ModifierInput from "@/Components/ModifierInput.vue";
 import AppButton from "@/Components/AppButton.vue";
 import InputError from "@/Components/InputError.vue";
+import InputPlaceholder from "./InputPlaceholder.vue";
 
 const props = defineProps({
     item: {
@@ -224,7 +225,7 @@ getDetails();
                                 v-for="(modifier, index) in sortedModifiers"
                                 :key="modifier"
                             >
-                                <ModifierInput
+                                <!-- <ModifierInput
                                     :modifier="modifier"
                                     :index="index"
                                     trigger-on-mount
@@ -233,7 +234,8 @@ getDetails();
                                         (index) => (highlighted = index)
                                     "
                                     @unhighlight="highlighted = null"
-                                />
+                                /> -->
+                                <InputPlaceholder :entry="modifier" />
                                 <InputError
                                     class="ml-3"
                                     v-if="errors.modifiers"

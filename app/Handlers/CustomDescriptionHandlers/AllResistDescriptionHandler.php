@@ -24,6 +24,6 @@ class AllResistDescriptionHandler implements CustomDescriptionHandlerInterface
         // Set the stat string based on the description
         $formattedValue = StatFormatter::formatValue($min, $max);
 
-        return new ModifierLabel('All resistances +' . $formattedValue . '%', "All resistances +[range]%");
+        return new ModifierLabel('All resistances +' . $formattedValue . '%', "All resistances +[value]%");
     }
 }

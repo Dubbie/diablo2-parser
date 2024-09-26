@@ -18,8 +18,12 @@ class DefaultStatFunctionHandler implements StatFunctionHandlerInterface
             if ($min === $max) {
                 $modifier->setValues([$min]);
             } else {
-                $modifier->setMin($min);
-                $modifier->setMax($max);
+                $modifier->setRange([
+                    'value' => [
+                        'min' => $min,
+                        'max' => $max
+                    ]
+                ]);
             }
         } else {
             $modifier->setValues([$param, $min, $max]);

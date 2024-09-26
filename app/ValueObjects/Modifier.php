@@ -17,8 +17,7 @@ class Modifier implements JsonSerializable
     private ?Stat $stat = null;
     private bool $corrupted = false;
     private int $priority;
-    private ?int $min = null;
-    private ?int $max = null;
+    private array $range = [];
     private string $template = "";
 
     private DescriptionFunctionHandlerFactory $descriptionFunctionHandlerFactory;
@@ -110,6 +109,7 @@ class Modifier implements JsonSerializable
             return $this->name . ' (Desc_func: ' . $descFunc . ')';
         } catch (Exception $e) {
             Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
             return $this->name;
         }
     }
@@ -133,37 +133,27 @@ class Modifier implements JsonSerializable
     }
 
     /**
-     * Get the value of min
+     * Get the value of range
      */
-    public function getMin(): ?int
+    public function getRange(?string $key = null): array
     {
-        return $this->min;
+        if ($key === null) {
+            return $this->range;
+        }
+
+        if (!isset($this->range[$key])) {
+            throw new InvalidArgumentException('Invalid key for range: ' . $key);
+        }
+
+        return $this->range[$key];
     }
 
     /**
-     * Set the value of min
+     * Set the value of range
      */
-    public function setMin(?int $min): self
+    public function setRange(array $range): self
     {
-        $this->min = $min;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of max
-     */
-    public function getMax(): ?int
-    {
-        return $this->max;
-    }
-
-    /**
-     * Set the value of max
-     */
-    public function setMax(?int $max): self
-    {
-        $this->max = $max;
+        $this->range = $range;
 
         return $this;
     }
@@ -186,16 +176,14 @@ class Modifier implements JsonSerializable
         return $this;
     }
 
-    /**
-     * Get the range
-     */
-    public function getRange(): array
+    public function getMin(?string $key = 'value')
     {
-        // Label generation for modifiers
-        return [
-            'min' => $this->min,
-            'max' => $this->max
-        ];
+        return $this->getRange()[$key]['min'] ?? null;
+    }
+
+    public function getMax(?string $key = 'value')
+    {
+        return $this->getRange()[$key]['max'] ?? null;
     }
 
     public function __toString(): string
@@ -215,17 +203,9 @@ class Modifier implements JsonSerializable
             'corrupted' => $this->corrupted,
             'priority' => $this->priority,
             'template' => $this->template,
+            'range' => $this->range,
             'desc_func' => $this->stat ? $this->stat->description->function : null
         ];
-
-        if (isset($this->min) && isset($this->max)) {
-            $result['min'] = $this->min;
-            $result['max'] = $this->max;
-
-            if ($this->min !== $this->max) {
-                $result['range'] = $this->getRange();
-            }
-        }
 
         return $result;
     }

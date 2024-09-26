@@ -87,8 +87,12 @@ class PropertyService
                 $newModifier = new Modifier();
                 $newModifier->setName($mapping['name']);
                 $newModifier->setPriority($mapping['priority']);
-                $newModifier->setMin($mappedProperty->getMin());
-                $newModifier->setMax($mappedProperty->getMax());
+                $newModifier->setRange([
+                    'value' => [
+                        'min' => $mappedProperty->getMin(),
+                        'max' => $mappedProperty->getMax(),
+                    ]
+                ]);
 
                 if ($mappedProperty->getParam()) {
                     $newModifier->setValues([$mappedProperty->getMax(), $mappedProperty->getParam(), $mappedProperty->getMin()]);
@@ -116,6 +120,54 @@ class PropertyService
                         );
                 }
             }
+        }
+
+        // Go around again with some new mappings
+        $modMap = [
+            [
+                'name' => 'dmg_flat',
+                'priority' => 'secondary_mindamage',
+                'stats' => ['secondary_mindamage', 'secondary_maxdamage'],
+            ]
+        ];
+
+        foreach ($modMap as $mapping) {
+            $foundModifiers = array_filter($this->modifiers, fn($modifier) => in_array($modifier->getName(), $mapping['stats']));
+
+            if (count($foundModifiers) === count($mapping['stats'])) {
+                $newModifier = new Modifier();
+                $newModifier->setName($mapping['name']);
+                $range = [];
+                /** @var Modifier $modifier */
+                foreach ($foundModifiers as $modifier) {
+                    $isMin = strpos($modifier->getName(), 'min') !== false;
+                    $fixedValue = $modifier->getValues()[0] ?? null;
+
+                    if ($isMin) {
+                        $range['minValue']['min'] = $fixedValue ?? $modifier->getRange()['value']['min'];
+                        $range['minValue']['max'] = $fixedValue ?? $modifier->getRange()['value']['max'];
+                    } else {
+                        $range['maxValue']['min'] = $fixedValue ?? $modifier->getRange()['value']['min'];
+                        $range['maxValue']['max'] = $fixedValue ?? $modifier->getRange()['value']['max'];
+                    }
+
+                    // Check for prio
+                    if ($modifier->getName() === $mapping['priority']) {
+                        $newModifier->setPriority($modifier->getPriority());
+                    }
+                }
+
+                $newModifier->setRange($range);
+                $this->modifiers[] = $newModifier;
+
+                // Remove found modifiers from $this->modifiers
+                foreach ($foundModifiers as $modifier) {
+                    $key = array_search($modifier, $this->modifiers);
+                    unset($this->modifiers[$key]);
+                }
+            }
+
+            $this->modifiers = array_values(array_map(fn($modifier) => $modifier->toArray(), $this->modifiers));
         }
     }
 

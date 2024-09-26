@@ -12,7 +12,6 @@ class StatFunction10Handler implements StatFunctionHandlerInterface
     {
         // Create a modifier
         $modifier = new Modifier();
-        $label = $mappedStat->getStat()->stat;
         $values = [];
         $values[] = $param;
 

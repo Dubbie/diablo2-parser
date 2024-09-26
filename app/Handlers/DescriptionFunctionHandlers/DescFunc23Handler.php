@@ -22,7 +22,7 @@ class DescFunc23Handler implements DescriptionFunctionHandlerInterface
     public function handle(Modifier $modifier): ModifierLabel
     {
         $statModel = $modifier->getStat();
-        $template = sprintf('+[range]%% %s [monster]', $statModel->description->positive);
+        $template = sprintf('+[value]%% %s [monster]', $statModel->description->positive);
 
         $values = $modifier->getValues();
         $param = $values[0];
@@ -40,15 +40,15 @@ class DescFunc23Handler implements DescriptionFunctionHandlerInterface
 
         // Check for range
         $range = $modifier->getRange();
-        if ($range['min'] === null && $range['max'] === null) {
-            $template = str_replace('[range]', $formattedValue, $template);
+        if (empty($range) || $range['value']['min'] === null && $range['value']['max'] === null) {
+            $template = str_replace('[value]', $formattedValue, $template);
         } else {
-            if ($range['min'] === $range['max']) {
-                $template = str_replace('[range]', $range['min'], $template);
+            if ($range['value']['min'] === $range['value']['max']) {
+                $template = str_replace('[value]', $range['value']['min'], $template);
             }
         }
 
-        $statString = str_replace('[range]', $formattedValue, $template);
+        $statString = str_replace('[value]', $formattedValue, $template);
 
         return new ModifierLabel($statString, $template);
     }

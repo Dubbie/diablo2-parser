@@ -17,7 +17,8 @@ class CustomDescriptionHandlerFactory
         // Define the mapping between function IDs and handler classes
         $this->handlers = [
             'all_resist' => \App\Handlers\CustomDescriptionHandlers\AllResistDescriptionHandler::class,
-            'maxdamage_percent' => \App\Handlers\CustomDescriptionHandlers\DmgPercentDescriptionHandler::class
+            'maxdamage_percent' => \App\Handlers\CustomDescriptionHandlers\DmgPercentDescriptionHandler::class,
+            'dmg_flat' => \App\Handlers\CustomDescriptionHandlers\DmgFlatDescriptionHandler::class
         ];
     }
 

@@ -24,6 +24,6 @@ class DmgPercentDescriptionHandler implements CustomDescriptionHandlerInterface
         // Set the stat string based on the description
         $formattedValue = StatFormatter::formatValue($min, $max);
 
-        return new ModifierLabel('+' . $formattedValue . '% Enhanced Damage', '+[range]% Enhanced Damage');
+        return new ModifierLabel('+' . $formattedValue . '% Enhanced Damage', '+[value]% Enhanced Damage');
     }
 }

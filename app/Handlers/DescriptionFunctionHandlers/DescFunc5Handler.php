@@ -7,13 +7,8 @@ use App\Services\StatFormatter;
 use App\ValueObjects\Modifier;
 use App\ValueObjects\ModifierLabel;
 
-abstract class BaseDescriptionFunctionHandler implements DescriptionFunctionHandlerInterface
+class DescFunc5Handler implements DescriptionFunctionHandlerInterface
 {
-    protected string $template;
-
-    // Abstract method for the specific template
-    abstract protected function getTemplate(): string;
-
     public function handle(Modifier $modifier): ModifierLabel
     {
         $values = $modifier->getValues();
@@ -23,8 +18,12 @@ abstract class BaseDescriptionFunctionHandler implements DescriptionFunctionHand
         $min = $max = $value ?? $modifier->getMin() ?? $values[0];
         $max = $value ?? $modifier->getMax() ?? ($values[1] ?? $values[0]);
 
+        // Modify them based on the description function
+        $min = $min * 100 / 128;
+        $max = $max * 100 / 128;
+
         $stat = $modifier->getStat();
-        $this->template = $this->getTemplate();
+        $template = '[value]% [string1]';
         $descValue = $stat->description->value;
         $string = $stat->description->positive;
         $formattedValue = StatFormatter::formatValue($min, $max);
@@ -33,12 +32,10 @@ abstract class BaseDescriptionFunctionHandler implements DescriptionFunctionHand
         if ($descValue !== null) {
             switch ($descValue) {
                 case 0:
-                    $this->template = '[string1]';
+                    $template = '[string1]';
                     break;
                 case 2:
-                    $split = explode(' ', $this->template);
-                    $split = array_reverse($split);
-                    $this->template = implode(' ', $split);
+                    $template = '[string1] [value]%';
                     break;
                 default:
                     break;
@@ -50,24 +47,24 @@ abstract class BaseDescriptionFunctionHandler implements DescriptionFunctionHand
             $min = abs($min);
             $max = abs($max);
             $string = $stat->description->negative;
-            $this->template = str_replace('+', '', $this->template);
+            $template = str_replace('+', '', $template);
         }
 
         // Replace placeholders
-        $this->template = str_replace('[string1]', $string, $this->template);
+        $template = str_replace('[string1]', $string, $template);
 
         $range = $modifier->getRange();
         if (empty($range) || $range['value']['min'] === null && $range['value']['max'] === null) {
-            $this->template = str_replace('[value]', $formattedValue, $this->template);
+            $template = str_replace('[value]', $formattedValue, $template);
         } else {
             if ($range['value']['min'] === $range['value']['max']) {
-                $this->template = str_replace('[value]', $range['value']['min'], $this->template);
+                $template = str_replace('[value]', $range['value']['min'], $template);
             }
         }
 
         // Handle percentage symbol if applicable
-        $statString = str_replace('[value]', $formattedValue, $this->template);
+        $statString = str_replace('[value]', $formattedValue, $template);
 
-        return new ModifierLabel($statString, $this->template);
+        return new ModifierLabel($statString, $template);
     }
 }

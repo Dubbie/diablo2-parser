@@ -1,6 +1,8 @@
 <script setup>
-import AppButton from "./AppButton.vue";
-import ItemDisplay from "./ItemDisplay.vue";
+import AppButton from "@/Components/AppButton.vue";
+import ItemDisplay from "@/Components/ItemDisplay.vue";
+
+const emit = defineEmits(["set-filter", "reset-items", "unequip-item"]);
 
 const props = defineProps({
     filter: {
@@ -107,7 +109,7 @@ const elements = [
 
 const handleUneqip = ($event, slot) => {
     $event.preventDefault();
-    // emitter.emit("unequip-item", slot);
+    emit("unequip-item", slot);
 };
 
 const setFilter = (element) => {
@@ -125,8 +127,6 @@ const isTwoHandedInRightHand = (element) => {
 
     return false;
 };
-
-const emit = defineEmits(["set-filter", "reset-items"]);
 </script>
 
 <template>

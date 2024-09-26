@@ -33,6 +33,10 @@ const nextLink = computed(() => {
 
     return null;
 });
+
+const wikiSearch = computed(() => {
+    return `https://wiki.projectdiablo2.com/wiki/Special:Search?go=Go&search=${props.item.name}`;
+});
 </script>
 
 <template>
@@ -78,9 +82,16 @@ const nextLink = computed(() => {
             </div>
 
             <div class="mt-12">
-                <AppButton color="green" @click="showingDebug = !showingDebug"
-                    >{{ showingDebug ? "Hide" : "Show" }} Debug</AppButton
-                >
+                <div class="flex space-x-1">
+                    <AppButton
+                        color="green"
+                        @click="showingDebug = !showingDebug"
+                        >{{ showingDebug ? "Hide" : "Show" }} Debug</AppButton
+                    >
+                    <a :href="wikiSearch" target="_blank">
+                        <AppButton color="white">Search wiki</AppButton>
+                    </a>
+                </div>
 
                 <div v-show="showingDebug" class="text-xs font-mono">
                     <code>

@@ -23,7 +23,8 @@ class StatFunctionHandlerFactory
             15 => \App\Handlers\StatFunctionHandlers\StatFunction15Handler::class,
             16 => \App\Handlers\StatFunctionHandlers\StatFunction16Handler::class,
             17 => \App\Handlers\StatFunctionHandlers\StatFunction17Handler::class,
-            24 => \App\Handlers\StatFunctionHandlers\StatFunction24Handler::class
+            21 => \App\Handlers\StatFunctionHandlers\StatFunction21Handler::class,
+            24 => \App\Handlers\StatFunctionHandlers\StatFunction24Handler::class,
         ];
 
         // Define the default handler class

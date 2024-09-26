@@ -9,6 +9,7 @@ use App\Models\ItemProperty;
 use App\ValueObjects\MappedProperty;
 use App\ValueObjects\Modifier;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
 
 class PropertyService
 {
@@ -30,6 +31,8 @@ class PropertyService
         $this->item = $item;
         $this->properties = $item->itemProperties;
 
+
+
         // Map the properties with proper stats
         foreach ($this->properties as $itemProperty) {
             $this->mappedProperties[] = $this->handleMappingProperty($itemProperty);
@@ -50,17 +53,21 @@ class PropertyService
 
     private function combineModifiers(): void
     {
-        $mappings = [
+        $mappings = $this->getMappings();
+        $this->applyMappings($mappings);
+        $this->handleUnmappedProperties();
+        $this->applyAdditionalMappings();
+        $this->finalizeModifiers();
+    }
+
+    private function getMappings(): array
+    {
+        return [
             [
                 'priority' => 36,
                 'name' => 'all_resist',
                 'match' => true,
-                'stats' => [
-                    'fireresist',
-                    'lightresist',
-                    'coldresist',
-                    'poisonresist'
-                ],
+                'stats' => ['fireresist', 'lightresist', 'coldresist', 'poisonresist'],
             ],
             [
                 'priority' => 120,
@@ -68,80 +75,95 @@ class PropertyService
                 'stats' => ['item_maxdamage_percent'],
             ],
         ];
+    }
 
-        $mappedProperties = array_filter($this->mappedProperties); // Clean up falsy values
+    private function applyMappings(array $mappings): void
+    {
+        $mappedProperties = array_filter($this->mappedProperties);
 
-        /** @var MappedProperty $mappedProperty */
         foreach ($mappedProperties as $mappedProperty) {
-            $propertyStats = array_map(fn($stat) => $stat
-                ->getStat()->stat, $mappedProperty->getStats());
+            $propertyStats = $this->getPropertyStats($mappedProperty);
 
-            $mapped = false;
             foreach ($mappings as $mapping) {
-                // Filter mappings based on conditions
-                if (
-                    isset($mapping['partial']) &&
-                    count(array_intersect($mapping['stats'], $propertyStats)) > 1
-                ) {
-                    $match = true;
-                } elseif (!empty(array_diff($mapping['stats'], $propertyStats))) {
-                    continue; // Skip if not all stats are found
-                } elseif (
-                    array_key_exists('match', $mapping) &&
-                    $mapping['match'] &&
-                    !$this->same($propertyStats, $mapping['stats'])
-                ) {
-                    continue; // If 'match' is true and doesn't fully match, skip
+                if (!$this->shouldMap($mapping, $propertyStats)) {
+                    continue;
                 }
 
-                // Create new modifier
-                $newModifier = new Modifier();
-                $newModifier->setName($mapping['name']);
-                $newModifier->setPriority($mapping['priority']);
-                $newModifier->setRange([
-                    'value' => [
-                        'min' => $mappedProperty->getMin(),
-                        'max' => $mappedProperty->getMax(),
-                    ]
-                ]);
-
-                if ($mappedProperty->getParam()) {
-                    $newModifier->setValues(
-                        [
-                            $mappedProperty->getMax(),
-                            $mappedProperty->getParam(),
-                            $mappedProperty->getMin()
-                        ]
-                    );
-                }
-
-                // Add to modifiers
+                $newModifier = $this->createModifierFromMapping($mapping, $mappedProperty);
                 $this->modifiers[] = $newModifier;
 
-                $mapped = true;
+                // Remove original mapped property
+                $this->removeMappedProperty($mappedProperty);
                 break;
             }
+        }
+    }
 
-            if (!$mapped) {
-                foreach ($mappedProperty->getStats() as $stat) {
-                    if ($stat->getStat()->stat === 'item_numsockets') {
-                        continue;
-                    }
-
-                    $this->modifiers[] = $this->statFunctionHandlerFactory
-                        ->getHandler($stat->getFunction())
-                        ->handle(
-                            $mappedProperty->getMin(),
-                            $mappedProperty->getMax(),
-                            $mappedProperty->getParam(),
-                            $stat
-                        );
-                }
-            }
+    private function shouldMap(array $mapping, array $propertyStats): bool
+    {
+        if (isset($mapping['partial']) && count(array_intersect($mapping['stats'], $propertyStats)) > 1) {
+            return true;
         }
 
-        // Go around again with some new mappings
-        $modMap = [
+        if (!empty(array_diff($mapping['stats'], $propertyStats))) {
+            return false;
+        }
+
+        if (isset($mapping['match']) && $mapping['match'] && !$this->same($propertyStats, $mapping['stats'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function createModifierFromMapping(array $mapping, MappedProperty $mappedProperty): Modifier
+    {
+        $newModifier = new Modifier();
+        $newModifier->setName($mapping['name']);
+        $newModifier->setPriority($mapping['priority']);
+        $newModifier->setRange([
+            'value' => [
+                'min' => $mappedProperty->getMin(),
+                'max' => $mappedProperty->getMax(),
+            ]
+        ]);
+
+        if ($mappedProperty->getParam()) {
+            $newModifier->setValues([$mappedProperty->getMax(), $mappedProperty->getParam(), $mappedProperty->getMin()]);
+        }
+
+        return $newModifier;
+    }
+
+    private function removeMappedProperty(MappedProperty $mappedProperty): void
+    {
+        $key = array_search($mappedProperty, $this->mappedProperties);
+        unset($this->mappedProperties[$key]);
+    }
+
+    private function getPropertyStats(MappedProperty $mappedProperty): array
+    {
+        return array_map(fn($stat) => $stat->getStat()->stat, $mappedProperty->getStats());
+    }
+
+    private function handleUnmappedProperties(): void
+    {
+        foreach ($this->mappedProperties as $mappedProperty) {
+            foreach ($mappedProperty->getStats() as $stat) {
+                if ($stat->getStat()->stat === 'item_numsockets') {
+                    continue;
+                }
+
+                $this->modifiers[] = $this->statFunctionHandlerFactory
+                    ->getHandler($stat->getFunction())
+                    ->handle($mappedProperty->getMin(), $mappedProperty->getMax(), $mappedProperty->getParam(), $stat);
+            }
+        }
+    }
+
+    private function applyAdditionalMappings(): void
+    {
+        $additionalMappings = [
             [
                 'name' => 'dmg_normal',
                 'priority' => 'secondary_mindamage',
@@ -156,59 +178,74 @@ class PropertyService
                 'name' => 'dmg_fire',
                 'priority' => 'firemindam',
                 'stats' => ['firemindam', 'firemaxdam'],
-            ]
+            ],
         ];
 
-        foreach ($modMap as $mapping) {
-            $foundModifiers = array_filter(
-                $this->modifiers,
-                fn($modifier) => in_array($modifier->getName(), $mapping['stats'])
-            );
+        foreach ($additionalMappings as $mapping) {
+            $this->combineRelatedModifiers($mapping);
+        }
+    }
 
-            if (count($foundModifiers) === count($mapping['stats'])) {
-                $newModifier = new Modifier();
-                $newModifier->setName($mapping['name']);
-                $range = [];
-                /** @var Modifier $modifier */
-                foreach ($foundModifiers as $modifier) {
-                    $isMin = strpos($modifier->getName(), 'min') !== false;
-                    $fixedValue = $modifier->getValues()[0] ?? null;
+    private function combineRelatedModifiers(array $mapping): void
+    {
+        $foundModifiers = array_filter(
+            $this->modifiers,
+            fn($modifier) => in_array($modifier->getName(), $mapping['stats'])
+        );
 
-                    if ($isMin) {
-                        $range['minValue']['min'] = $fixedValue ??
-                            $modifier->getRange()['value']['min'];
-                        $range['minValue']['max'] = $fixedValue ??
-                            $modifier->getRange()['value']['max'];
-                    } else {
-                        $range['maxValue']['min'] = $fixedValue ??
-                            $modifier->getRange()['value']['min'];
-                        $range['maxValue']['max'] = $fixedValue ??
-                            $modifier->getRange()['value']['max'];
-                    }
+        if (count($foundModifiers) !== count($mapping['stats'])) {
+            return;
+        }
 
-                    // Check for prio
-                    if ($modifier->getName() === $mapping['priority']) {
-                        $newModifier->setPriority($modifier->getPriority());
-                    }
-                }
+        $newModifier = $this->createCombinedModifier($mapping, $foundModifiers);
+        $this->modifiers[] = $newModifier;
 
-                $newModifier->setRange($range);
-                $this->modifiers[] = $newModifier;
+        $this->removeModifiers($foundModifiers);
+    }
 
-                // Remove found modifiers from $this->modifiers
-                foreach ($foundModifiers as $modifier) {
-                    $key = array_search($modifier, $this->modifiers);
-                    unset($this->modifiers[$key]);
-                }
+    private function createCombinedModifier(array $mapping, array $foundModifiers): Modifier
+    {
+        $newModifier = new Modifier();
+        $newModifier->setName($mapping['name']);
+        $range = [];
+
+        foreach ($foundModifiers as $modifier) {
+            $isMin = strpos($modifier->getName(), 'min') !== false;
+            $fixedValue = $modifier->getValues()[0] ?? null;
+
+
+            if ($isMin) {
+                $range['minValue']['min'] = $fixedValue ?? $modifier->getRange()['value']['min'];
+                $range['minValue']['max'] = $fixedValue ?? $modifier->getRange()['value']['max'];
+            } else {
+                $range['maxValue']['min'] = $fixedValue ?? $modifier->getRange()['value']['min'];
+                $range['maxValue']['max'] = $fixedValue ?? $modifier->getRange()['value']['max'];
+            }
+
+            if ($modifier->getName() === $mapping['priority']) {
+                $newModifier->setPriority($modifier->getPriority());
             }
         }
 
-        usort($this->modifiers, fn($a, $b) => $a->getPriority() < $b->getPriority());
-
-        $this->modifiers = array_values(
-            array_map(fn($modifier) => $modifier->toArray(), $this->modifiers)
-        );
+        $newModifier->setRange($range);
+        return $newModifier;
     }
+
+    private function removeModifiers(array $foundModifiers): void
+    {
+        foreach ($foundModifiers as $modifier) {
+            Log::info($modifier->getName());
+            $key = array_search($modifier, $this->modifiers);
+            unset($this->modifiers[$key]);
+        }
+    }
+
+    private function finalizeModifiers(): void
+    {
+        usort($this->modifiers, fn($a, $b) => $a->getPriority() < $b->getPriority());
+        $this->modifiers = array_values(array_map(fn($modifier) => $modifier->toArray(), $this->modifiers));
+    }
+
 
     private function same(array $modifiers, array $stats): bool
     {

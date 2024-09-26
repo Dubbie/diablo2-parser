@@ -24,6 +24,7 @@ class StatFunctionHandlerFactory
             16 => \App\Handlers\StatFunctionHandlers\StatFunction16Handler::class,
             17 => \App\Handlers\StatFunctionHandlers\StatFunction17Handler::class,
             21 => \App\Handlers\StatFunctionHandlers\StatFunction21Handler::class,
+            22 => \App\Handlers\StatFunctionHandlers\StatFunction22Handler::class,
             24 => \App\Handlers\StatFunctionHandlers\StatFunction24Handler::class,
         ];
 

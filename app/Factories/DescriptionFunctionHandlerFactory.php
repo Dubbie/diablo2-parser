@@ -18,6 +18,7 @@ class DescriptionFunctionHandlerFactory
         $this->handlers = [
             1 => \App\Handlers\DescriptionFunctionHandlers\DescFunc1Handler::class,
             2 => \App\Handlers\DescriptionFunctionHandlers\DescFunc2Handler::class,
+            3 => \App\Handlers\DescriptionFunctionHandlers\DescFunc3Handler::class,
             4 => \App\Handlers\DescriptionFunctionHandlers\DescFunc4Handler::class,
             6 => \App\Handlers\DescriptionFunctionHandlers\DescFunc6Handler::class,
             12 => \App\Handlers\DescriptionFunctionHandlers\DescFunc1Handler::class, // Same as 1

@@ -1,10 +1,10 @@
 <script setup>
 import AppSpinner from "@/Components/AppSpinner.vue";
 import { computed, ref } from "vue";
-import ModifierInput from "@/Components/ModifierInput.vue";
 import AppButton from "@/Components/AppButton.vue";
 import InputError from "@/Components/InputError.vue";
 import InputPlaceholder from "./InputPlaceholder.vue";
+import ItemTooltip from "./ItemTooltip.vue";
 
 const props = defineProps({
     item: {
@@ -18,7 +18,6 @@ const loadingCreateOrUpdate = ref(false);
 const item = ref(null);
 const showingTooltip = ref(false);
 const errors = ref({});
-const highlighted = ref(null);
 const buttonLabel = computed(() => {
     if (loading.value) {
         return "Processing...";
@@ -37,14 +36,6 @@ const nameColor = computed(() => {
 });
 
 const modifiers = ref(props.item.modifiers);
-
-const getModifierLabel = (modifier) => {
-    if (modifier.values.length === 1) {
-        return modifier.template.replace("[range]", modifier.values[0]);
-    }
-
-    return modifier.label;
-};
 
 const createItem = () => {
     postCreateItem(item.value.id, modifiers.value);
@@ -85,10 +76,25 @@ const clearError = (index) => {
 };
 
 const handleModifierChange = (data) => {
-    modifiers.value[data.index]["values"] = [parseInt(data.value)];
+    console.log("Before:", modifiers.value); // Log before
+
+    modifiers.value = modifiers.value.map((modifier) => {
+        if (modifier.name === data.name) {
+            console.log("Updating modifier:", data.name);
+
+            modifier.values = data.values;
+
+            return modifier;
+        }
+        return modifier;
+    });
+
+    console.log("After:", modifiers.value); // Log after
+
+    // modifiers.value[data.index]["values"] = [parseInt(data.value)];
 
     // Clear the error
-    clearError(data.index);
+    // clearError(data.index);
 };
 
 const getDetails = async () => {
@@ -105,7 +111,7 @@ const getDetails = async () => {
         );
 
         item.value = response.data;
-        modifiers.value = sortedModifiers.value;
+        modifiers.value = item.value.modifiers;
 
         console.log(item.value);
     } catch (error) {
@@ -166,33 +172,7 @@ getDetails();
                             leave-from-class="translate-x-0 opacity-100"
                             leave-to-class="-translate-x-3 opacity-0"
                         >
-                            <div
-                                class="absolute ml-3 left-full top-1/2 -translate-y-1/2 text-sm text-center p-4 bg-black text-blue-400 whitespace-nowrap z-10"
-                                v-show="showingTooltip"
-                            >
-                                <p
-                                    v-for="(modifier, index) in modifiers"
-                                    :key="modifier"
-                                    class="flex space-x-2 justify-center"
-                                    :class="{
-                                        'bg-yellow-600/20':
-                                            highlighted === index,
-                                    }"
-                                >
-                                    <span>{{
-                                        getModifierLabel(modifier)
-                                    }}</span>
-                                    <template v-if="modifier.range">
-                                        <span
-                                            v-show="modifier.values.length > 0"
-                                            class="text-green-600"
-                                            >{{
-                                                `[${modifier.range.min} - ${modifier.range.max}]`
-                                            }}</span
-                                        >
-                                    </template>
-                                </p>
-                            </div>
+                            <ItemTooltip :item="item" v-show="showingTooltip" />
                         </transition>
                     </div>
                     <div
@@ -217,17 +197,10 @@ getDetails();
                                 v-for="(modifier, index) in modifiers"
                                 :key="modifier"
                             >
-                                <!-- <ModifierInput
-                                    :modifier="modifier"
-                                    :index="index"
-                                    trigger-on-mount
-                                    @update:modifier="handleModifierChange"
-                                    @highlight="
-                                        (index) => (highlighted = index)
-                                    "
-                                    @unhighlight="highlighted = null"
-                                /> -->
-                                <InputPlaceholder :entry="modifier" />
+                                <InputPlaceholder
+                                    :entry="modifier"
+                                    @update:entry="handleModifierChange"
+                                />
                                 <InputError
                                     class="ml-3"
                                     v-if="errors.modifiers"

@@ -29,11 +29,21 @@ const nameColor = computed(() => {
 });
 
 const getModifierLabel = (modifier) => {
-    if (modifier.values.length === 1) {
-        return modifier.template.replace("[range]", modifier.values[0]);
+    let template = modifier.template;
+
+    if (modifier.range.value) {
+        template = template.replace("[value]", modifier.values.value);
     }
 
-    return modifier.label;
+    if (modifier.range.minValue) {
+        template = template.replace("[minValue]", modifier.values.minValue);
+    }
+
+    if (modifier.range.maxValue) {
+        template = template.replace("[maxValue]", modifier.values.maxValue);
+    }
+
+    return template === modifier.template ? modifier.label : template;
 };
 </script>
 
@@ -47,7 +57,7 @@ const getModifierLabel = (modifier) => {
             <p v-if="!item.skip_base_name">{{ item.base_name }}</p>
         </div>
 
-        <div class="mt-1">
+        <div class="mt-1 text-blue-400">
             <p v-for="modifier in props.item.modifiers" :key="modifier">
                 {{ getModifierLabel(modifier) }}
             </p>

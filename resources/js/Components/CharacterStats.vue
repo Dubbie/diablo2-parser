@@ -25,7 +25,7 @@ function calculateStat(statName) {
     props.items.forEach((item) => {
         item.modifiers.forEach((modifier) => {
             if (modifiers.includes(modifier.name)) {
-                total += modifier.values[0]; // Add the first value of the modifier
+                total += parseInt(modifier.values.value); // Add the first value of the modifier
             }
         });
     });

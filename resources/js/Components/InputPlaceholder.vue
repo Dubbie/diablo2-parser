@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 
+const emit = defineEmits(["update:entry"]);
+
 // Define the component's prop for handling a single entry
 const props = defineProps({
     entry: {
@@ -30,12 +32,37 @@ const initValues = () => {
 
     const placeholders = getPlaceholders(props.entry.template);
     const initialValues = {};
+
     placeholders.forEach((placeholder) => {
-        const range = props.entry.range[placeholder.slice(1, -1)]; // Remove brackets for range lookup
+        const key = placeholder.slice(1, -1);
+        const range = props.entry.range[key]; // Remove brackets for range lookup
         // Use the max value as the default initial value
-        initialValues[placeholder] = range?.max ?? null;
+        initialValues[key] = range?.max ?? null;
     });
+
+    // Check if the entry has either minValue or maxValue but not both
+    if (
+        props.entry.range.minValue &&
+        props.entry.range.minValue["min"] ===
+            props.entry.range.minValue["max"] &&
+        !initialValues.minValue
+    ) {
+        initialValues.minValue = props.entry.range.minValue["min"];
+    } else if (
+        props.entry.range.maxValue &&
+        props.entry.range.maxValue["min"] ===
+            props.entry.range.maxValue["max"] &&
+        !initialValues.maxValue
+    ) {
+        initialValues.maxValue = props.entry.range.maxValue["min"];
+    }
+
     values.value = initialValues;
+
+    emit("update:entry", {
+        name: props.entry.name,
+        values: values.value,
+    });
 };
 
 // Watch for changes in the entry prop and reinitialize if necessary
@@ -48,6 +75,54 @@ const templateParts = computed(() => {
         /(\[value\]|\[perLevel\]|\[minValue\]|\[maxValue\])/
     );
 });
+
+// Function to handle focus
+const handleFocus = (key) => {
+    showingTooltip.value = key;
+};
+
+// Function to handle blur
+const handleBlur = (placeholder) => {
+    showingTooltip.value = null;
+
+    if (isValueCorrect(placeholder)) {
+        emit("update:entry", {
+            name: props.entry.name,
+            values: values.value,
+        });
+    } else {
+        values.value[placeholder.slice(1, -1)] =
+            props.entry.range[placeholder.slice(1, -1)].max;
+    }
+};
+
+// Function to get the correct ring class
+const getRingClass = (placeholder) => {
+    if (!isValueCorrect(placeholder)) {
+        return "focus:ring-red-500";
+    } else {
+        return "ring-white/10 focus:ring-blue-500";
+    }
+};
+
+// Function to check if the value is correct
+const isValueCorrect = (placeholder) => {
+    const key = placeholder.slice(1, -1);
+
+    if (!props.entry.range[key]) {
+        return true;
+    }
+
+    return (
+        parseInt(values.value[key]) >= parseInt(props.entry.range[key].min) &&
+        parseInt(values.value[key]) <= parseInt(props.entry.range[key].max)
+    );
+};
+
+// Function to handle new input
+const handleNewInput = (key, value) => {
+    values.value[key] = value;
+};
 </script>
 
 <template>
@@ -71,10 +146,12 @@ const templateParts = computed(() => {
                             type="tel"
                             :min="entry.range[part.slice(1, -1)]?.min ?? 0"
                             :max="entry.range[part.slice(1, -1)]?.max ?? 100"
-                            class="max-w-10 px-0 py-0.5 rounded-lg border-none bg-white/5 text-center text-sm ring-2 ring-inset ring-white/10"
-                            v-model="values[part]"
-                            @mouseenter="showingTooltip = part"
-                            @mouseleave="showingTooltip = null"
+                            class="max-w-10 px-0 py-0.5 rounded-lg border-none bg-white/5 text-center text-sm ring-2 ring-inset focus:ring-inset focus:ring-2"
+                            :class="getRingClass(part)"
+                            v-model="values[part.slice(1, -1)]"
+                            @focus="handleFocus(part)"
+                            @blur="handleBlur(part)"
+                            @input="handleNewInput(part, $event.target.value)"
                         />
 
                         <!-- Tooltip for showing range -->

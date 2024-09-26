@@ -151,6 +151,11 @@ class PropertyService
                 'name' => 'dmg_lightning',
                 'priority' => 'lightmindam',
                 'stats' => ['lightmindam', 'lightmaxdam'],
+            ],
+            [
+                'name' => 'dmg_fire',
+                'priority' => 'firemindam',
+                'stats' => ['firemindam', 'firemaxdam'],
             ]
         ];
 

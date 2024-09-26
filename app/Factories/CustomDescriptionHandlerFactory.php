@@ -19,7 +19,8 @@ class CustomDescriptionHandlerFactory
             'all_resist' => \App\Handlers\CustomDescriptionHandlers\AllResistDescriptionHandler::class,
             'maxdamage_percent' => \App\Handlers\CustomDescriptionHandlers\DmgPercentDescriptionHandler::class,
             'dmg_normal' => \App\Handlers\CustomDescriptionHandlers\DmgNormalDescriptionHandler::class,
-            'dmg_lightning' => \App\Handlers\CustomDescriptionHandlers\DmgLightningDescriptionHandler::class
+            'dmg_lightning' => \App\Handlers\CustomDescriptionHandlers\DmgLightningDescriptionHandler::class,
+            'dmg_fire' => \App\Handlers\CustomDescriptionHandlers\DmgFireDescriptionHandler::class
         ];
     }
 

@@ -6,6 +6,8 @@ import InputError from "@/Components/InputError.vue";
 import InputPlaceholder from "./InputPlaceholder.vue";
 import ItemTooltip from "./ItemTooltip.vue";
 
+const emit = defineEmits(["cancel", "item-created", "item-updated"]);
+
 const props = defineProps({
     item: {
         type: Object,
@@ -14,16 +16,11 @@ const props = defineProps({
 });
 
 const loading = ref(true);
-const loadingCreateOrUpdate = ref(false);
 const item = ref(null);
 const showingTooltip = ref(false);
 const errors = ref({});
 const buttonLabel = computed(() => {
-    if (loading.value) {
-        return "Processing...";
-    }
-
-    return item.value.is_template ? "Add to build" : "Update Item";
+    return !item.value.added ? "Add to build" : "Update Item";
 });
 
 const nameColor = computed(() => {
@@ -38,12 +35,10 @@ const nameColor = computed(() => {
 const modifiers = ref(props.item.modifiers);
 
 const createItem = () => {
-    postCreateItem(item.value.id, modifiers.value);
+    postCreateItem(modifiers.value);
 };
 
-const postCreateItem = async (id, modifiers) => {
-    loadingCreateOrUpdate.value = true;
-
+const postCreateItem = async (modifiers) => {
     item.value.modifiers = modifiers;
 
     emit("item-created", item.value);
@@ -61,40 +56,15 @@ const fullName = computed(() => {
     }
 });
 
-const clearError = (index) => {
-    // Clear the error
-    if (errors.value["modifiers"]) {
-        delete errors.value["modifiers"][index];
-    }
-
-    if (
-        errors.value.modifiers &&
-        Object.keys(errors.value.modifiers).length === 0
-    ) {
-        errors.value = {};
-    }
-};
-
 const handleModifierChange = (data) => {
-    console.log("Before:", modifiers.value); // Log before
-
     modifiers.value = modifiers.value.map((modifier) => {
         if (modifier.name === data.name) {
-            console.log("Updating modifier:", data.name);
-
             modifier.values = data.values;
 
             return modifier;
         }
         return modifier;
     });
-
-    console.log("After:", modifiers.value); // Log after
-
-    // modifiers.value[data.index]["values"] = [parseInt(data.value)];
-
-    // Clear the error
-    // clearError(data.index);
 };
 
 const getDetails = async () => {
@@ -122,11 +92,8 @@ const getDetails = async () => {
 };
 
 const handleCancel = () => {
-    // TODO: Do this
     emit("cancel");
 };
-
-const emit = defineEmits(["cancel", "item-created", "item-updated"]);
 
 getDetails();
 </script>

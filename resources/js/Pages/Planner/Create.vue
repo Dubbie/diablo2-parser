@@ -94,6 +94,7 @@ const handleItemSelected = (item) => {
 
 // Method to handle item creation
 const handleItemCreated = (item) => {
+    item.added = true;
     pdollSlots.value[filter.value.slot] = item;
 
     // if (item.base_stats?.min_2h_damage > 0) {

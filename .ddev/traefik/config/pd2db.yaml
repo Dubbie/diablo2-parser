@@ -1,0 +1,104 @@
+#ddev-generated
+# If you remove the ddev-generated line above you
+# are responsible for maintaining this file. DDEV will not then
+# update it, for example if you add `additional_hostnames`, etc.
+
+http:
+  routers:
+    pd2db-phpmyadmin-80-http:
+      entrypoints:
+        - http-8036
+      rule: HostRegexp(`^pd2db\.ddev\.site$`)
+      
+      service: "pd2db-phpmyadmin-80"
+      ruleSyntax: v3
+      tls: false
+      # middlewares:
+      #   - "pd2db-redirectHttps"
+    pd2db-web-80-http:
+      entrypoints:
+        - http-80
+      rule: HostRegexp(`^pd2db\.ddev\.site$`)
+      
+      service: "pd2db-web-80"
+      ruleSyntax: v3
+      tls: false
+      # middlewares:
+      #   - "pd2db-redirectHttps"
+    pd2db-web-8025-http:
+      entrypoints:
+        - http-8025
+      rule: HostRegexp(`^pd2db\.ddev\.site$`)
+      
+      service: "pd2db-web-8025"
+      ruleSyntax: v3
+      tls: false
+      # middlewares:
+      #   - "pd2db-redirectHttps"
+    
+    
+    pd2db-phpmyadmin-80-https:
+      entrypoints:
+        - http-8037
+      rule: HostRegexp(`^pd2db\.ddev\.site$`)
+      
+      service: "pd2db-phpmyadmin-80"
+      ruleSyntax: v3
+      
+      tls: true
+      
+    
+    
+    pd2db-web-80-https:
+      entrypoints:
+        - http-443
+      rule: HostRegexp(`^pd2db\.ddev\.site$`)
+      
+      service: "pd2db-web-80"
+      ruleSyntax: v3
+      
+      tls: true
+      
+    pd2db-web-8025-https:
+      entrypoints:
+        - http-8026
+      rule: HostRegexp(`^pd2db\.ddev\.site$`)
+      
+      service: "pd2db-web-8025"
+      ruleSyntax: v3
+      
+      tls: true
+      
+    
+
+  middlewares:
+    pd2db-redirectHttps:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+  services:
+    pd2db-phpmyadmin-80:
+      loadbalancer:
+        servers:
+          - url: http://ddev-pd2db-phpmyadmin:80
+        
+    
+    pd2db-web-80:
+      loadbalancer:
+        servers:
+          - url: http://ddev-pd2db-web:80
+        
+    pd2db-web-8025:
+      loadbalancer:
+        servers:
+          - url: http://ddev-pd2db-web:8025
+        
+    
+    
+    
+
+tls:
+  certificates:
+    - certFile: /mnt/ddev-global-cache/traefik/certs/pd2db.crt
+      keyFile: /mnt/ddev-global-cache/traefik/certs/pd2db.key

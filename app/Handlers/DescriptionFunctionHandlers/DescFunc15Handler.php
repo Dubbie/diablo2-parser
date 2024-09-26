@@ -21,9 +21,9 @@ class DescFunc15Handler implements DescriptionFunctionHandlerInterface
     public function handle(Modifier $modifier): ModifierLabel
     {
         $values = $modifier->getValues();
-        $level = $values[0];
-        $skillParameter = $values[1];
-        $chance = $values[2];
+        $level = $values[2];
+        $skillParameter = $values[0];
+        $chance = $values[1];
 
         $stat = $modifier->getStat();
         $template = "[string1]";
@@ -43,8 +43,6 @@ class DescFunc15Handler implements DescriptionFunctionHandlerInterface
             }
         }
 
-        $statString = str_replace('[string1]', $string, $template);
-
         $skill = $this->skillService->findByParam($skillParameter);
         if (!$skill) {
             throw new Exception("Skill not found with param: " . $skillParameter);
@@ -53,6 +51,9 @@ class DescFunc15Handler implements DescriptionFunctionHandlerInterface
         // Replace placeholders
         $template = str_replace('[string1]', $string, $template);
         $statString = str_replace('[value]', $level, $template);
+        $statString = str_replace('%d%', $chance, $statString);
+        $statString = str_replace('%d', $level, $statString);
+        $statString = str_replace('%s', $skill->name, $statString);
 
         return new ModifierLabel($statString, $statString);
     }

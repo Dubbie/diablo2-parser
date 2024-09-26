@@ -36,15 +36,7 @@ const nameColor = computed(() => {
     }
 });
 
-const sortedModifiers = computed(() => {
-    if (!item.value) {
-        return [];
-    }
-
-    return [...item.value.modifiers].sort((a, b) => a.priority < b.priority);
-});
-
-const modifiers = ref(sortedModifiers.value);
+const modifiers = ref(props.item.modifiers);
 
 const getModifierLabel = (modifier) => {
     if (modifier.values.length === 1) {
@@ -222,7 +214,7 @@ getDetails();
 
                         <div class="space-y-0.5">
                             <div
-                                v-for="(modifier, index) in sortedModifiers"
+                                v-for="(modifier, index) in modifiers"
                                 :key="modifier"
                             >
                                 <!-- <ModifierInput

@@ -11,13 +11,6 @@ use Exception;
 
 class DescFunc13Handler implements DescriptionFunctionHandlerInterface
 {
-    private SkillService $skillService;
-
-    public function __construct(SkillService $skillService)
-    {
-        $this->skillService = $skillService;
-    }
-
     public function handle(Modifier $modifier): ModifierLabel
     {
         $param = $modifier->getValues()[0];
@@ -28,7 +21,6 @@ class DescFunc13Handler implements DescriptionFunctionHandlerInterface
 
         $template = "+[value] " . $classData['strAllSkills'];
         $formattedValue = StatFormatter::formatValue($modifier->getMin(), $modifier->getMax());
-        // dd($modifier);
 
         // Handle range
         $range = $modifier->getRange();

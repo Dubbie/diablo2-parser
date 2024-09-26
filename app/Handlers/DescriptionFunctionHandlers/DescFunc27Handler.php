@@ -40,6 +40,18 @@ class DescFunc27Handler implements DescriptionFunctionHandlerInterface
         // Start piecing it together
         $template = str_replace('[skill]', $skillName, $template);
         $template = str_replace('[class]', $skillClass, $template);
+
+        // Check range
+        $range = $modifier->getRange();
+        if (empty($range) || $range['value']['min'] === null && $range['value']['max'] === null) {
+            $template = str_replace('[value]', $formattedValue, $template);
+        } else {
+            if ($range['value']['min'] === $range['value']['max']) {
+                $template = str_replace('[value]', $formattedValue, $template);
+            }
+        }
+
+        // Final stat string
         $statString = str_replace('[value]', $formattedValue, $template);
 
         // Let's go!

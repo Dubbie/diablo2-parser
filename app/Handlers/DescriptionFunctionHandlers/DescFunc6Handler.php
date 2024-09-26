@@ -22,9 +22,8 @@ class DescFunc6Handler implements DescriptionFunctionHandlerInterface
         $param = $values[0];
 
         // Set min and max values based on the availability of a single value or multiple
-        $min = $max = $value ?? $modifier->getMin() ?? $values[1];
-        $max = $value ?? $modifier->getMax() ?? ($values[2] ?? $values[1]);
-
+        $min = $max = $value ?? $modifier->getMin() ?? $values[1] ?? null;
+        $max = $value ?? $modifier->getMax() ?? $values[2] ?? $values[1] ?? null;
         if ($min !== $max) {
             throw new Exception("Differing min max values in Desc Func 6 is not implemented.");
         }
@@ -60,8 +59,8 @@ class DescFunc6Handler implements DescriptionFunctionHandlerInterface
         $value = StatFormatter::formatValue($min, $max);
         $template = str_replace('[string1]', $string, $template);
         $template = str_replace('[string2]', $extra, $template);
-        $result = str_replace('[perLevel]', $value, $template);
+        $template = str_replace('[perLevel]', $value, $template);
 
-        return new ModifierLabel($result, $template);
+        return new ModifierLabel($template, $template);
     }
 }

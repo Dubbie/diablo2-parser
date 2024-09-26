@@ -8,15 +8,14 @@ use App\ValueObjects\Modifier;
 
 class StatFunction17Handler implements StatFunctionHandlerInterface
 {
+    // Use only param.
     public function handle(mixed $min, mixed $max, mixed $param, MappedStat $mappedStat): Modifier
     {
         // Create a modifier
         $modifier = new Modifier();
 
-        if ($min && $max) {
-            dump("Check this out!");
-            dd($min, $max, $param, $mappedStat);
-        } else {
+        // Handle if we have op param
+        if ($mappedStat->getStat()->operations->count() > 0) {
             $min = $max = $param;
             $param = $mappedStat->getStat()->operations[0]->parameter;
         }
@@ -28,7 +27,7 @@ class StatFunction17Handler implements StatFunctionHandlerInterface
             $values[] = $min;
             $values[] = $max;
         } else {
-            $values[] = $max;
+            $values[] = $min;
         }
 
         $modifier->setValues($values);

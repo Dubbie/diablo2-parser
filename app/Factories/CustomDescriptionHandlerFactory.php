@@ -18,7 +18,8 @@ class CustomDescriptionHandlerFactory
         $this->handlers = [
             'all_resist' => \App\Handlers\CustomDescriptionHandlers\AllResistDescriptionHandler::class,
             'maxdamage_percent' => \App\Handlers\CustomDescriptionHandlers\DmgPercentDescriptionHandler::class,
-            'dmg_flat' => \App\Handlers\CustomDescriptionHandlers\DmgFlatDescriptionHandler::class
+            'dmg_normal' => \App\Handlers\CustomDescriptionHandlers\DmgNormalDescriptionHandler::class,
+            'dmg_lightning' => \App\Handlers\CustomDescriptionHandlers\DmgLightningDescriptionHandler::class
         ];
     }
 

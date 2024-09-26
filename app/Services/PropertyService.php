@@ -143,9 +143,14 @@ class PropertyService
         // Go around again with some new mappings
         $modMap = [
             [
-                'name' => 'dmg_flat',
+                'name' => 'dmg_normal',
                 'priority' => 'secondary_mindamage',
                 'stats' => ['secondary_mindamage', 'secondary_maxdamage'],
+            ],
+            [
+                'name' => 'dmg_lightning',
+                'priority' => 'lightmindam',
+                'stats' => ['lightmindam', 'lightmaxdam'],
             ]
         ];
 
@@ -191,13 +196,13 @@ class PropertyService
                     unset($this->modifiers[$key]);
                 }
             }
-
-            usort($this->modifiers, fn($a, $b) => $a->getPriority() < $b->getPriority());
-
-            $this->modifiers = array_values(
-                array_map(fn($modifier) => $modifier->toArray(), $this->modifiers)
-            );
         }
+
+        usort($this->modifiers, fn($a, $b) => $a->getPriority() < $b->getPriority());
+
+        $this->modifiers = array_values(
+            array_map(fn($modifier) => $modifier->toArray(), $this->modifiers)
+        );
     }
 
     private function same(array $modifiers, array $stats): bool

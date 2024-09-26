@@ -7,8 +7,24 @@ use App\Services\StatFormatter;
 use App\ValueObjects\Modifier;
 use App\ValueObjects\ModifierLabel;
 
-class DmgFlatDescriptionHandler implements CustomDescriptionHandlerInterface
+abstract class BaseDamageHandler implements CustomDescriptionHandlerInterface
 {
+    /**
+     * Get the type of damage.
+     *
+     * @return string
+     */
+    protected function getDamageType(): string
+    {
+        return "Damage"; // Default damage type
+    }
+
+    /**
+     * Handle the processing of the modifier.
+     *
+     * @param Modifier $modifier
+     * @return ModifierLabel
+     */
     public function handle(Modifier $modifier): ModifierLabel
     {
         // Build the template and range data based on the min/max values
@@ -21,6 +37,13 @@ class DmgFlatDescriptionHandler implements CustomDescriptionHandlerInterface
         return new ModifierLabel($statString, $template);
     }
 
+    /**
+     * Build the template based on the min/max values and ranges.
+     *
+     * @param Modifier $modifier
+     * @param array $range
+     * @return string
+     */
     private function buildTemplate(Modifier $modifier, array &$range): string
     {
         // Default template for simple values
@@ -58,6 +81,13 @@ class DmgFlatDescriptionHandler implements CustomDescriptionHandlerInterface
         return $template;
     }
 
+    /**
+     * Build the final stat string by replacing placeholders in the template.
+     *
+     * @param [type] $modifier
+     * @param string $template
+     * @return string
+     */
     protected function buildStatString($modifier, string $template): string
     {
         $minFormatted =  StatFormatter::formatValue($modifier->getMin('minValue'), $modifier->getMax('minValue'));
@@ -69,10 +99,5 @@ class DmgFlatDescriptionHandler implements CustomDescriptionHandlerInterface
             [$minFormatted, $maxFormatted, StatFormatter::formatValue($minFormatted, $maxFormatted)],
             $template
         );
-    }
-
-    private function getDamageType(): string
-    {
-        return 'Damage';
     }
 }

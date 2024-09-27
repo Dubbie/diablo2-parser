@@ -21,6 +21,7 @@ class ItemController
         $q = $request->input('q');
         $itemType = $request->input('item_type');
         $templates = array_key_exists('templates', $request->all()) && $request->all()['templates'] == 'true' ? true : false;
+        $slot = $request->input('slot') ?? null;
 
         $items = Item::query();
 
@@ -34,6 +35,10 @@ class ItemController
 
         if ($templates) {
             $items = $items->where('is_template', true);
+        }
+
+        if ($slot) {
+            $items = $items->bySlot($slot);
         }
 
         return response()->json($items->get());

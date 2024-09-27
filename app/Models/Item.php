@@ -3,13 +3,25 @@
 namespace App\Models;
 
 use App\Services\PropertyService;
-use App\ValueObjects\Modifier;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
 {
     public $timestamps = false;
+
+    public const SLOT_MAP = [
+        'head' => ['circ', 'phlm', 'pelt', 'helm'],
+        'tors' => ['tors', 'cloa'],
+        'rarm' => ['shie', 'bowq', 'xboq', 'scep', 'wand', 'staf', 'bow', 'axe', 'club', 'swor', 'hamm', 'knif', 'spea', 'pole', 'xbow', 'mace', 'tkni', 'taxe', 'jave', 'h2h', 'h2h2', 'orb', 'ashd', 'abow', 'aspe', 'ajav', 'mboq', 'mbxq', '2han', 'sc9', '2hsw'],
+        'larm' => ['shie', 'bowq', 'xboq', 'scep', 'wand', 'staf', 'bow', 'axe', 'club', 'swor', 'hamm', 'knif', 'spea', 'pole', 'xbow', 'mace', 'tkni', 'taxe', 'jave', 'h2h', 'h2h2', 'orb', 'ashd', 'abow', 'aspe', 'ajav', 'mboq', 'mbxq', '2han', 'sc9', '2hsw'],
+        'rrin' => ['ring'],
+        'lrin' => ['ring'],
+        'neck' => ['amul'],
+        'glov' => ['glov'],
+        'belt' => ['belt'],
+        'feet' => ['boot'],
+    ];
 
     public const BASE_STAT_MAP = [
         'wclass' => 'weapon_class',
@@ -86,6 +98,11 @@ class Item extends Model
         return $query->where('item_type', $type);
     }
 
+    public function scopeBySlot($query, $slot)
+    {
+        return $query->whereIn('type', self::SLOT_MAP[$slot]);
+    }
+
     public function modifiers(): Attribute
     {
         return Attribute::make(
@@ -101,23 +118,23 @@ class Item extends Model
         }
 
         // Do magic with the item modifiers.
-        /** @var ItemModifier $itemModifier */
-        $modifiers = [];
-        foreach ($this->itemModifiers as $itemModifier) {
-            $stat = $itemModifier->stat ? Stat::find($itemModifier->stat) : null;
-            $modifier = new Modifier();
-            $modifier->setName($itemModifier->name);
-            $modifier->setValues($itemModifier->values);
-            $modifier->setPriority($itemModifier->priority);
-            $modifier->setMin($itemModifier->min);
-            $modifier->setMax($itemModifier->max);
-            if ($stat) {
-                $modifier->setStat($stat);
-            }
+        // /** @var ItemModifier $itemModifier */
+        // $modifiers = [];
+        // foreach ($this->itemModifiers as $itemModifier) {
+        //     $stat = $itemModifier->stat ? Stat::find($itemModifier->stat) : null;
+        //     $modifier = new Modifier();
+        //     $modifier->setName($itemModifier->name);
+        //     $modifier->setValues($itemModifier->values);
+        //     $modifier->setPriority($itemModifier->priority);
+        //     $modifier->setMin($itemModifier->min);
+        //     $modifier->setMax($itemModifier->max);
+        //     if ($stat) {
+        //         $modifier->setStat($stat);
+        //     }
 
-            $modifiers[] = $modifier;
-        }
+        //     $modifiers[] = $modifier;
+        // }
 
-        return $modifiers;
+        // return $modifiers;
     }
 }

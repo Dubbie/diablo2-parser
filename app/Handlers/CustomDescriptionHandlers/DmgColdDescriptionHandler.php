@@ -18,7 +18,7 @@ class DmgColdDescriptionHandler extends BaseDamageHandler
     {
         $modifierLabel = parent::handle($modifier);
 
-        $length = $modifier->getValues()['value'];
+        $length = $modifier->getValues()['value'] ?? null;
         if ($length) {
             $modifierLabel->label .= sprintf(' (Slows for %s Seconds)', $length / 25);
             $modifierLabel->template .= sprintf(' (Slows for %s Seconds)', $length / 25);

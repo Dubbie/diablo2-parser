@@ -15,11 +15,11 @@ class AllResistDescriptionHandler implements CustomDescriptionHandlerInterface
         $values = $modifier->getValues();
 
         // Determine if there's only one value
-        $value = count($values) === 1 ? $values[0] : null;
+        $value = $values['value'] ?? null;
 
         // Set min and max values based on the availability of a single value or multiple
-        $min = $max = $value ?? $modifier->getMin() ?? $values[0];
-        $max = $value ?? $modifier->getMax() ?? ($values[1] ?? $values[0]);
+        $min = $max = $value ?? $modifier->getMin();
+        $max = $value ?? $modifier->getMax();
 
         // Set the stat string based on the description
         $formattedValue = StatFormatter::formatValue($min, $max);

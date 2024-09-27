@@ -15,8 +15,6 @@ const props = defineProps({
     nextId: Number,
 });
 
-console.log(props.item.modifiers);
-
 const showingDebug = ref(false);
 
 const previousLink = computed(() => {

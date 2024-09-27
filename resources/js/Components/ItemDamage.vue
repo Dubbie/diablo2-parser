@@ -10,8 +10,6 @@ const props = defineProps({
 
 const modified = ref(false);
 
-console.log(props.item.modifiers);
-
 const getCalculatedDamage = (baseMinKey, baseMaxKey) => {
     let _min = props.item.base_stats[baseMinKey] ?? 0;
     let _max = props.item.base_stats[baseMaxKey] ?? 0;

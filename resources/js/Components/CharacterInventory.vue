@@ -11,12 +11,12 @@ const props = defineProps({
     },
     larm: Object,
     rarm: Object,
-    helm: Object,
+    head: Object,
     boot: Object,
     tors: Object,
     belt: Object,
     glov: Object,
-    amul: Object,
+    neck: Object,
     lrin: Object,
     rrin: Object,
 });
@@ -44,7 +44,7 @@ const itemPositions = {
         width: getWidth(2),
         height: getHeight(4),
     },
-    helm: {
+    head: {
         top: "14px",
         left: "134px",
         width: getWidth(2),
@@ -86,7 +86,7 @@ const itemPositions = {
         width: getWidth(1),
         height: getHeight(1),
     },
-    amul: {
+    neck: {
         top: "41px",
         left: "201px",
         width: getWidth(1),
@@ -97,14 +97,14 @@ const itemPositions = {
 const elements = [
     "larm",
     "rarm",
-    "helm",
+    "head",
     "tors",
     "glov",
     "boot",
     "belt",
     "lrin",
     "rrin",
-    "amul",
+    "neck",
 ];
 
 const handleUneqip = ($event, slot) => {

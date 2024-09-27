@@ -12,23 +12,19 @@ import { IconSearch } from "@tabler/icons-vue";
 import { computed, ref, watch } from "vue";
 
 const showItemFinder = ref(false);
-
-const debug = false;
-
-const activeCharacterPanel = ref("inventory");
 const selectedItem = ref(null);
 
 const pdollSlots = ref({
     larm: null,
     rarm: null,
     tors: null,
-    helm: null,
+    head: null,
     boot: null,
     belt: null,
     glov: null,
     lrin: null,
     rrin: null,
-    amul: null,
+    neck: null,
 });
 
 const form = useForm({
@@ -108,13 +104,13 @@ const handleResetItems = () => {
         larm: null,
         rarm: null,
         tors: null,
-        helm: null,
+        head: null,
         boot: null,
         belt: null,
         glov: null,
         lrin: null,
         rrin: null,
-        amul: null,
+        neck: null,
     };
 
     filter.value.slot = null;
@@ -169,12 +165,12 @@ watch(
                         :filter="filter"
                         :larm="pdollSlots.larm"
                         :rarm="pdollSlots.rarm"
-                        :helm="pdollSlots.helm"
+                        :head="pdollSlots.head"
                         :boot="pdollSlots.boot"
                         :tors="pdollSlots.tors"
                         :belt="pdollSlots.belt"
                         :glov="pdollSlots.glov"
-                        :amul="pdollSlots.amul"
+                        :neck="pdollSlots.neck"
                         :lrin="pdollSlots.lrin"
                         :rrin="pdollSlots.rrin"
                         @unequip-item="pdollSlots[filter.slot] = null"

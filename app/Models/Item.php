@@ -20,7 +20,7 @@ class Item extends Model
         'neck' => ['amul'],
         'glov' => ['glov'],
         'belt' => ['belt'],
-        'feet' => ['boot'],
+        'boot' => ['boot'],
     ];
 
     public const BASE_STAT_MAP = [

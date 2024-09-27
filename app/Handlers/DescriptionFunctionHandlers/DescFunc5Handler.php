@@ -19,8 +19,8 @@ class DescFunc5Handler implements DescriptionFunctionHandlerInterface
         $max = $value ?? $modifier->getMax();
 
         // Modify them based on the description function
-        $min = $min * 100 / 128;
-        $max = $max * 100 / 128;
+        $min = floor($min * 100 / 128);
+        $max = floor($max * 100 / 128);
 
         $stat = $modifier->getStat();
         $template = '[value]% [string1]';

@@ -159,6 +159,7 @@ const isTwoHandedInRightHand = (element) => {
                 v-if="props[element]"
                 :item="props[element]"
                 :padded="false"
+                :background="false"
                 @click.right="handleUneqip($event, element)"
             />
         </div>

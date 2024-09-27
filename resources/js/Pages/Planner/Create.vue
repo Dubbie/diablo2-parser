@@ -128,6 +128,8 @@ const handleCancel = () => {
 watch(
     () => filter.value.slot,
     () => {
+        console.log(filter.value.slot);
+
         if (pdollSlots.value[filter.value.slot]) {
             selectedItem.value = pdollSlots.value[filter.value.slot];
             showItemFinder.value = false;

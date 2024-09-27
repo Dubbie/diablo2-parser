@@ -1,6 +1,6 @@
 <script setup>
 import AppSpinner from "@/Components/AppSpinner.vue";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import AppButton from "@/Components/AppButton.vue";
 import InputError from "@/Components/InputError.vue";
 import InputPlaceholder from "./InputPlaceholder.vue";
@@ -89,7 +89,15 @@ const handleCancel = () => {
     emit("cancel");
 };
 
-getDetails();
+watch(
+    () => props.item,
+    () => {
+        getDetails();
+    },
+    {
+        immediate: true,
+    }
+);
 </script>
 
 <template>

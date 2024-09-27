@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from "vue";
+import ItemDamage from "./ItemDamage.vue";
 
 const props = defineProps({
     item: {
@@ -57,6 +58,12 @@ const getModifierLabel = (modifier) => {
             <p v-if="!item.skip_base_name">{{ item.base_name }}</p>
         </div>
 
+        <!-- Base stats -->
+        <div>
+            <ItemDamage v-if="item.modifiers" :item="item" />
+        </div>
+
+        <!-- Modifiers -->
         <div class="mt-1 text-blue-400">
             <p v-for="modifier in props.item.modifiers" :key="modifier">
                 {{ getModifierLabel(modifier) }}

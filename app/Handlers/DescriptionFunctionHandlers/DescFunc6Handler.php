@@ -16,14 +16,14 @@ class DescFunc6Handler implements DescriptionFunctionHandlerInterface
         $values = $modifier->getValues();
 
         // Determine if there's only one value
-        $value = count($values) === 2 ? $values[1] : null;
+        $value = $values['value'] ?? null;
 
         // Param is the first value
-        $param = $values[0];
+        $param = $values['param'];
 
         // Set min and max values based on the availability of a single value or multiple
-        $min = $max = $value ?? $modifier->getMin() ?? $values[1] ?? null;
-        $max = $value ?? $modifier->getMax() ?? $values[2] ?? $values[1] ?? null;
+        $min = $max = $value ?? $modifier->getMin();
+        $max = $value ?? $modifier->getMax();
         if ($min !== $max) {
             throw new Exception("Differing min max values in Desc Func 6 is not implemented.");
         }

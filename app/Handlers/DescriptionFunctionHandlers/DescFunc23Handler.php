@@ -25,9 +25,10 @@ class DescFunc23Handler implements DescriptionFunctionHandlerInterface
         $template = sprintf('+[value]%% %s [monster]', $statModel->description->positive);
 
         $values = $modifier->getValues();
-        $param = $values[0];
-        $min = $values[1];
-        $max = $values[2] ?? $min;
+        $param = $values['param'];
+        $value = $values['value'] ?? null;
+        $min = $max = $value ?? $modifier->getMin();
+        $max = $value ?? $modifier->getMax();
 
         $formattedValue = StatFormatter::formatValue($min, $max);
 

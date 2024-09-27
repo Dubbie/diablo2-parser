@@ -21,9 +21,9 @@ class DescFunc15Handler implements DescriptionFunctionHandlerInterface
     public function handle(Modifier $modifier): ModifierLabel
     {
         $values = $modifier->getValues();
-        $level = $values[2];
-        $skillParameter = $values[0];
-        $chance = $values[1];
+        $level = $modifier->getMax();
+        $skillParameter = $values['param'];
+        $chance = $modifier->getMin();
 
         $stat = $modifier->getStat();
         $template = "[string1]";

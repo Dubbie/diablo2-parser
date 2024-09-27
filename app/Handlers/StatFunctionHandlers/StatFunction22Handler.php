@@ -23,7 +23,7 @@ class StatFunction22Handler implements StatFunctionHandlerInterface
             ]
         ]);
 
-        $modifier->setValues([$param]);
+        $modifier->setValues(['param' => $param]);
         $modifier->setName($stat->stat);
         $modifier->setStat($stat);
         $modifier->setPriority($stat->description->priority ?? 999);

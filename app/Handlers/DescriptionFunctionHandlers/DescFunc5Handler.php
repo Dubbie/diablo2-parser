@@ -12,11 +12,11 @@ class DescFunc5Handler implements DescriptionFunctionHandlerInterface
     public function handle(Modifier $modifier): ModifierLabel
     {
         $values = $modifier->getValues();
-        $value = count($values) === 1 ? $values[0] : null;
+        $value = $values['value'] ?? null;
 
         // Set min and max values
-        $min = $max = $value ?? $modifier->getMin() ?? $values[0];
-        $max = $value ?? $modifier->getMax() ?? ($values[1] ?? $values[0]);
+        $min = $max = $value ?? $modifier->getMin();
+        $max = $value ?? $modifier->getMax();
 
         // Modify them based on the description function
         $min = $min * 100 / 128;

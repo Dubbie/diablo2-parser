@@ -24,7 +24,7 @@ class DescFunc27Handler implements DescriptionFunctionHandlerInterface
     {
         $template = "+[value] to [skill] ([class] Only)";
 
-        $skillParam = $modifier->getValues()[0];
+        $skillParam = $modifier->getValues()['param'];
         $skill = $this->skillService->findByParam($skillParam);
         if (!$skill) {
             throw new Exception("Skill not found with param: " . $skillParam);

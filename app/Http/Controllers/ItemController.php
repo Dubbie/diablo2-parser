@@ -16,6 +16,9 @@ class ItemController extends Controller
     {
         $previousId = (Item::where('id', '<', $item->id)->orderByDesc('id')->first())->id ?? null;
         $nextId = (Item::where('id', '>', $item->id)->orderBy('id')->first())->id ?? null;
+
+        $item = $item->append('modifiers');
+
         return Inertia::render(
             'Items/Show',
             [

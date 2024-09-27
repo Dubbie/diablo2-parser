@@ -21,13 +21,17 @@ class StatFunction17Handler implements StatFunctionHandlerInterface
         }
 
         $values = [];
-        $values[] = $param;
+        $values['param'] = $param;
 
         if ($min !== $max) {
-            $values[] = $min;
-            $values[] = $max;
+            $modifier->setRange([
+                'value' => [
+                    'min' => $min,
+                    'max' => $max
+                ]
+            ]);
         } else {
-            $values[] = $min;
+            $values['value'] = $max;
         }
 
         $modifier->setValues($values);

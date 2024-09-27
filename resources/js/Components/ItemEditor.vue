@@ -57,14 +57,8 @@ const fullName = computed(() => {
 });
 
 const handleModifierChange = (data) => {
-    modifiers.value = modifiers.value.map((modifier) => {
-        if (modifier.name === data.name) {
-            modifier.values = data.values;
-
-            return modifier;
-        }
-        return modifier;
-    });
+    const index = data.index;
+    modifiers.value[index].values = data.values;
 };
 
 const getDetails = async () => {
@@ -120,7 +114,7 @@ getDetails();
                     Fetching details for {{ props.item.name }}
                 </p>
             </div>
-            <div class="flex space-x-6 items-start" v-else>
+            <div class="flex flex-col space-y-3 items-start" v-else>
                 <div class="flex flex-col items-center">
                     <div class="relative">
                         <img
@@ -166,6 +160,7 @@ getDetails();
                             >
                                 <InputPlaceholder
                                     :entry="modifier"
+                                    :index="index"
                                     @update:entry="handleModifierChange"
                                 />
                                 <InputError

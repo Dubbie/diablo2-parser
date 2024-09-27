@@ -17,11 +17,11 @@ abstract class BaseDescriptionFunctionHandler implements DescriptionFunctionHand
     public function handle(Modifier $modifier): ModifierLabel
     {
         $values = $modifier->getValues();
-        $value = count($values) === 1 ? $values[0] : null;
+        $value = $values['value'] ?? null;
 
         // Set min and max values
-        $min = $max = $value ?? $modifier->getMin() ?? $values[0];
-        $max = $value ?? $modifier->getMax() ?? ($values[1] ?? $values[0]);
+        $min = $max = $value ?? $modifier->getMin();
+        $max = $value ?? $modifier->getMax();
 
         $stat = $modifier->getStat();
         $this->template = $this->getTemplate();

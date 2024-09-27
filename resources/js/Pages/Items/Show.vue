@@ -1,7 +1,6 @@
 <script setup>
 import AppButton from "@/Components/AppButton.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
-import ItemDisplay from "@/Components/ItemDisplay.vue";
 import { Link } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 import ItemEditor from "@/Components/ItemEditor.vue";
@@ -15,6 +14,8 @@ const props = defineProps({
     previousId: Number,
     nextId: Number,
 });
+
+console.log(props.item.modifiers);
 
 const showingDebug = ref(false);
 

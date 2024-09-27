@@ -26,7 +26,7 @@ class StatFunction21Handler implements StatFunctionHandlerInterface
 
         // Set the value based on the value of the mapped stat,
         // this is the class ID
-        $values = [$mappedStat->getValue()];
+        $values = ['param' => $mappedStat->getValue()];
 
         $modifier->setValues($values);
         $modifier->setName($stat->stat);

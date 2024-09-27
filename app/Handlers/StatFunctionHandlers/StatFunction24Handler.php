@@ -14,13 +14,17 @@ class StatFunction24Handler implements StatFunctionHandlerInterface
         $modifier = new Modifier();
 
         $values = [];
-        $values[] = $param;
+        $values['param'] = $param;
 
         if ($min !== $max) {
-            $values[] = $min;
-            $values[] = $max;
+            $modifier->setRange([
+                'value' => [
+                    'min' => $min,
+                    'max' => $max
+                ]
+            ]);
         } else {
-            $values[] = $max;
+            $values['value'] = $max;
         }
 
         $modifier->setValues($values);

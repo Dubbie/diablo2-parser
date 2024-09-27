@@ -154,6 +154,11 @@ class PropertyService
                     continue;
                 }
 
+                // BIG DEBUG
+                // if ($stat->getStat()->stat === 'item_allskills') {
+                //     dd($stat);
+                // }
+
                 $this->modifiers[] = $this->statFunctionHandlerFactory
                     ->getHandler($stat->getFunction())
                     ->handle($mappedProperty->getMin(), $mappedProperty->getMax(), $mappedProperty->getParam(), $stat);
@@ -218,7 +223,7 @@ class PropertyService
             $isMin = strpos($modifier->getName(), 'min') !== false;
             $isMax = strpos($modifier->getName(), 'max') !== false;
             $isLength = strpos($modifier->getName(), 'length') !== false;
-            $fixedValue = $modifier->getValues()[0] ?? null;
+            $fixedValue = $modifier->getValues()['value'] ?? null;
 
             if ($isMin) {
                 $range['minValue']['min'] = $fixedValue ?? $modifier->getRange()['value']['min'];

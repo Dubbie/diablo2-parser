@@ -12,11 +12,15 @@ class DefaultStatFunctionHandler implements StatFunctionHandlerInterface
     {
         // Create a modifier
         $modifier = new Modifier();
-        $label = $mappedStat->getStat()->stat;
+
+        $values = [];
+        if ($param) {
+            $values['param'] = $param;
+        }
 
         if (is_numeric($min) && is_numeric($max)) {
             if ($min === $max) {
-                $modifier->setValues([$min]);
+                $values['value'] = $min;
             } else {
                 $modifier->setRange([
                     'value' => [
@@ -25,11 +29,9 @@ class DefaultStatFunctionHandler implements StatFunctionHandlerInterface
                     ]
                 ]);
             }
-        } else {
-            $modifier->setValues([$param, $min, $max]);
-            $label .= sprintf(', Param: %s, Min: %s, Max: %s', $param, $min, $max);
         }
 
+        $modifier->setValues($values);
         $modifier->setName($mappedStat->getStat()->stat);
         $modifier->setStat($mappedStat->getStat());
         $modifier->setPriority($mappedStat->getStat()->description->priority ?? 999);

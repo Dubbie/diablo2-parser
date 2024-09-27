@@ -3,7 +3,6 @@
 namespace App\Handlers\DescriptionFunctionHandlers;
 
 use App\Handlers\DescriptionFunctionHandlerInterface;
-use App\Services\SkillService;
 use App\Services\StatFormatter;
 use App\ValueObjects\Modifier;
 use App\ValueObjects\ModifierLabel;
@@ -13,10 +12,15 @@ class DescFunc13Handler implements DescriptionFunctionHandlerInterface
 {
     public function handle(Modifier $modifier): ModifierLabel
     {
-        $param = $modifier->getValues()[0];
-        $classData = StatFormatter::getClassStrings($param);
-        if (!$classData) {
-            throw new Exception("Class not found with param: " . $param);
+        $param = $modifier->getValues()['param'] ?? null;
+
+        if (!$param) {
+            throw new Exception("Random class skill levels not supported yet.");
+        } else {
+            $classData = StatFormatter::getClassStrings($param);
+            if (!$classData) {
+                throw new Exception("Class not found with param: " . $param);
+            }
         }
 
         $template = "+[value] " . $classData['strAllSkills'];

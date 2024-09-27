@@ -24,7 +24,7 @@ class DmgMinPropertyHandler implements PropertyHandlerInterface
         'min_2h_damage' => 'secondary_mindamage',
     ];
 
-    public function handle(Item $item, ItemProperty $itemProperty): MappedProperty
+    public function handle(Item $item, ItemProperty $itemProperty): array
     {
         $mappedProperty = new MappedProperty();
         $mappedProperty->setProperty($itemProperty->baseProperty);
@@ -43,6 +43,6 @@ class DmgMinPropertyHandler implements PropertyHandlerInterface
         }
 
         $mappedProperty->setStats($stats);
-        return $mappedProperty;
+        return [$mappedProperty];
     }
 }

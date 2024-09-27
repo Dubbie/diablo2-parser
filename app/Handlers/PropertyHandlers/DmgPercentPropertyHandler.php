@@ -41,7 +41,7 @@ class DmgPercentPropertyHandler implements PropertyHandlerInterface
         // 'maxdamage_percent_perlevel',
     ];
 
-    public function handle(Item $item, ItemProperty $itemProperty): MappedProperty
+    public function handle(Item $item, ItemProperty $itemProperty): array
     {
         $mappedProperty = new MappedProperty();
         $mappedProperty->setProperty($itemProperty->baseProperty);
@@ -58,6 +58,6 @@ class DmgPercentPropertyHandler implements PropertyHandlerInterface
         $stats[] = $mappedStat;
 
         $mappedProperty->setStats($stats);
-        return $mappedProperty;
+        return [$mappedProperty];
     }
 }

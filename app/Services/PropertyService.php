@@ -31,11 +31,9 @@ class PropertyService
         $this->item = $item;
         $this->properties = $item->itemProperties;
 
-
-
         // Map the properties with proper stats
         foreach ($this->properties as $itemProperty) {
-            $this->mappedProperties[] = $this->handleMappingProperty($itemProperty);
+            $this->mappedProperties = array_merge($this->mappedProperties, $this->handleMappingProperty($itemProperty));
         }
 
         // Combine all modifiers
@@ -44,13 +42,16 @@ class PropertyService
         return $this->modifiers;
     }
 
-    private function handleMappingProperty(ItemProperty $itemProperty): MappedProperty
+    private function handleMappingProperty(ItemProperty $itemProperty): array
     {
         return $this->propertyHandlerFactory
             ->getHandler($itemProperty->property)
             ->handle($this->item, $itemProperty);
     }
 
+    /**
+     * Combines all modifiers from the mapped properties into a single array
+     */
     private function combineModifiers(): void
     {
         $mappings = $this->getMappings();
@@ -74,6 +75,18 @@ class PropertyService
                 'name' => 'maxdamage_percent',
                 'stats' => ['item_maxdamage_percent'],
             ],
+            [
+                'priority' => 126,
+                'name' => 'max_damage',
+                'partial' => true,
+                'stats' => ['maxdamage', 'secondary_maxdamage', 'item_throw_maxdamage'],
+            ],
+            [
+                'priority' => 127,
+                'name' => 'min_damage',
+                'partial' => true,
+                'stats' => ['mindamage', 'secondary_mindamage', 'item_throw_mindamage'],
+            ]
         ];
     }
 
@@ -81,10 +94,10 @@ class PropertyService
     {
         $mappedProperties = array_filter($this->mappedProperties);
 
-        foreach ($mappedProperties as $mappedProperty) {
-            $propertyStats = $this->getPropertyStats($mappedProperty);
+        foreach ($mappings as $mapping) {
+            foreach ($mappedProperties as $mappedProperty) {
+                $propertyStats = $this->getPropertyStats($mappedProperty);
 
-            foreach ($mappings as $mapping) {
                 if (!$this->shouldMap($mapping, $propertyStats)) {
                     continue;
                 }
@@ -93,7 +106,7 @@ class PropertyService
                 $this->modifiers[] = $newModifier;
 
                 // Remove original mapped property
-                $this->removeMappedProperty($mappedProperty);
+                $this->removeMappedProperty($mapping, $mappedProperty);
                 break;
             }
         }
@@ -101,7 +114,7 @@ class PropertyService
 
     private function shouldMap(array $mapping, array $propertyStats): bool
     {
-        if (isset($mapping['partial']) && count(array_intersect($mapping['stats'], $propertyStats)) > 1) {
+        if (isset($mapping['partial']) && count(array_intersect($mapping['stats'], $propertyStats)) > 0) {
             return true;
         }
 
@@ -121,6 +134,33 @@ class PropertyService
         $newModifier = new Modifier();
         $newModifier->setName($mapping['name']);
         $newModifier->setPriority($mapping['priority']);
+
+        // $isMin = strpos($mapping['name'], 'min') !== false;
+        // $isMax = strpos($mapping['name'], 'max') !== false;
+
+        // if ($isMin) {
+        //     $newModifier->setRange([
+        //         'value' => [
+        //             'min' => $mappedProperty->getMin(),
+        //             'max' => $mappedProperty->getMin(),
+        //         ]
+        //     ]);
+        // } else if ($isMax) {
+        //     $newModifier->setRange([
+        //         'value' => [
+        //             'min' => $mappedProperty->getMax(),
+        //             'max' => $mappedProperty->getMax(),
+        //         ]
+        //     ]);
+        // } else {
+        //     $newModifier->setRange([
+        //         'value' => [
+        //             'min' => $mappedProperty->getMin(),
+        //             'max' => $mappedProperty->getMax(),
+        //         ]
+        //     ]);
+        // }
+
         $newModifier->setRange([
             'value' => [
                 'min' => $mappedProperty->getMin(),
@@ -135,7 +175,7 @@ class PropertyService
         return $newModifier;
     }
 
-    private function removeMappedProperty(MappedProperty $mappedProperty): void
+    private function removeMappedProperty(array $mapping, MappedProperty $mappedProperty): void
     {
         $key = array_search($mappedProperty, $this->mappedProperties);
         unset($this->mappedProperties[$key]);
@@ -171,8 +211,8 @@ class PropertyService
         $additionalMappings = [
             [
                 'name' => 'dmg_normal',
-                'priority' => 'secondary_mindamage',
-                'stats' => ['secondary_mindamage', 'secondary_maxdamage'],
+                'priority' => 'min_damage',
+                'stats' => ['min_damage', 'max_damage'],
             ],
             [
                 'name' => 'dmg_lightning',

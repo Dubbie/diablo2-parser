@@ -19,7 +19,8 @@ class PropertyHandlerFactory
         $this->handlers = [
             'dmg%' => \App\Handlers\PropertyHandlers\DmgPercentPropertyHandler::class,
             'dmg-min' => \App\Handlers\PropertyHandlers\DmgMinPropertyHandler::class,
-            'dmg-max' => \App\Handlers\PropertyHandlers\DmgMaxPropertyHandler::class
+            'dmg-max' => \App\Handlers\PropertyHandlers\DmgMaxPropertyHandler::class,
+            'dmg-norm' => \App\Handlers\PropertyHandlers\DmgNormPropertyHandler::class,
         ];
 
         // Define the default handler class

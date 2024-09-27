@@ -10,7 +10,7 @@ use App\ValueObjects\MappedStat;
 
 class DefaultPropertyHandler implements PropertyHandlerInterface
 {
-    public function handle(Item $item, ItemProperty $itemProperty): MappedProperty
+    public function handle(Item $item, ItemProperty $itemProperty): array
     {
         $mappedProperty = new MappedProperty();
         $mappedProperty->setProperty($itemProperty->baseProperty);
@@ -30,6 +30,6 @@ class DefaultPropertyHandler implements PropertyHandlerInterface
         }
 
         $mappedProperty->setStats($stats);
-        return $mappedProperty;
+        return [$mappedProperty];
     }
 }

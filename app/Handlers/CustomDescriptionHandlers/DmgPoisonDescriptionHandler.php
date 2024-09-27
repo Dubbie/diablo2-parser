@@ -13,7 +13,7 @@ class DmgPoisonDescriptionHandler implements CustomDescriptionHandlerInterface
     {
         $min = $modifier->getRange('minValue')['min'];
         $max = $modifier->getRange('minValue')['max'];
-        $length = $modifier->getValues()[0];
+        $length = $modifier->getValues()['value'];
 
         $dmg = $this->calculatePoisonDamage($min, $max, $length);
         $formattedValue = StatFormatter::formatValue($dmg['min'], $dmg['max'], '');

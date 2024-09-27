@@ -2,8 +2,6 @@
 
 namespace App\Handlers\CustomDescriptionHandlers;
 
-use App\Handlers\CustomDescriptionHandlerInterface;
-use App\Services\StatFormatter;
 use App\ValueObjects\Modifier;
 use App\ValueObjects\ModifierLabel;
 

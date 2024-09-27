@@ -14,7 +14,7 @@ class DescFunc13Handler implements DescriptionFunctionHandlerInterface
     {
         $param = $modifier->getValues()['param'] ?? null;
 
-        if (!$param) {
+        if ($param === null) {
             throw new Exception("Random class skill levels not supported yet.");
         } else {
             $classData = StatFormatter::getClassStrings($param);

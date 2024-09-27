@@ -228,6 +228,12 @@ class PropertyService
                 'name' => 'dmg_poison',
                 'priority' => 'poisonmindam',
                 'stats' => ['poisonmindam', 'poisonmaxdam', 'poisonlength'],
+            ],
+            [
+                'name' => 'dmg_cold',
+                'priority' => 'coldmindam',
+                'stats' => ['coldmindam', 'coldmaxdam'],
+                'optional_stats' => ['coldlength'],
             ]
         ];
 
@@ -245,6 +251,15 @@ class PropertyService
 
         if (count($foundModifiers) !== count($mapping['stats'])) {
             return;
+        }
+
+        // we got all the mods, check if we have the optional as well
+        if (isset($mapping['optional_stats'])) {
+            $optional = array_filter(
+                $this->modifiers,
+                fn($modifier) => in_array($modifier->getName(), $mapping['optional_stats'])
+            );
+            $foundModifiers = array_merge($foundModifiers, $optional);
         }
 
         $newModifier = $this->createCombinedModifier($mapping, $foundModifiers);

@@ -21,7 +21,8 @@ class CustomDescriptionHandlerFactory
             'dmg_normal' => \App\Handlers\CustomDescriptionHandlers\DmgNormalDescriptionHandler::class,
             'dmg_lightning' => \App\Handlers\CustomDescriptionHandlers\DmgLightningDescriptionHandler::class,
             'dmg_fire' => \App\Handlers\CustomDescriptionHandlers\DmgFireDescriptionHandler::class,
-            'dmg_poison' => \App\Handlers\CustomDescriptionHandlers\DmgPoisonDescriptionHandler::class
+            'dmg_poison' => \App\Handlers\CustomDescriptionHandlers\DmgPoisonDescriptionHandler::class,
+            'dmg_cold' => \App\Handlers\CustomDescriptionHandlers\DmgColdDescriptionHandler::class
         ];
     }
 

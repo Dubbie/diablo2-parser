@@ -10,6 +10,8 @@ const props = defineProps({
 
 const modified = ref(false);
 
+console.log(props.item.modifiers);
+
 const getCalculatedDamage = (baseMinKey, baseMaxKey) => {
     let _min = props.item.base_stats[baseMinKey] ?? 0;
     let _max = props.item.base_stats[baseMaxKey] ?? 0;
@@ -31,21 +33,13 @@ const getCalculatedDamage = (baseMinKey, baseMaxKey) => {
             modified.value = true;
         }
 
-        if (
-            modifier.name === "secondary_mindamage" &&
-            baseMinKey === "min_2h_damage"
-        ) {
+        if (modifier.name === "min_damage") {
             _minAdd += parseInt(modifier.values.value);
-
             modified.value = true;
         }
 
-        if (
-            modifier.name === "secondary_maxdamage" &&
-            baseMaxKey === "max_2h_damage"
-        ) {
+        if (modifier.name === "max_damage") {
             _maxAdd += parseInt(modifier.values.value);
-
             modified.value = true;
         }
 

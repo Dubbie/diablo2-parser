@@ -8,6 +8,7 @@ use App\Models\Item;
 use App\Models\ItemProperty;
 use App\ValueObjects\MappedProperty;
 use App\ValueObjects\Modifier;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -135,40 +136,22 @@ class PropertyService
         $newModifier->setName($mapping['name']);
         $newModifier->setPriority($mapping['priority']);
 
-        // $isMin = strpos($mapping['name'], 'min') !== false;
-        // $isMax = strpos($mapping['name'], 'max') !== false;
-
-        // if ($isMin) {
-        //     $newModifier->setRange([
-        //         'value' => [
-        //             'min' => $mappedProperty->getMin(),
-        //             'max' => $mappedProperty->getMin(),
-        //         ]
-        //     ]);
-        // } else if ($isMax) {
-        //     $newModifier->setRange([
-        //         'value' => [
-        //             'min' => $mappedProperty->getMax(),
-        //             'max' => $mappedProperty->getMax(),
-        //         ]
-        //     ]);
-        // } else {
-        //     $newModifier->setRange([
-        //         'value' => [
-        //             'min' => $mappedProperty->getMin(),
-        //             'max' => $mappedProperty->getMax(),
-        //         ]
-        //     ]);
-        // }
-
-        $newModifier->setRange([
-            'value' => [
-                'min' => $mappedProperty->getMin(),
-                'max' => $mappedProperty->getMax(),
-            ]
-        ]);
+        if ($mappedProperty->getMin() === $mappedProperty->getMax()) {
+            $newModifier->setValues([
+                'value' => $mappedProperty->getMin()
+            ]);
+        } else {
+            $newModifier->setRange([
+                'value' => [
+                    'min' => $mappedProperty->getMin(),
+                    'max' => $mappedProperty->getMax(),
+                ]
+            ]);
+        }
 
         if ($mappedProperty->getParam()) {
+            // This is not gonna work
+            dd($mappedProperty);
             $newModifier->setValues([$mappedProperty->getMax(), $mappedProperty->getParam(), $mappedProperty->getMin()]);
         }
 

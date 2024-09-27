@@ -45,30 +45,28 @@ const initValues = () => {
     const initialValues = {};
 
     placeholders.forEach((placeholder) => {
-        const key = placeholder.slice(1, -1);
-        const range = props.entry.range[key]; // Remove brackets for range lookup
-        // Use the max value as the default initial value
+        const key = placeholder.slice(1, -1); // Remove brackets
+        const range = props.entry.range[key];
+        // Set the initial value to the max value if it exists, otherwise null
         initialValues[key] = range?.max ?? null;
     });
 
-    // Check if the entry has either minValue or maxValue but not both
-    if (
-        props.entry.range.minValue &&
-        props.entry.range.minValue["min"] ===
-            props.entry.range.minValue["max"] &&
-        !initialValues.minValue
-    ) {
-        initialValues.minValue = props.entry.range.minValue["min"];
-    } else if (
-        props.entry.range.maxValue &&
-        props.entry.range.maxValue["min"] ===
-            props.entry.range.maxValue["max"] &&
-        !initialValues.maxValue
-    ) {
-        initialValues.maxValue = props.entry.range.maxValue["min"];
-    }
+    // Handle special minValue and maxValue cases
+    const setInitialValue = (key) => {
+        const rangeValue = props.entry.range[key];
+        if (
+            rangeValue &&
+            rangeValue.min === rangeValue.max &&
+            !initialValues[key]
+        ) {
+            initialValues[key] = rangeValue.min;
+        }
+    };
 
-    // Check if we had a value
+    setInitialValue("minValue");
+    setInitialValue("maxValue");
+
+    // If a value is already set in props.entry.values, use that as the initial value
     if (props.entry.values.value) {
         initialValues.value = props.entry.values.value;
     }

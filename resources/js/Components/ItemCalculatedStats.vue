@@ -10,7 +10,7 @@ const props = defineProps({
 });
 
 // Get the data from the character
-const character = inject("character");
+const character = inject("character", null);
 
 // Create a computed property for calculated stats
 const calculatedStats = computed(() => props.item.calculated_stats || {});
@@ -20,7 +20,7 @@ const getStat = (key) => calculatedStats.value[key];
 </script>
 
 <template>
-    <div>
+    <div v-if="character">
         <div class="flex flex-col items-center">
             <StatDisplay label="Defense" :stat="getStat('defense')" />
             <StatDisplay

@@ -86,6 +86,13 @@ const wikiSearch = computed(() => {
                 </div>
             </div>
 
+            <p class="mt-3 text-sm font-bold mb-2">Base stats:</p>
+            <div class="text-xs font-semibold">
+                <code>
+                    <pre>{{ item.base_stats }}</pre>
+                </code>
+            </div>
+
             <p class="mt-3 text-sm font-bold mb-2">Original labels:</p>
             <div class="text-green-400">
                 <p v-for="modifier in item.modifiers" :key="modifier">

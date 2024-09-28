@@ -7,7 +7,7 @@ import ItemDisplay from "@/Components/ItemDisplay.vue";
 import InputPlaceholder from "@/Components/InputPlaceholder.vue";
 import { useItemCalculator } from "@/Composables/itemCalculator";
 import ItemCalculatedStats from "@/Components/Planner/ItemCalculatedStats.vue";
-import ItemDefenseEditor from "../ItemDefenseEditor.vue";
+import ItemDefenseEditor from "@/Components/ItemDefenseEditor.vue";
 
 const emitter = inject("emitter");
 const loading = ref(true);

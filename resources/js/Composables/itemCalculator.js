@@ -19,7 +19,7 @@ export function useItemCalculator(reactiveItem) {
         }
 
         if (base_stats.required_level > 0) {
-            stats.level = calculateLevel();
+            stats.required_level = calculateLevel();
         }
 
         if (base_stats.required_str > 0) {

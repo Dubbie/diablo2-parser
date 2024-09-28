@@ -160,6 +160,7 @@ const isTwoHandedInRightHand = (element) => {
                 :item="props[element]"
                 :padded="false"
                 :background="false"
+                tooltip-position="top-right"
                 @click.right="handleUneqip($event, element)"
             />
         </div>

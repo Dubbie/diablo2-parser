@@ -7,6 +7,7 @@ const props = defineProps({
         required: true,
     },
     stat: Object,
+    compare: Number,
 });
 
 const displayValue = computed(() => {
@@ -16,13 +17,30 @@ const displayValue = computed(() => {
     }
     return props.stat.value;
 });
+
+const comparedTextClass = computed(() => {
+    if (!props.compare) {
+        return "";
+    }
+
+    if (props.stat.value > props.compare) {
+        return "text-red-500";
+    }
+});
 </script>
 
 <template>
-    <p v-if="stat && stat.value" class="inline-flex space-x-1">
+    <p
+        v-if="stat && stat.value"
+        class="inline-flex space-x-1"
+        :class="comparedTextClass"
+    >
         <span>{{ label }}:</span>
-        <span :class="{ 'text-blue-400': stat.modified }">{{
-            displayValue
-        }}</span>
+        <span
+            :class="{
+                'text-blue-400': stat.modified && comparedTextClass === '',
+            }"
+            >{{ displayValue }}</span
+        >
     </p>
 </template>

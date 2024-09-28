@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { computed, inject } from "vue";
 import StatDisplay from "@/Components/StatDisplay.vue";
 
 const props = defineProps({
@@ -8,6 +8,11 @@ const props = defineProps({
         required: true,
     },
 });
+
+// Get the data from the character
+const character = inject("character");
+
+console.log(character);
 
 // Create a computed property for calculated stats
 const calculatedStats = computed(() => props.item.calculated_stats || {});
@@ -40,7 +45,11 @@ const getStat = (key) => calculatedStats.value[key];
                 label="Required Strength"
                 :stat="getStat('required_str')"
             />
-            <StatDisplay label="Required Level" :stat="getStat('level')" />
+            <StatDisplay
+                label="Required Level"
+                :stat="getStat('required_level')"
+                :compare="parseInt(character.level)"
+            />
         </div>
     </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, provide } from "vue";
+import { computed, inject, provide } from "vue";
 import ResistanceStats from "@/Components/Planner/StatGroups/ResistanceStats.vue";
 import DefenseStats from "@/Components/Planner/StatGroups/DefenseStats.vue";
 
@@ -7,6 +7,8 @@ import DefenseStats from "@/Components/Planner/StatGroups/DefenseStats.vue";
 const props = defineProps({
     items: Array,
 });
+
+const character = inject("character");
 
 // Define stat-to-modifiers mappings
 const statModifiers = {
@@ -41,6 +43,9 @@ function calculateStat(statName) {
 
     // Add defense from items
     props.items.forEach((item) => {
+        // Check if character can use item
+        if (!isItemUsable(item)) return;
+
         if (item.calculated_stats.defense && statName === "armorclass") {
             const value = item.calculated_stats.defense.value;
             total += value;
@@ -68,6 +73,27 @@ function calculateStat(statName) {
 
     return { total, history };
 }
+
+const isItemUsable = (item) => {
+    // Check requirements
+    if (!item.calculated_stats) return false;
+
+    if (
+        item.calculated_stats?.required_level.value > parseInt(character.level)
+    ) {
+        return false;
+    }
+
+    // if (item.calculated_stats.required_dex.dexterity > character.dexterity) {
+    //     return false;
+    // }
+
+    // if (item.calculated_stats.required_str.strength > character.strength) {
+    //     return false;
+    // }
+
+    return true;
+};
 
 const isResistStat = (stat) => {
     return ["fireResist", "coldResist", "lightResist", "poisonResist"].includes(

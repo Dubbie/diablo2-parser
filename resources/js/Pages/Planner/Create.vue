@@ -8,10 +8,9 @@ import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { useForm } from "@inertiajs/vue3";
 import { IconSearch } from "@tabler/icons-vue";
-import { computed, inject, onMounted, onUnmounted, ref } from "vue";
+import { computed, inject, onMounted, onUnmounted, provide, ref } from "vue";
 
 const showItemFinder = ref(false);
-const selectedItem = ref(null);
 const emitter = inject("emitter");
 
 const pdollSlots = ref({
@@ -31,6 +30,8 @@ const form = useForm({
     characterClass: "ama",
     level: "99",
 });
+
+provide("character", form);
 
 const filter = ref({
     slot: null,
@@ -152,8 +153,9 @@ onUnmounted(() => {
 
                     <TextInput
                         v-model="form.level"
-                        min="1"
-                        max="99"
+                        :min="1"
+                        :max="99"
+                        type="number"
                         class="text-sm w-16"
                     />
                 </div>

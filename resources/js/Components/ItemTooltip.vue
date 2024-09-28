@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from "vue";
+import ItemCalculatedStats from "./Planner/ItemCalculatedStats.vue";
 
 const props = defineProps({
     item: {
@@ -16,6 +17,7 @@ const positionClasses = computed(() => {
     return {
         left: "left-0",
         right: "left-full top-1/2 -translate-y-1/2 ml-4",
+        "top-right": "top-0 left-full ml-4",
     }[props.position];
 });
 
@@ -58,7 +60,7 @@ const getModifierLabel = (modifier) => {
         </div>
 
         <!-- Base stats -->
-        <div></div>
+        <ItemCalculatedStats :item="item" />
 
         <!-- Modifiers -->
         <div class="mt-1 text-blue-400">

@@ -28,10 +28,12 @@ export function useItemCalculator(reactiveItem) {
             : set_stats?.defense || 0;
 
         const defenseModifiers = getModifierValue('armorclass') || 0;
-        const defenseMultiplier = getModifierValue('item_armor_percent') || 1;
+        const defenseMultiplier = getModifierValue('item_armor_percent', true) || 1;
 
         const isModified = defenseModifiers > 0 || defenseMultiplier > 1;
         const finalDefense = Math.floor(baseDefense * defenseMultiplier + defenseModifiers);
+
+        console.log(finalDefense);
 
         return { value: finalDefense, modified: isModified };
     };
@@ -92,9 +94,14 @@ export function useItemCalculator(reactiveItem) {
     };
 
     // Utility function to get the value of a modifier
-    const getModifierValue = (modifierName) => {
+    const getModifierValue = (modifierName, isMultiplier) => {
         const modifier = reactiveItem.value.modifiers.find(mod => mod.name === modifierName);
-        return modifier ? (parseInt(modifier.values.value) / 100 + 1) : null;
+
+        if (isMultiplier) {
+            return modifier ? (parseInt(modifier.values.value) / 100 + 1) : null;
+        } else {
+            return modifier ? parseInt(modifier.values.value) : null;
+        }
     };
 
     // Return functions to use in components

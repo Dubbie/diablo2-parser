@@ -43,39 +43,30 @@ const missileDamage = computed(() => {
 
 <template>
     <div>
-        <p class="my-3 border-b border-white/10 font-bold">Calculated Stats</p>
         <div class="space-y-0.5">
-            <p v-if="defense" class="flex space-x-1">
+            <p v-if="defense" class="inline-flex space-x-1">
                 <span>Defense:</span>
-                <span
-                    class="font-semibold"
-                    :class="{ 'text-blue-400': defense.modified }"
-                    >{{ defense.value }}</span
-                >
+                <span :class="{ 'text-blue-400': defense.modified }">{{
+                    defense.value
+                }}</span>
             </p>
-            <p v-if="oneHandDamage" class="flex space-x-1">
+            <p v-if="oneHandDamage" class="inline-flex space-x-1">
                 <span>One-Hand Damage:</span>
-                <span
-                    class="font-semibold"
-                    :class="{ 'text-blue-400': oneHandDamage.modified }"
+                <span :class="{ 'text-blue-400': oneHandDamage.modified }"
                     >{{ oneHandDamage.value.min }} to
                     {{ oneHandDamage.value.max }}</span
                 >
             </p>
-            <p v-if="twoHandDamage" class="flex space-x-1">
+            <p v-if="twoHandDamage" class="inline-flex space-x-1">
                 <span>Two-Hand Damage:</span>
-                <span
-                    class="font-semibold"
-                    :class="{ 'text-blue-400': twoHandDamage.modified }"
+                <span :class="{ 'text-blue-400': twoHandDamage.modified }"
                     >{{ twoHandDamage.value.min }} to
                     {{ twoHandDamage.value.max }}</span
                 >
             </p>
-            <p v-if="missileDamage" class="flex space-x-1">
+            <p v-if="missileDamage" class="inline-flex space-x-1">
                 <span>Missile Damage:</span>
-                <span
-                    class="font-semibold"
-                    :class="{ 'text-blue-400': missileDamage.modified }"
+                <span :class="{ 'text-blue-400': missileDamage.modified }"
                     >{{ missileDamage.value.min }} to
                     {{ missileDamage.value.max }}</span
                 >

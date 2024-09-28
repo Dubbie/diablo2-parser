@@ -65,6 +65,12 @@ class UniqueSeeder extends FromFileSeeder
 
             $uniqueData = $this->getItemDataFromBase($base);
 
+            // Add base stats
+            $baseStats = $base->base_stats;
+
+            $uniqueData['base_stats'] = $baseStats;
+            $uniqueData['base_stats']['required_level'] = $this->getActualValue($itemData['lvl req']);
+
             // Add extra stats
             $extraData = [
                 'level' => $this->getActualValue($itemData['lvl']) ?? 0,
@@ -72,7 +78,6 @@ class UniqueSeeder extends FromFileSeeder
                 'code' => $this->getActualValue($itemData['code']),
                 'image' => $img,
                 'name' => $name,
-                'base_stats' => $base->base_stats,
                 'unique' => true,
             ];
 

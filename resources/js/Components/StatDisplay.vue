@@ -11,8 +11,6 @@ const props = defineProps({
 
 const displayValue = computed(() => {
     // Check if the stat is a damage object
-    console.log(props.stat);
-
     if (props.stat.value && props.stat.value.min !== undefined) {
         return `${props.stat.value.min} to ${props.stat.value.max}`;
     }

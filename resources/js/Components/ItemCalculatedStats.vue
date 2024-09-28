@@ -12,8 +12,6 @@ const props = defineProps({
 // Create a computed property for calculated stats
 const calculatedStats = computed(() => props.item.calculated_stats || {});
 
-console.log(calculatedStats.value);
-
 // Helper function to safely access stats
 const getStat = (key) => calculatedStats.value[key];
 </script>

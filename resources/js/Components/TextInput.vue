@@ -21,6 +21,8 @@ const props = defineProps({
     },
 });
 
+console.log(props.min, props.max);
+
 // Create a local ref for the input
 const inputValue = ref(props.modelValue); // Initialize with the model value
 const input = ref(null);
@@ -66,6 +68,33 @@ const handleInput = (event) => {
     }
 };
 
+const handleBlur = () => {
+    // Check if number
+    if (props.type !== "number") {
+        return;
+    }
+
+    // Parse numeric value only if it's not empty
+    const numericValue =
+        inputValue.value === "" ? null : parseFloat(inputValue.value);
+
+    if (
+        numericValue === null ||
+        (props.min !== null && numericValue < props.min)
+    ) {
+        inputValue.value = props.min;
+        emit("update:modelValue", props.min);
+    }
+
+    if (
+        numericValue === null ||
+        (props.max !== null && numericValue > props.max)
+    ) {
+        inputValue.value = props.max;
+        emit("update:modelValue", props.max);
+    }
+};
+
 // Optional: Focus the input on mount if it has autofocus
 onMounted(() => {
     if (input.value.hasAttribute("autofocus")) {
@@ -81,5 +110,6 @@ onMounted(() => {
         :type="type"
         ref="input"
         @input="handleInput"
+        @blur="handleBlur"
     />
 </template>

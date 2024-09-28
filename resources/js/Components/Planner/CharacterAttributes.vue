@@ -1,5 +1,5 @@
 <script setup>
-import { computed, inject } from "vue";
+import { computed, inject, watch } from "vue";
 import TextInput from "@/Components/TextInput.vue";
 
 const character = inject("character");
@@ -11,8 +11,8 @@ const labelMap = {
     int: "Energy",
 };
 
+// Initialize modified attributes if not already set
 if (!character.characterClass.modified_attributes) {
-    // Fill up based on base attributes
     character.characterClass.modified_attributes = {
         str: character.characterClass.base_attributes.str,
         dex: character.characterClass.base_attributes.dex,
@@ -21,13 +21,16 @@ if (!character.characterClass.modified_attributes) {
     };
 }
 
+// Maximum points based on level and points per level
 const maxPoints = computed(() => {
     const level = character.level;
     const perLevel = character.characterClass.stat_per_level;
+    const fromQuests = 15;
 
-    return (level - 1) * perLevel;
+    return (level - 1) * perLevel + fromQuests;
 });
 
+// Calculate unallocated points
 const unallocatedPoints = computed(() => {
     return (
         maxPoints.value -
@@ -37,6 +40,8 @@ const unallocatedPoints = computed(() => {
         )
     );
 });
+
+// Watch for changes in modified attributes and prevent over-allocation
 </script>
 
 <template>
@@ -55,11 +60,15 @@ const unallocatedPoints = computed(() => {
                 type="number"
                 class="text-sm w-16"
                 :min="character.characterClass.base_attributes[key]"
+                :max="
+                    character.characterClass.modified_attributes[key] +
+                    unallocatedPoints
+                "
             />
         </div>
 
         <div class="text-sm font-semibold mt-3 text-right">
-            <p class="text-zinc-400">Unallocated points</p>
+            <p class="text-zinc-400">Unassigned points</p>
             <p class="font-bold">{{ unallocatedPoints }} / {{ maxPoints }}</p>
         </div>
     </div>

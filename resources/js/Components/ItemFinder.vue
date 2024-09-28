@@ -29,8 +29,6 @@ const fetchItems = async () => {
     searched.value = true;
     loading.value = true;
     try {
-        console.log(props.filter);
-
         const response = await axios.get(route("api.items.fetch"), {
             params: {
                 slot: props.filter.slot,
@@ -100,15 +98,23 @@ watch(
 
 <template>
     <div>
-        <TextInput
-            id="search"
-            type="text"
-            class="w-full"
-            placeholder="Search items..."
-            v-model="searchText"
-            autofocus
-            @input="handleInput"
-        />
+        <div>
+            <TextInput
+                id="search"
+                type="text"
+                class="w-full text-sm"
+                placeholder="Search items..."
+                v-model="searchText"
+                autofocus
+                @input="handleInput"
+            />
+            <p
+                class="text-zinc-400 text-sm mt-2"
+                v-show="searchText.length < 3"
+            >
+                Start typing to search for items fitting in the selected slot.
+            </p>
+        </div>
 
         <transition
             enter-active-class="transition ease-out duration-200"

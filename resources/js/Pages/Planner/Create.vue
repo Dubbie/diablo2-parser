@@ -126,6 +126,7 @@ onMounted(() => {
         item.added = true;
         pdollSlots.value[filter.value.slot] = item;
         filter.value.slot = null;
+        showItemFinder.value = false;
     });
 });
 

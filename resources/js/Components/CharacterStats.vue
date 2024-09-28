@@ -38,20 +38,31 @@ function calculateStat(statName) {
         total = 30 - 100;
     }
 
-    // Add modifiers from item
+    // Add defense from items
     props.items.forEach((item) => {
-        item.modifiers.forEach((modifier) => {
-            if (modifiers.includes(modifier.name)) {
-                const value = parseInt(modifier.values.value); // Get the value of the modifier
-                total += value;
+        if (item.calculated_stats.defense && statName === "armorclass") {
+            const value = item.calculated_stats.defense.value;
+            total += value;
 
-                // Save item to history
-                history.push({
-                    source: item.name ?? item.base_name,
-                    value: value,
-                });
-            }
-        });
+            // Save item to history
+            history.push({
+                source: item.name ?? item.base_name,
+                value,
+            });
+        } else {
+            item.modifiers.forEach((modifier) => {
+                if (modifiers.includes(modifier.name)) {
+                    const value = parseInt(modifier.values.value); // Get the value of the modifier
+                    total += value;
+
+                    // Save item to history
+                    history.push({
+                        source: item.name ?? item.base_name,
+                        value: value,
+                    });
+                }
+            });
+        }
     });
 
     return { total, history };

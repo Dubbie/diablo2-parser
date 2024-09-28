@@ -62,7 +62,7 @@ export function useItemCalculator(reactiveItem) {
         let _minAdd = 0;
         let _maxAdd = 0;
 
-        const dmgMultiplier = getModifierValue('maxdamage_percent') || 1;
+        const dmgMultiplier = getModifierValue('maxdamage_percent', true) || 1;
 
         reactiveItem.value.modifiers.forEach(modifier => {
             if (modifier.name === 'minimum_dmg') {

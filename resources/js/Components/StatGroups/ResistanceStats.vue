@@ -71,7 +71,7 @@ const statMap = {
 
                     <div
                         v-if="showingHistory === stat"
-                        class="absolute top-full right-0 bg-black/70 backdrop-blur-md p-3 z-20 space-y-1"
+                        class="absolute top-full right-0 bg-black/70 backdrop-blur-md p-3 z-20 space-y-1 whitespace-nowrap"
                     >
                         <div
                             v-for="details in data.value.history"

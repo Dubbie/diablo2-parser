@@ -20,18 +20,48 @@ const statModifiers = {
 // Generic function to calculate stats
 function calculateStat(statName) {
     let total = 0;
+    let history = []; // Track history of modifiers
+
     const modifiers = statModifiers[statName]; // Get modifiers for the stat
 
+    // Add custom history
+    if (isResistStat(statName)) {
+        history.push({
+            source: "Quests",
+            value: 30,
+        });
+        history.push({
+            source: "Difficulty",
+            value: -100,
+        });
+
+        total = 30 - 100;
+    }
+
+    // Add modifiers from item
     props.items.forEach((item) => {
         item.modifiers.forEach((modifier) => {
             if (modifiers.includes(modifier.name)) {
-                total += parseInt(modifier.values.value); // Add the first value of the modifier
+                const value = parseInt(modifier.values.value); // Get the value of the modifier
+                total += value;
+
+                // Save item to history
+                history.push({
+                    source: item.name ?? item.base_name,
+                    value: value,
+                });
             }
         });
     });
 
-    return total;
+    return { total, history };
 }
+
+const isResistStat = (stat) => {
+    return ["fireResist", "coldResist", "lightResist", "poisonResist"].includes(
+        stat
+    );
+};
 
 // Computed properties for each stat
 const fireResist = computed(() => calculateStat("fireResist"));
@@ -65,7 +95,7 @@ provide("valueClasses", valueClasses);
 </script>
 
 <template>
-    <div class="text-xs min-w-[160px] space-y-3">
+    <div class="text-sm min-w-[160px] space-y-3">
         <ResistanceStats />
         <DefenseStats />
     </div>

@@ -33,7 +33,7 @@ const statMap = {
         >
             <div v-show="showingStats">
                 <p
-                    v-for="[stat, value] in Object.entries(defenses)"
+                    v-for="[stat, data] in Object.entries(defenses)"
                     :key="stat"
                     :class="rowClasses"
                 >
@@ -42,7 +42,7 @@ const statMap = {
                     }}</span>
                     <span
                         :class="[valueClasses, statMap[stat]?.colorClass || '']"
-                        >{{ value }}</span
+                        >{{ data.value.total }}</span
                     >
                 </p>
             </div>

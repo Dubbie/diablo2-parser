@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 
+// Define emits
 const emit = defineEmits(["update:entry"]);
 
+// Function to emit updated values
 const emitUpdate = () => {
     emit("update:entry", {
         index: props.index,
@@ -10,7 +12,7 @@ const emitUpdate = () => {
     });
 };
 
-// Define the component's prop for handling a single entry
+// Define props
 const props = defineProps({
     entry: {
         type: Object,
@@ -31,40 +33,45 @@ const values = ref({});
 // Function to extract placeholders from the template
 const getPlaceholders = (template) => {
     if (!template) return []; // If template is undefined, return an empty array
-
-    // Capture placeholders only: [value], [perLevel], [minValue], [maxValue]
     const regex = /\[value\]|\[perLevel\]|\[minValue\]|\[maxValue\]/g;
-    return [...template.matchAll(regex)].map((match) => match[0]); // Keep the brackets intact
+    return [...template.matchAll(regex)].map((match) => match[0]);
 };
 
 // Initialize values based on placeholders and ranges
 const initValues = () => {
     if (!props.entry.template) return; // Ensure the template exists before proceeding
-
     const placeholders = getPlaceholders(props.entry.template);
     const initialValues = {};
 
     placeholders.forEach((placeholder) => {
         const key = placeholder.slice(1, -1); // Remove brackets
         const range = props.entry.range[key];
-        // Set the initial value to the max value if it exists, otherwise null
-        initialValues[key] = range?.max ?? null;
+
+        // Check if value exists for this
+        if (props.entry.values[key]) {
+            initialValues[key] = props.entry.values[key];
+        } else {
+            initialValues[key] = range?.max ?? null;
+        }
     });
 
-    // Handle special minValue and maxValue cases
-    const setInitialValue = (key) => {
-        const rangeValue = props.entry.range[key];
-        if (
-            rangeValue &&
-            rangeValue.min === rangeValue.max &&
-            !initialValues[key]
-        ) {
-            initialValues[key] = rangeValue.min;
-        }
-    };
+    // If minValue is set but not maxValue, add it
+    if (
+        initialValues.maxValue &&
+        !initialValues.minValue &&
+        props.entry.range.minValue.min === props.entry.range.minValue.max
+    ) {
+        initialValues.minValue = props.entry.range.minValue.min;
+    }
 
-    setInitialValue("minValue");
-    setInitialValue("maxValue");
+    // If maxValue is set but not minValue, add it
+    if (
+        initialValues.minValue &&
+        !initialValues.maxValue &&
+        props.entry.range.maxValue.min === props.entry.range.maxValue.max
+    ) {
+        initialValues.maxValue = props.entry.range.maxValue.min;
+    }
 
     // If a value is already set in props.entry.values, use that as the initial value
     if (props.entry.values.value) {
@@ -75,17 +82,6 @@ const initValues = () => {
 
     emitUpdate();
 };
-
-// Watch for changes in the entry prop and reinitialize if necessary
-watch(() => props.entry, initValues, { immediate: true });
-
-// Computed property to break the template into text and placeholder parts
-const templateParts = computed(() => {
-    // Split the template by the known placeholders
-    return props.entry.template.split(
-        /(\[value\]|\[perLevel\]|\[minValue\]|\[maxValue\])/
-    );
-});
 
 // Function to handle focus
 const handleFocus = (key) => {
@@ -104,19 +100,9 @@ const handleBlur = (placeholder) => {
     }
 };
 
-// Function to get the correct ring class
-const getRingClass = (placeholder) => {
-    if (!isValueCorrect(placeholder)) {
-        return "focus:ring-red-500";
-    } else {
-        return "ring-white/10 focus:ring-blue-500";
-    }
-};
-
 // Function to check if the value is correct
 const isValueCorrect = (placeholder) => {
     const key = placeholder.slice(1, -1);
-
     if (!props.entry.range[key]) {
         return true;
     }
@@ -127,18 +113,41 @@ const isValueCorrect = (placeholder) => {
     );
 };
 
+// Function to get the correct ring class
+const getRingClass = (placeholder) => {
+    if (!isValueCorrect(placeholder)) {
+        return "focus:ring-red-500";
+    } else {
+        return "ring-white/10 focus:ring-blue-500";
+    }
+};
+
 // Function to handle new input
 const handleNewInput = (key, value) => {
     values.value[key] = value;
 };
+
+// Computed property to break the template into text and placeholder parts
+const templateParts = computed(() => {
+    return props.entry.template.split(
+        /(\[value\]|\[perLevel\]|\[minValue\]|\[maxValue\])/
+    );
+});
+
+// Watch for changes in the entry prop to update local values
+watch(
+    () => props.entry,
+    (newEntry) => {
+        initValues(); // Re-initialize values if entry prop changes
+    },
+    { immediate: true }
+);
 </script>
 
 <template>
     <div>
-        <!-- Ensure entry.template exists -->
         <div v-if="entry.template" class="flex items-baseline space-x-1">
             <template v-for="(part, index) in templateParts" :key="index">
-                <!-- If it's a known placeholder, render an input -->
                 <template
                     v-if="
                         [
@@ -154,12 +163,17 @@ const handleNewInput = (key, value) => {
                             type="tel"
                             :min="entry.range[part.slice(1, -1)]?.min ?? 0"
                             :max="entry.range[part.slice(1, -1)]?.max ?? 100"
+                            :value="values[part.slice(1, -1)]"
                             class="max-w-10 px-0 py-0.5 rounded-lg border-none bg-white/5 text-center ring-2 ring-inset focus:ring-inset focus:ring-2"
                             :class="getRingClass(part)"
-                            v-model="values[part.slice(1, -1)]"
                             @focus="handleFocus(part)"
                             @blur="handleBlur(part)"
-                            @input="handleNewInput(part, $event.target.value)"
+                            @input="
+                                handleNewInput(
+                                    part.slice(1, -1),
+                                    $event.target.value
+                                )
+                            "
                         />
 
                         <!-- Tooltip for showing range -->
@@ -193,14 +207,12 @@ const handleNewInput = (key, value) => {
                         </transition>
                     </div>
                 </template>
-                <!-- Render text parts (if it's not a placeholder) -->
                 <template v-else>
                     <span>{{ part }}</span>
                 </template>
             </template>
         </div>
 
-        <!-- If no template exists, fallback to string -->
         <p v-else>{{ entry.string }}</p>
     </div>
 </template>

@@ -7,6 +7,7 @@ const labelClasses = inject("labelClasses");
 const valueClasses = inject("valueClasses");
 
 const showingStats = ref(true);
+const showingHistory = ref(null);
 
 const statMap = {
     fireResist: {
@@ -45,19 +46,56 @@ const statMap = {
             leave-to-class="scale-90"
         >
             <div v-show="showingStats">
-                <p
-                    v-for="[stat, value] in Object.entries(resistances)"
+                <div
+                    class="relative"
+                    v-for="[stat, data] in Object.entries(resistances)"
                     :key="stat"
-                    :class="rowClasses"
                 >
-                    <span :class="labelClasses">{{
-                        statMap[stat]?.label || stat
-                    }}</span>
-                    <span
-                        :class="[valueClasses, statMap[stat]?.colorClass || '']"
-                        >{{ value }}%</span
+                    <div
+                        :class="rowClasses"
+                        @mouseenter="showingHistory = stat"
+                        @mouseleave="showingHistory = null"
                     >
-                </p>
+                        <p :class="labelClasses">
+                            {{ statMap[stat]?.label || stat }}
+                        </p>
+                        <p
+                            :class="[
+                                valueClasses,
+                                statMap[stat]?.colorClass || '',
+                            ]"
+                        >
+                            {{ data.value.total }}%
+                        </p>
+                    </div>
+
+                    <div
+                        v-if="showingHistory === stat"
+                        class="absolute top-full right-0 bg-black/70 backdrop-blur-md p-3 z-20 space-y-1"
+                    >
+                        <div
+                            v-for="details in data.value.history"
+                            :key="details"
+                        >
+                            <p
+                                class="font-bold text-xs flex space-x-2 justify-between"
+                            >
+                                <span> {{ details.source }}:</span>
+                                <span
+                                    :class="{
+                                        'text-red-500': details.value < 0,
+                                        'text-green-500': details.value > 0,
+                                    }"
+                                    >{{
+                                        details.value > 0
+                                            ? "+" + details.value
+                                            : details.value
+                                    }}%</span
+                                >
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </transition>
     </div>

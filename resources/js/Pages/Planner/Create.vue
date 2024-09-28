@@ -2,17 +2,18 @@
 import AppButton from "@/Components/AppButton.vue";
 import CharacterInventory from "@/Components/CharacterInventory.vue";
 import CharacterStats from "@/Components/CharacterStats.vue";
-import ItemEditor from "@/Components/ItemEditor.vue";
+import ItemEditor from "@/Components/Planner/ItemEditor.vue";
 import ItemFinder from "@/Components/ItemFinder.vue";
 import SelectInput from "@/Components/SelectInput.vue";
 import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { useForm } from "@inertiajs/vue3";
 import { IconSearch } from "@tabler/icons-vue";
-import { computed, ref, watch } from "vue";
+import { computed, inject, onMounted, onUnmounted, ref, watch } from "vue";
 
 const showItemFinder = ref(false);
 const selectedItem = ref(null);
+const emitter = inject("emitter");
 
 const pdollSlots = ref({
     larm: null,
@@ -80,22 +81,26 @@ const updateFilter = (newSearch) => {
 // Method to handle filter update from CharacterInventory
 const handleSetFilter = (slotName) => {
     filter.value = { ...filter.value, slot: slotName };
+
+    if (!showItemFinder.value) {
+        showItemFinder.value = true;
+    }
+
+    // Check if that slot has an item
+    if (pdollSlots.value[slotName]) {
+        emitter.emit("item-selected", pdollSlots.value[slotName]);
+    }
 };
 
 // Method to handle item selection
 const handleItemSelected = (item) => {
-    selectedItem.value = item;
-    showItemFinder.value = false;
+    emitter.emit("item-selected", item);
 };
 
 // Method to handle item creation
 const handleItemCreated = (item) => {
     item.added = true;
     pdollSlots.value[filter.value.slot] = item;
-
-    // if (item.base_stats?.min_2h_damage > 0) {
-    //     pdollSlots.value.rarm = item;
-    // }
 };
 
 // Method to handle reset items
@@ -116,24 +121,17 @@ const handleResetItems = () => {
     filter.value.slot = null;
 };
 
-const handleCancel = () => {
-    selectedItem.value = null;
-    showItemFinder.value = true;
-};
+onMounted(() => {
+    emitter.on("item-added", (item) => {
+        item.added = true;
+        pdollSlots.value[filter.value.slot] = item;
+        filter.value.slot = null;
+    });
+});
 
-watch(
-    () => filter.value.slot,
-    () => {
-        console.log(filter.value.slot);
-
-        if (pdollSlots.value[filter.value.slot]) {
-            selectedItem.value = pdollSlots.value[filter.value.slot];
-            showItemFinder.value = false;
-        } else {
-            showItemFinder.value = !!filter.value.slot;
-        }
-    }
-);
+onUnmounted(() => {
+    emitter.off("item-added");
+});
 </script>
 
 <template>
@@ -188,13 +186,6 @@ watch(
                     @item-selected="handleItemSelected"
                 />
 
-                <ItemEditor
-                    v-else-if="selectedItem"
-                    :item="selectedItem"
-                    @cancel="handleCancel"
-                    @item-created="handleItemCreated"
-                />
-
                 <div v-else>
                     <div class="flex space-x-2 items-start">
                         <div class="flex-1">
@@ -214,8 +205,13 @@ watch(
             </div>
 
             <div>
-                <CharacterStats :items="allItems" />
+                <CharacterStats
+                    :items="allItems"
+                    @item-created="handleItemCreated"
+                />
             </div>
         </div>
+
+        <ItemEditor />
     </AppLayout>
 </template>

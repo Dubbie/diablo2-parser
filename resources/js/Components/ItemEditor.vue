@@ -5,6 +5,7 @@ import AppButton from "@/Components/AppButton.vue";
 import InputError from "@/Components/InputError.vue";
 import InputPlaceholder from "./InputPlaceholder.vue";
 import ItemTooltip from "./ItemTooltip.vue";
+import ItemDefenseEditor from "./ItemDefenseEditor.vue";
 
 const emit = defineEmits(["cancel", "item-created", "item-updated"]);
 
@@ -16,15 +17,15 @@ const props = defineProps({
 });
 
 const loading = ref(true);
-const item = ref(null);
+const reactiveItem = ref(null);
 const showingTooltip = ref(false);
 const errors = ref({});
 const buttonLabel = computed(() => {
-    return !item.value.added ? "Add to build" : "Update Item";
+    return !reactiveItem.value.added ? "Add to build" : "Update Item";
 });
 
 const nameColor = computed(() => {
-    switch (item.value.item_type) {
+    switch (reactiveItem.value.item_type) {
         case "unique":
             return "rgb(199, 179, 119)";
         default:
@@ -34,27 +35,23 @@ const nameColor = computed(() => {
 
 const modifiers = ref(props.item.modifiers);
 
-const createItem = () => {
-    postCreateItem(modifiers.value);
-};
-
-const postCreateItem = async (modifiers) => {
-    item.value.modifiers = modifiers;
-
-    emit("item-created", item.value);
-};
-
 const fullName = computed(() => {
-    if (item.value.skip_base_name) {
-        return item.value.name;
+    if (reactiveItem.value.skip_base_name) {
+        return reactiveItem.value.name;
     } else {
-        let name = item.value.base_name;
+        let name = reactiveItem.value.base_name;
 
-        if (item.value.name) {
-            name = name + " " + item.value.name;
+        if (reactiveItem.value.name) {
+            name = name + " " + reactiveItem.value.name;
         }
     }
 });
+
+const addOrUpdateItem = () => {
+    // Update item
+    reactiveItem.value.modifiers = modifiers.value;
+    emit("item-created", reactiveItem.value);
+};
 
 const handleModifierChange = (data) => {
     const index = data.index;
@@ -64,7 +61,7 @@ const handleModifierChange = (data) => {
 const getDetails = async () => {
     if (props.item.modifiers) {
         modifiers.value = props.item.modifiers;
-        item.value = props.item;
+        reactiveItem.value = props.item;
         loading.value = false;
         return;
     }
@@ -74,15 +71,35 @@ const getDetails = async () => {
             route("api.items.details", props.item.id)
         );
 
-        item.value = response.data;
-        modifiers.value = item.value.modifiers;
-
-        console.log(item.value);
+        reactiveItem.value = response.data;
+        modifiers.value = reactiveItem.value.modifiers;
     } catch (error) {
         console.error(error);
     } finally {
         loading.value = false;
     }
+};
+
+const hasVariableDefense = computed(() => {
+    // Check if %armor mod is on the item
+    const hasArmorPercentMod = reactiveItem.value.modifiers.some((modifier) => {
+        if (modifier.name === "item_armor_percent") {
+            return true;
+        }
+    });
+
+    const hasBaseArmorClass = reactiveItem.value.base_stats.min_ac > 0;
+
+    return !hasArmorPercentMod && hasBaseArmorClass;
+});
+
+const handleNewDefense = (defense) => {
+    // Check if set_stats exists
+    if (!reactiveItem.value.set_stats) {
+        reactiveItem.value.set_stats = {};
+    }
+
+    reactiveItem.value.set_stats.defense = defense;
 };
 
 const handleCancel = () => {
@@ -123,35 +140,50 @@ watch(
                 </p>
             </div>
             <div class="flex flex-col space-y-3 items-start" v-else>
-                <div class="flex flex-col items-center">
-                    <div class="relative">
-                        <img
-                            :src="`/img/${item.image}.png`"
-                            :alt="fullName"
-                            class="p-4 bg-black/30"
-                            @mouseenter="showingTooltip = true"
-                            @mouseleave="showingTooltip = false"
-                        />
+                <div class="flex space-x-3">
+                    <div class="flex flex-col items-center">
+                        <div class="relative">
+                            <img
+                                :src="`/img/${reactiveItem.image}.png`"
+                                :alt="fullName"
+                                class="p-4 bg-black/30"
+                                @mouseenter="showingTooltip = true"
+                                @mouseleave="showingTooltip = false"
+                            />
 
-                        <transition
-                            enter-active-class="transition transform ease-out duration-200"
-                            enter-from-class="-translate-x-3 opacity-0"
-                            enter-to-class="translate-x-0 opacity-100"
-                            leave-active-class="transition transform ease-in duration-200"
-                            leave-from-class="translate-x-0 opacity-100"
-                            leave-to-class="-translate-x-3 opacity-0"
+                            <transition
+                                enter-active-class="transition transform ease-out duration-200"
+                                enter-from-class="-translate-x-3 opacity-0"
+                                enter-to-class="translate-x-0 opacity-100"
+                                leave-active-class="transition transform ease-in duration-200"
+                                leave-from-class="translate-x-0 opacity-100"
+                                leave-to-class="-translate-x-3 opacity-0"
+                            >
+                                <ItemTooltip
+                                    :item="reactiveItem"
+                                    v-show="showingTooltip"
+                                />
+                            </transition>
+                        </div>
+                        <div
+                            class="text-center font-bold text-sm mt-2"
+                            :style="{ color: nameColor }"
                         >
-                            <ItemTooltip :item="item" v-show="showingTooltip" />
-                        </transition>
+                            <p v-if="reactiveItem.name">
+                                {{ reactiveItem.name }}
+                            </p>
+                            <p v-if="!reactiveItem.skip_base_name">
+                                {{ reactiveItem.base_name }}
+                            </p>
+                        </div>
                     </div>
-                    <div
-                        class="text-center font-bold text-sm mt-2"
-                        :style="{ color: nameColor }"
-                    >
-                        <p v-if="item.name">{{ item.name }}</p>
-                        <p v-if="!item.skip_base_name">
-                            {{ item.base_name }}
-                        </p>
+
+                    <div>
+                        <ItemDefenseEditor
+                            v-if="hasVariableDefense"
+                            :item="item"
+                            @update:defense="handleNewDefense"
+                        />
                     </div>
                 </div>
                 <div class="flex-1">
@@ -181,7 +213,7 @@ watch(
 
                         <div class="mt-6 flex space-x-1">
                             <AppButton
-                                @click="createItem"
+                                @click="addOrUpdateItem"
                                 :disabled="loading"
                                 >{{ buttonLabel }}</AppButton
                             >

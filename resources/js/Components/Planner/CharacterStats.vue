@@ -41,8 +41,6 @@ function calculateStat(statName) {
 
     // Add defense from items
     props.items.forEach((item) => {
-        console.log(item.modifiers);
-
         if (item.calculated_stats.defense && statName === "armorclass") {
             const value = item.calculated_stats.defense.value;
             total += value;

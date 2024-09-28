@@ -33,8 +33,6 @@ export function useItemCalculator(reactiveItem) {
         const isModified = defenseModifiers > 0 || defenseMultiplier > 1;
         const finalDefense = Math.floor(baseDefense * defenseMultiplier + defenseModifiers);
 
-        console.log(finalDefense);
-
         return { value: finalDefense, modified: isModified };
     };
 

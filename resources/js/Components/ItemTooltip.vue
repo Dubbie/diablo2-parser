@@ -51,7 +51,7 @@ const getModifierLabel = (modifier) => {
 
 <template>
     <div
-        class="absolute bg-black/90 text-sm text-center px-2 py-1 whitespace-nowrap z-10"
+        class="absolute bg-black/90 text-sm text-center px-2 py-1 whitespace-nowrap z-10 pointer-events-none"
         :class="positionClasses"
     >
         <div :style="{ color: nameColor }" class="font-semibold">

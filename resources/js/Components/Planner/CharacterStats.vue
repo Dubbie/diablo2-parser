@@ -2,6 +2,7 @@
 import { computed, inject, provide } from "vue";
 import ResistanceStats from "@/Components/Planner/StatGroups/ResistanceStats.vue";
 import DefenseStats from "@/Components/Planner/StatGroups/DefenseStats.vue";
+import AttributeStats from "./StatGroups/AttributeStats.vue";
 
 // Props for items
 const props = defineProps({
@@ -18,11 +19,16 @@ const statModifiers = {
     poisonResist: ["poisonresist", "all_resist"],
     curseResist: ["curse_effectiveness"],
     armorclass: ["armorclass"],
+    str: ["strength"],
+    dex: ["dexterity"],
+    vit: ["vitality"],
+    int: ["energy"],
 };
 
 // Generic function to calculate stats
 function calculateStat(statName) {
     let total = 0;
+    let required = 0;
     let history = []; // Track history of modifiers
 
     const modifiers = statModifiers[statName]; // Get modifiers for the stat
@@ -41,8 +47,29 @@ function calculateStat(statName) {
         total = 30 - 100;
     }
 
+    if (isAttributeStat(statName)) {
+        const value = character.characterClass.modified_attributes[statName];
+
+        // Make total the modified attr base
+        total = value;
+
+        // Save stat to history
+        history.push({
+            source: "Character",
+            value: value,
+        });
+    }
+
     // Add defense from items
     props.items.forEach((item) => {
+        // Check requirement
+        const requiredStat = getRequirementByStat(statName, item);
+        if (requiredStat) {
+            if (requiredStat > required) {
+                required = requiredStat;
+            }
+        }
+
         // Check if character can use item
         if (!isItemUsable(item)) return;
 
@@ -71,7 +98,7 @@ function calculateStat(statName) {
         }
     });
 
-    return { total, history };
+    return { total, required, history };
 }
 
 const isItemUsable = (item) => {
@@ -84,13 +111,21 @@ const isItemUsable = (item) => {
         return false;
     }
 
-    // if (item.calculated_stats.required_dex.dexterity > character.dexterity) {
-    //     return false;
-    // }
+    if (
+        item.calculated_stats?.required_dex?.value &&
+        item.calculated_stats.required_dex.value >
+            character.characterClass.modified_attributes.dex
+    ) {
+        return false;
+    }
 
-    // if (item.calculated_stats.required_str.strength > character.strength) {
-    //     return false;
-    // }
+    if (
+        item.calculated_stats?.required_str?.value &&
+        item.calculated_stats.required_str.value >
+            character.characterClass.modified_attributes.str
+    ) {
+        return false;
+    }
 
     return true;
 };
@@ -101,6 +136,18 @@ const isResistStat = (stat) => {
     );
 };
 
+const isAttributeStat = (stat) => {
+    return ["str", "dex", "vit", "int"].includes(stat);
+};
+
+const getRequirementByStat = (stat, item) => {
+    if (isAttributeStat(stat)) {
+        return item.calculated_stats["required_" + stat]?.value ?? null;
+    }
+
+    return null;
+};
+
 // Computed properties for each stat
 const fireResist = computed(() => calculateStat("fireResist"));
 const coldResist = computed(() => calculateStat("coldResist"));
@@ -108,6 +155,10 @@ const lightResist = computed(() => calculateStat("lightResist"));
 const poisonResist = computed(() => calculateStat("poisonResist"));
 const curseResist = computed(() => calculateStat("curseResist"));
 const armorClass = computed(() => calculateStat("armorclass"));
+const str = computed(() => calculateStat("str"));
+const dex = computed(() => calculateStat("dex"));
+const vit = computed(() => calculateStat("vit"));
+const int = computed(() => calculateStat("int"));
 
 // Stats object
 const stats = {
@@ -120,6 +171,12 @@ const stats = {
     },
     defenses: {
         armorClass,
+    },
+    attributes: {
+        str,
+        dex,
+        vit,
+        int,
     },
 };
 
@@ -136,6 +193,7 @@ provide("valueClasses", valueClasses);
 
 <template>
     <div class="text-sm min-w-[160px] space-y-3">
+        <AttributeStats />
         <ResistanceStats />
         <DefenseStats />
     </div>

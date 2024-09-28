@@ -12,8 +12,6 @@ const props = defineProps({
 // Get the data from the character
 const character = inject("character");
 
-console.log(character);
-
 // Create a computed property for calculated stats
 const calculatedStats = computed(() => props.item.calculated_stats || {});
 
@@ -40,10 +38,16 @@ const getStat = (key) => calculatedStats.value[key];
             <StatDisplay
                 label="Required Dexterity"
                 :stat="getStat('required_dex')"
+                :compare="
+                    parseInt(character.characterClass.modified_attributes.dex)
+                "
             />
             <StatDisplay
                 label="Required Strength"
                 :stat="getStat('required_str')"
+                :compare="
+                    parseInt(character.characterClass.modified_attributes.str)
+                "
             />
             <StatDisplay
                 label="Required Level"

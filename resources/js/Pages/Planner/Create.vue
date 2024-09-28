@@ -3,13 +3,17 @@ import CharacterInventory from "@/Components/Planner/CharacterInventory.vue";
 import CharacterStats from "@/Components/Planner/CharacterStats.vue";
 import ItemEditor from "@/Components/Planner/ItemEditor.vue";
 import ItemFinder from "@/Components/ItemFinder.vue";
-import SelectInput from "@/Components/SelectInput.vue";
+import SelectInputComplex from "@/Components/SelectInputComplex.vue";
 import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { useForm } from "@inertiajs/vue3";
 import { IconSearch } from "@tabler/icons-vue";
 import { computed, inject, onMounted, onUnmounted, provide, ref } from "vue";
+import CharacterAttributes from "@/Components/Planner/CharacterAttributes.vue";
+import AppButton from "@/Components/AppButton.vue";
+import AppTab from "@/Components/AppTab.vue";
 
+const showingTab = ref("inventory");
 const showItemFinder = ref(false);
 const emitter = inject("emitter");
 const loading = ref(true);
@@ -37,7 +41,7 @@ const characterClassOptions = computed(() => {
     return characters.value.map((char) => {
         return {
             label: char.name,
-            value: char.name,
+            value: char,
         };
     });
 });
@@ -104,12 +108,10 @@ const handleResetItems = () => {
 const loadCharacters = async () => {
     try {
         const response = await axios.get(route("api.characters.fetch"));
-        // form.characterClass = response.data[0];
-
         characters.value = response.data;
 
         // Set default class
-        form.characterClass = characters.value[0].name;
+        form.characterClass = characters.value[0];
     } catch (error) {
         console.error(error);
     } finally {
@@ -147,7 +149,7 @@ onUnmounted(() => {
         <div v-else class="flex space-x-6">
             <div class="shrink-0">
                 <div class="flex space-x-1 mb-1">
-                    <SelectInput
+                    <SelectInputComplex
                         class="flex-1"
                         v-model="form.characterClass"
                         :options="characterClassOptions"
@@ -162,8 +164,24 @@ onUnmounted(() => {
                     />
                 </div>
 
+                <div class="flex space-x-2 mb-1">
+                    <AppTab
+                        name="Inventory"
+                        tab="inventory"
+                        :active="showingTab === 'inventory'"
+                        @update:tab="showingTab = $event"
+                    />
+                    <AppTab
+                        name="Attributes"
+                        tab="attributes"
+                        :active="showingTab === 'attributes'"
+                        @update:tab="showingTab = $event"
+                    />
+                </div>
+
                 <div class="w-[320px]">
                     <CharacterInventory
+                        v-show="showingTab === 'inventory'"
                         :filter="filter"
                         :larm="pdollSlots.larm"
                         :rarm="pdollSlots.rarm"
@@ -179,6 +197,8 @@ onUnmounted(() => {
                         @set-filter="handleSetFilter"
                         @reset-items="handleResetItems"
                     />
+
+                    <CharacterAttributes v-show="showingTab === 'attributes'" />
                 </div>
             </div>
 

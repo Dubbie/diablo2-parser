@@ -14,6 +14,7 @@ const statModifiers = {
     coldResist: ["coldresist", "all_resist"],
     lightResist: ["lightresist", "all_resist"],
     poisonResist: ["poisonresist", "all_resist"],
+    curseResist: ["curse_effectiveness"],
     armorclass: ["armorclass"],
 };
 
@@ -40,6 +41,8 @@ function calculateStat(statName) {
 
     // Add defense from items
     props.items.forEach((item) => {
+        console.log(item.modifiers);
+
         if (item.calculated_stats.defense && statName === "armorclass") {
             const value = item.calculated_stats.defense.value;
             total += value;
@@ -79,18 +82,20 @@ const fireResist = computed(() => calculateStat("fireResist"));
 const coldResist = computed(() => calculateStat("coldResist"));
 const lightResist = computed(() => calculateStat("lightResist"));
 const poisonResist = computed(() => calculateStat("poisonResist"));
+const curseResist = computed(() => calculateStat("curseResist"));
 const armorClass = computed(() => calculateStat("armorclass"));
 
 // Stats object
 const stats = {
     resistances: {
-        fireResist: fireResist,
-        coldResist: coldResist,
-        lightResist: lightResist,
-        poisonResist: poisonResist,
+        fireResist,
+        coldResist,
+        lightResist,
+        poisonResist,
+        curseResist,
     },
     defenses: {
-        armorClass: armorClass,
+        armorClass,
     },
 };
 

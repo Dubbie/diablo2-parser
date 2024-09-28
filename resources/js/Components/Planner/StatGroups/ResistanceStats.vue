@@ -26,6 +26,10 @@ const statMap = {
         label: "Poison Resistance",
         colorClass: "text-green-500",
     },
+    curseResist: {
+        label: "Curse Resistance",
+        colorClass: "text-purple-500",
+    },
 };
 </script>
 

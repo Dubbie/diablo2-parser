@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import TextInput from "./TextInput.vue";
-import InputLabel from "./InputLabel.vue";
+import TextInput from "@/Components/TextInput.vue";
+import InputLabel from "@/Components/InputLabel.vue";
 
 const emit = defineEmits(["update:defense"]);
 

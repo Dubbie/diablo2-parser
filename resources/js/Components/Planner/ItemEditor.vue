@@ -4,10 +4,10 @@ import { computed, inject, onMounted, onUnmounted, ref, watch } from "vue";
 import AppButton from "@/Components/AppButton.vue";
 import Modal from "@/Components/Modal.vue";
 import ItemDisplay from "@/Components/ItemDisplay.vue";
-import InputPlaceholder from "@/Components/InputPlaceholder.vue";
+import InputPlaceholder from "@/Components/Planner/InputPlaceholder.vue";
 import { useItemCalculator } from "@/Composables/itemCalculator";
 import ItemCalculatedStats from "@/Components/Planner/ItemCalculatedStats.vue";
-import ItemDefenseEditor from "@/Components/ItemDefenseEditor.vue";
+import ItemDefenseEditor from "@/Components/Planner/ItemDefenseEditor.vue";
 
 const emitter = inject("emitter");
 const loading = ref(true);

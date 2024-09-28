@@ -1,7 +1,6 @@
 <script setup>
-import AppButton from "@/Components/AppButton.vue";
-import CharacterInventory from "@/Components/CharacterInventory.vue";
-import CharacterStats from "@/Components/CharacterStats.vue";
+import CharacterInventory from "@/Components/Planner/CharacterInventory.vue";
+import CharacterStats from "@/Components/Planner/CharacterStats.vue";
 import ItemEditor from "@/Components/Planner/ItemEditor.vue";
 import ItemFinder from "@/Components/ItemFinder.vue";
 import SelectInput from "@/Components/SelectInput.vue";
@@ -9,7 +8,7 @@ import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { useForm } from "@inertiajs/vue3";
 import { IconSearch } from "@tabler/icons-vue";
-import { computed, inject, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, inject, onMounted, onUnmounted, ref } from "vue";
 
 const showItemFinder = ref(false);
 const selectedItem = ref(null);

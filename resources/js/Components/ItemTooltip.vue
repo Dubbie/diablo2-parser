@@ -21,15 +21,6 @@ const positionClasses = computed(() => {
     }[props.position];
 });
 
-const nameColor = computed(() => {
-    switch (props.item.item_type) {
-        case "unique":
-            return "rgb(199, 179, 119)";
-        default:
-            return "rgb(255, 255, 255)";
-    }
-});
-
 const getModifierLabel = (modifier) => {
     let template = modifier.template;
 
@@ -54,7 +45,7 @@ const getModifierLabel = (modifier) => {
         class="absolute bg-black/90 text-sm text-center px-2 py-1 whitespace-nowrap z-10 pointer-events-none"
         :class="positionClasses"
     >
-        <div :style="{ color: nameColor }" class="font-semibold">
+        <div :style="{ color: item.name_color }" class="font-semibold">
             <p v-if="item.name">{{ item.name }}</p>
             <p v-if="!item.skip_base_name">{{ item.base_name }}</p>
         </div>

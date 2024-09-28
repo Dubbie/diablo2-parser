@@ -78,6 +78,25 @@ class Item extends Model
         'base_stats' => 'array'
     ];
 
+    protected $appends = [
+        'name_color',
+        'full_name'
+    ];
+
+    public function nameColor(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->getNameColor()
+        );
+    }
+
+    public function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->getFullName()
+        );
+    }
+
     public function itemProperties()
     {
         return $this->hasMany(ItemProperty::class, 'item_id', 'id');
@@ -136,5 +155,21 @@ class Item extends Model
         // }
 
         // return $modifiers;
+    }
+
+    private function getNameColor()
+    {
+        if ($this->unique) {
+            return 'rgb(199, 179, 119)';
+        } else {
+            return 'rgb(255, 255, 255)';
+        }
+    }
+
+    private function getFullName(): string
+    {
+        return $this->skip_base_name
+            ? ($this->name ?? $this->base_name)
+            : trim(sprintf('%s %s', $this->name, $this->base_name));
     }
 }

@@ -1,7 +1,7 @@
 <script setup>
 import { computed, provide } from "vue";
-import ResistanceStats from "./StatGroups/ResistanceStats.vue";
-import DefenseStats from "./StatGroups/DefenseStats.vue";
+import ResistanceStats from "@/Components/Planner/StatGroups/ResistanceStats.vue";
+import DefenseStats from "@/Components/Planner/StatGroups/DefenseStats.vue";
 
 // Props for items
 const props = defineProps({

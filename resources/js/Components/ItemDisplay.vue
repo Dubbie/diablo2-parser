@@ -27,12 +27,6 @@ const props = defineProps({
 });
 
 const showingTooltip = ref(false);
-
-const fullName = computed(() => {
-    return props.item.name
-        ? `${props.item.name} ${props.item.base_name}`
-        : props.item.base_name;
-});
 </script>
 
 <template>
@@ -50,7 +44,7 @@ const fullName = computed(() => {
                 @mouseenter="showingTooltip = true"
                 @mouseleave="showingTooltip = false"
             >
-                <img :src="`/img/${item.image}.png`" :alt="fullName" />
+                <img :src="`/img/${item.image}.png`" :alt="item.full_name" />
             </div>
             <transition
                 enter-active-class="transition transform ease-out duration-200"

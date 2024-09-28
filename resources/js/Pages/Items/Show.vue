@@ -1,9 +1,9 @@
 <script setup>
 import AppButton from "@/Components/AppButton.vue";
+import ItemDisplay from "@/Components/ItemDisplay.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { Link } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
-import ItemEditor from "@/Components/ItemEditor.vue";
 
 const props = defineProps({
     item: Object,
@@ -71,7 +71,21 @@ const wikiSearch = computed(() => {
         </div>
 
         <div>
-            <ItemEditor :item="item" />
+            <div class="flex flex-col items-center justify-center">
+                <img
+                    :src="`/img/${item.image}.png`"
+                    :alt="item.full_name"
+                    class="mb-3"
+                />
+
+                <div
+                    class="font-bold text-center"
+                    :style="{ color: item.name_color }"
+                >
+                    <p v-if="item.name">{{ item.name }}</p>
+                    <p v-if="!item.skip_base_name">{{ item.base_name }}</p>
+                </div>
+            </div>
 
             <p class="mt-3 text-sm font-bold mb-2">Original labels:</p>
             <div class="text-green-400">

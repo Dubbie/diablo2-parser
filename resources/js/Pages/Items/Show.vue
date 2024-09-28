@@ -1,6 +1,5 @@
 <script setup>
 import AppButton from "@/Components/AppButton.vue";
-import ItemDisplay from "@/Components/ItemDisplay.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { Link } from "@inertiajs/vue3";
 import { computed, ref } from "vue";

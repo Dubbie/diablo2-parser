@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from "vue";
-import ItemCalculatedStats from "./Planner/ItemCalculatedStats.vue";
+import ItemCalculatedStats from "@/Components/ItemCalculatedStats.vue";
 
 const props = defineProps({
     item: {

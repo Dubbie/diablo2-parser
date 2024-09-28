@@ -6,7 +6,7 @@ import Modal from "@/Components/Modal.vue";
 import ItemDisplay from "@/Components/ItemDisplay.vue";
 import InputPlaceholder from "@/Components/Planner/InputPlaceholder.vue";
 import { useItemCalculator } from "@/Composables/itemCalculator";
-import ItemCalculatedStats from "@/Components/Planner/ItemCalculatedStats.vue";
+import ItemCalculatedStats from "@/Components/ItemCalculatedStats.vue";
 import ItemDefenseEditor from "@/Components/Planner/ItemDefenseEditor.vue";
 
 const emitter = inject("emitter");

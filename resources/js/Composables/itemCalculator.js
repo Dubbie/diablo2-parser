@@ -18,6 +18,18 @@ export function useItemCalculator(reactiveItem) {
             stats.damage = calculateDamage();
         }
 
+        if (base_stats.required_level > 0) {
+            stats.level = calculateLevel();
+        }
+
+        if (base_stats.required_str > 0) {
+            stats.required_str = calculateRequiredStr();
+        }
+
+        if (base_stats.required_dex > 0) {
+            stats.required_dex = calculateRequiredDex();
+        }
+
         return stats;
     }
 
@@ -53,6 +65,37 @@ export function useItemCalculator(reactiveItem) {
         return damage;
     };
 
+    const calculateLevel = () => {
+        const { base_stats } = reactiveItem.value;
+
+        return { value: base_stats.required_level, modified: false };
+    }
+
+    const calculateRequiredStr = () => {
+        const { base_stats } = reactiveItem.value;
+        let isModified = false;
+
+        const strMultiplier = getModifierValue('item_req_percent', true) || 1;
+        if (strMultiplier > 1) {
+            isModified = true;
+        }
+
+        return { value: Math.ceil(base_stats.required_str * strMultiplier), modified: isModified };
+    }
+
+    const calculateRequiredDex = () => {
+        const { base_stats } = reactiveItem.value;
+        let isModified = false;
+
+        const dexMultiplier = getModifierValue('item_req_percent', true) || 1;
+        if (dexMultiplier > 1) {
+            isModified = true;
+        }
+
+        return { value: Math.ceil(base_stats.required_dex * dexMultiplier), modified: isModified };
+    }
+
+    // Utility function to calculate damage by keys
     const calculateDamageByKey = (minKey, maxKey) => {
         const { base_stats } = reactiveItem.value;
         let _min = base_stats[minKey];

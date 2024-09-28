@@ -12,6 +12,8 @@ import { computed, inject, onMounted, onUnmounted, provide, ref } from "vue";
 
 const showItemFinder = ref(false);
 const emitter = inject("emitter");
+const loading = ref(true);
+const characters = ref([]);
 
 const pdollSlots = ref({
     larm: null,
@@ -27,8 +29,17 @@ const pdollSlots = ref({
 });
 
 const form = useForm({
-    characterClass: "ama",
-    level: "99",
+    characterClass: null,
+    level: 99,
+});
+
+const characterClassOptions = computed(() => {
+    return characters.value.map((char) => {
+        return {
+            label: char.name,
+            value: char.name,
+        };
+    });
 });
 
 provide("character", form);
@@ -37,37 +48,6 @@ const filter = ref({
     slot: null,
     templates: true,
 });
-
-const characterClassOptions = [
-    {
-        label: "Amazon",
-        value: "ama",
-    },
-    {
-        label: "Sorceress",
-        value: "sor",
-    },
-    {
-        label: "Barbarian",
-        value: "bar",
-    },
-    {
-        label: "Necromancer",
-        value: "nec",
-    },
-    {
-        label: "Paladin",
-        value: "pal",
-    },
-    {
-        label: "Druid",
-        value: "dru",
-    },
-    {
-        label: "Assassin",
-        value: "ass",
-    },
-];
 
 const allItems = computed(() => {
     return Object.values(pdollSlots.value).filter((item) => !!item);
@@ -121,7 +101,25 @@ const handleResetItems = () => {
     filter.value.slot = null;
 };
 
+const loadCharacters = async () => {
+    try {
+        const response = await axios.get(route("api.characters.fetch"));
+        // form.characterClass = response.data[0];
+
+        characters.value = response.data;
+
+        // Set default class
+        form.characterClass = characters.value[0].name;
+    } catch (error) {
+        console.error(error);
+    } finally {
+        loading.value = false;
+    }
+};
+
 onMounted(() => {
+    loadCharacters();
+
     emitter.on("item-added", (item) => {
         item.added = true;
         pdollSlots.value[filter.value.slot] = item;
@@ -142,7 +140,11 @@ onUnmounted(() => {
             Play around with the planner to find the best items for your.
         </p>
 
-        <div class="flex space-x-6">
+        <div v-if="loading">
+            <p>Loading...</p>
+        </div>
+
+        <div v-else class="flex space-x-6">
             <div class="shrink-0">
                 <div class="flex space-x-1 mb-1">
                     <SelectInput

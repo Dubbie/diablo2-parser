@@ -21,8 +21,6 @@ const props = defineProps({
     },
 });
 
-console.log(props.min, props.max);
-
 // Create a local ref for the input
 const inputValue = ref(props.modelValue); // Initialize with the model value
 const input = ref(null);

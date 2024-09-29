@@ -87,6 +87,11 @@ class PropertyService
                 'name' => 'min_damage',
                 'partial' => true,
                 'stats' => ['mindamage', 'secondary_mindamage', 'item_throw_mindamage'],
+            ],
+            [
+                'priority' => 10,
+                'name' => 'maxdurability',
+                'stats' => ['maxdurability'],
             ]
         ];
     }

@@ -7,7 +7,7 @@ use App\Services\StatFormatter;
 use App\ValueObjects\Modifier;
 use App\ValueObjects\ModifierLabel;
 
-class AllResistDescriptionHandler implements CustomDescriptionHandlerInterface
+class DurabilityDescriptionHandler implements CustomDescriptionHandlerInterface
 {
     public function handle(Modifier $modifier): ModifierLabel
     {
@@ -22,14 +22,13 @@ class AllResistDescriptionHandler implements CustomDescriptionHandlerInterface
         $max = $value ?? $modifier->getMax();
 
         // Set the stat string based on the description
-        $template = 'All Resistances +[value]';
         $formattedValue = StatFormatter::formatValue($min, $max);
+        $template = '+[value] Durablity';
         if (is_numeric($formattedValue)) {
             $template = str_replace('[value]', $formattedValue, $template);
         }
 
         $statString = str_replace('[value]', $formattedValue, $template);
-
         return new ModifierLabel($statString, $template);
     }
 }

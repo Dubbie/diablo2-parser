@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(TblEntrySeeder::class);
         $this->call(StatSeeder::class);
+        $this->call(CharacterSeeder::class);
         $this->call(SkillSeeder::class);
         $this->call(MonsterSeeder::class);
         $this->call(PropertySeeder::class);

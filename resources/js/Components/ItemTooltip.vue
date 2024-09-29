@@ -1,6 +1,9 @@
 <script setup>
-import { computed } from "vue";
+import { computed, inject } from "vue";
 import ItemCalculatedStats from "@/Components/ItemCalculatedStats.vue";
+
+// Get the data from the character
+const character = inject("character", null);
 
 const props = defineProps({
     item: {
@@ -24,6 +27,20 @@ const positionClasses = computed(() => {
 const getModifierLabel = (modifier) => {
     let template = modifier.template;
 
+    if (character && character.level && isPerLevelModifier(modifier)) {
+        const modifierMatch = modifier.template.match(
+            /\(\+(\d+) per Character Level\)/
+        );
+        const modifierValue = modifierMatch ? parseInt(modifierMatch[1]) : 0;
+
+        // Calculate the new value for the bracket
+        const perLevel = modifierValue; // This is the +5 per Character Level
+        const newValue = character.level * perLevel;
+
+        // Replace the values inside brackets
+        template = modifier.template.replace(/\[\d+-\d+\]/, `${newValue}`);
+    }
+
     if (modifier.range.value) {
         template = template.replace("[value]", modifier.values.value);
     }
@@ -37,6 +54,12 @@ const getModifierLabel = (modifier) => {
     }
 
     return template === modifier.template ? modifier.label : template;
+};
+
+const isPerLevelModifier = (modifier) => {
+    const perLevelDescFuncs = [6];
+
+    return perLevelDescFuncs.includes(modifier.desc_func);
 };
 </script>
 

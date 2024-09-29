@@ -40,8 +40,6 @@ const unallocatedPoints = computed(() => {
         )
     );
 });
-
-// Watch for changes in modified attributes and prevent over-allocation
 </script>
 
 <template>

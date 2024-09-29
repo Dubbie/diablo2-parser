@@ -11,16 +11,6 @@ const labelMap = {
     int: "Energy",
 };
 
-// Initialize modified attributes if not already set
-if (!character.characterClass.modified_attributes) {
-    character.characterClass.modified_attributes = {
-        str: character.characterClass.base_attributes.str,
-        dex: character.characterClass.base_attributes.dex,
-        vit: character.characterClass.base_attributes.vit,
-        int: character.characterClass.base_attributes.int,
-    };
-}
-
 // Maximum points based on level and points per level
 const maxPoints = computed(() => {
     const level = character.level;
@@ -40,6 +30,21 @@ const unallocatedPoints = computed(() => {
         )
     );
 });
+
+watch(
+    () => character.characterClass,
+    () => {
+        character.characterClass.modified_attributes = {
+            str: character.characterClass.base_attributes.str,
+            dex: character.characterClass.base_attributes.dex,
+            vit: character.characterClass.base_attributes.vit,
+            int: character.characterClass.base_attributes.int,
+        };
+    },
+    {
+        immediate: true,
+    }
+);
 </script>
 
 <template>

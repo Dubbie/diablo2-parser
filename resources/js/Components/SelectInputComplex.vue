@@ -35,6 +35,8 @@ const label = computed(() => {
 });
 
 const handleChange = (newValue) => {
+    console.log(newValue);
+
     emit("update:model-value", newValue);
 };
 

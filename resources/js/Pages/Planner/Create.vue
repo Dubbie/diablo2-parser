@@ -1,10 +1,7 @@
 <script setup>
-import CharacterInventory from "@/Components/Planner/CharacterInventory.vue";
 import CharacterStats from "@/Components/Planner/CharacterStats.vue";
 import ItemEditor from "@/Components/Planner/ItemEditor.vue";
-import ItemFinder from "@/Components/ItemFinder.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
-import { IconSearch } from "@tabler/icons-vue";
 import {
     computed,
     inject,
@@ -15,7 +12,6 @@ import {
     ref,
     watch,
 } from "vue";
-import CharacterAttributes from "@/Components/Planner/CharacterAttributes.vue";
 import { useItemCalculator } from "@/Composables/itemCalculator";
 import TabContainer from "@/Components/TabContainer.vue";
 import CharacterSetup from "./Partials/CharacterSetup.vue";

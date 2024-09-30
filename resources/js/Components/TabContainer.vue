@@ -46,8 +46,6 @@ const updateIndicator = () => {
                 left: `${left - containerLeft - 8}px`,
                 width: `${width + 8}px`,
             };
-
-            console.log(indicatorStyle.value);
         }
     });
 };

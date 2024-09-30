@@ -7,40 +7,44 @@ export function useItemCalculator(reactiveItem, level) {
         const { base_stats } = reactiveItem.value;
         const stats = {};
 
-        if (base_stats.min_ac > 0) {
-            stats.defense = calculateDefense();
-        }
+        const statConfig = [
+            { key: 'min_ac', calcFn: calculateDefense, statKey: 'defense' },
+            { key: 'min_damage', calcFn: () => calculateDamageByKey('min_damage', 'max_damage'), statKey: 'damage.one_handed' },
+            { key: 'min_2h_damage', calcFn: () => calculateDamageByKey('min_2h_damage', 'max_2h_damage'), statKey: 'damage.two_handed' },
+            { key: 'min_missile_damage', calcFn: () => calculateDamageByKey('min_missile_damage', 'max_missile_damage'), statKey: 'damage.missile' },
+            { key: 'required_level', calcFn: calculateLevel, statKey: 'required_level' },
+            { key: 'required_str', calcFn: calculateStatWithMultiplier('required_str'), statKey: 'required_str' },
+            { key: 'required_dex', calcFn: calculateStatWithMultiplier('required_dex'), statKey: 'required_dex' },
+        ];
 
-        if (base_stats.min_damage > 0 ||
-            base_stats.min_2h_damage > 0 ||
-            base_stats.min_missile_damage > 0
-        ) {
-            stats.damage = calculateDamage();
-        }
-
-        if (base_stats.required_level > 0) {
-            stats.required_level = calculateLevel();
-        }
-
-        if (base_stats.required_str > 0) {
-            stats.required_str = calculateRequiredStr();
-        }
-
-        if (base_stats.required_dex > 0) {
-            stats.required_dex = calculateRequiredDex();
-        }
+        statConfig.forEach(({ key, calcFn, statKey }) => {
+            if (base_stats[key] > 0) {
+                setStat(stats, statKey, calcFn());
+            }
+        });
 
         return stats;
-    }
+    };
+
+    // Generic stat calculator for required_str, required_dex, etc.
+    const calculateStatWithMultiplier = (statKey) => () => {
+        const { base_stats } = reactiveItem.value;
+        let isModified = false;
+
+        const multiplier = getModifierValue('item_req_percent', true) || 1;
+        if (multiplier > 1) {
+            isModified = true;
+        }
+
+        return { value: Math.ceil(base_stats[statKey] * multiplier), modified: isModified };
+    };
 
     const calculateDefense = () => {
         const { base_stats, set_stats } = reactiveItem.value;
+
         const baseDefense = hasModifier('item_armor_percent')
             ? base_stats.max_ac + 1
             : set_stats?.defense || 0;
-
-            console.log(baseDefense);
-
 
         const defenseModifiers = getModifierValue('armorclass') || 0;
         const defensePerLevelModifiers = getModifierPerLevel('item_armor_perlevel') || 0;
@@ -51,54 +55,7 @@ export function useItemCalculator(reactiveItem, level) {
         return { value: finalDefense, modified: isModified };
     };
 
-    const calculateDamage = () => {
-        const damage = {};
-        const { base_stats } = reactiveItem.value;
-
-        if (base_stats.min_damage > 0) {
-            damage['one_handed'] = calculateDamageByKey('min_damage', 'max_damage');
-        }
-        if (base_stats.min_2h_damage > 0) {
-            damage['two_handed'] = calculateDamageByKey('min_2h_damage', 'max_2h_damage');
-        }
-        if (base_stats.min_missile_damage > 0) {
-            damage['missile'] = calculateDamageByKey('min_missile_damage', 'max_missile_damage');
-        }
-
-        return damage;
-    };
-
-    const calculateLevel = () => {
-        const { base_stats } = reactiveItem.value;
-
-        return { value: base_stats.required_level, modified: false };
-    }
-
-    const calculateRequiredStr = () => {
-        const { base_stats } = reactiveItem.value;
-        let isModified = false;
-
-        const strMultiplier = getModifierValue('item_req_percent', true) || 1;
-        if (strMultiplier > 1) {
-            isModified = true;
-        }
-
-        return { value: Math.ceil(base_stats.required_str * strMultiplier), modified: isModified };
-    }
-
-    const calculateRequiredDex = () => {
-        const { base_stats } = reactiveItem.value;
-        let isModified = false;
-
-        const dexMultiplier = getModifierValue('item_req_percent', true) || 1;
-        if (dexMultiplier > 1) {
-            isModified = true;
-        }
-
-        return { value: Math.ceil(base_stats.required_dex * dexMultiplier), modified: isModified };
-    }
-
-    // Utility function to calculate damage by keys
+    // Damage calculation remains similar but using helper function
     const calculateDamageByKey = (minKey, maxKey) => {
         const { base_stats } = reactiveItem.value;
         let _min = base_stats[minKey];
@@ -109,16 +66,8 @@ export function useItemCalculator(reactiveItem, level) {
         const dmgMultiplier = getModifierValue('maxdamage_percent', true) || 1;
 
         reactiveItem.value.modifiers.forEach(modifier => {
-            if (modifier.name === 'minimum_dmg') {
-                _minAdd += parseInt(modifier.values.value);
-            }
-            if (modifier.name === 'maximum_dmg') {
-                _maxAdd += parseInt(modifier.values.value);
-            }
-            if (modifier.name === 'dmg_normal') {
-                _minAdd += parseInt(modifier.values.minValue);
-                _maxAdd += parseInt(modifier.values.maxValue);
-            }
+            _minAdd += getModifierDamage(modifier, 'minimum_dmg', 'minValue');
+            _maxAdd += getModifierDamage(modifier, 'maximum_dmg', 'maxValue');
         });
 
         const isModified = _minAdd > 0 || _maxAdd > 0 || dmgMultiplier > 1;
@@ -132,12 +81,37 @@ export function useItemCalculator(reactiveItem, level) {
         };
     };
 
-    // Utility function to check for modifier
+    const getModifierDamage = (modifier, modifierName, valueKey) => {
+        if (modifier.name === modifierName) {
+            return parseInt(modifier.values[valueKey] || 0);
+        }
+        return 0;
+    };
+
+    const calculateLevel = () => {
+        const { base_stats } = reactiveItem.value;
+        return { value: base_stats.required_level, modified: false };
+    };
+
+    // Utility function to safely set stats in nested objects
+    const setStat = (stats, path, value) => {
+        const keys = path.split('.');
+        let current = stats;
+
+        keys.forEach((key, index) => {
+            if (index === keys.length - 1) {
+                current[key] = value;
+            } else {
+                current[key] = current[key] || {};
+                current = current[key];
+            }
+        });
+    };
+
     const hasModifier = (modifierName) => {
         return reactiveItem.value.modifiers.some(mod => mod.name === modifierName);
     };
 
-    // Utility function to get the value of a modifier
     const getModifierValue = (modifierName, isMultiplier) => {
         const modifier = getModifier(modifierName);
 
@@ -148,24 +122,15 @@ export function useItemCalculator(reactiveItem, level) {
         }
     };
 
-    // Utility function to get the per Level value of a modifier
-    const getModifierPerLevel = (modifierName, isMultiplier) => {
+    const getModifierPerLevel = (modifierName) => {
         const modifier = getModifier(modifierName);
-
-        const value = parseFloat(modifier.values.perLevel) * level;
-
-        if (isMultiplier) {
-            return modifier ? (value / 100 + 1) : null;
-        } else {
-            return modifier ? value : null;
-        }
+        return modifier ? parseFloat(modifier.values.perLevel) * level : null;
     };
 
     const getModifier = (modifierName) => {
         return reactiveItem.value.modifiers.find(mod => mod.name === modifierName);
     };
 
-    // Return functions to use in components
     return {
         calculateStats,
     };

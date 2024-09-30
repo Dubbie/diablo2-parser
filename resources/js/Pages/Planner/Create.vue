@@ -29,6 +29,17 @@ const props = defineProps({
     },
 });
 
+const sideTabs = [
+    {
+        name: "inventory",
+        label: "Inventory",
+    },
+    {
+        name: "attributes",
+        label: "Attributes",
+    },
+];
+
 const emitter = inject("emitter");
 const loading = ref(true);
 const characters = ref([]);
@@ -220,22 +231,11 @@ onUnmounted(tearDownEventListeners);
                 </div>
 
                 <div class="mb-1">
-                    <TabContainer>
-                        <AppTab
-                            name="Inventory"
-                            tab="inventory"
-                            class="w-full"
-                            :active="plannerState.showingTab === 'inventory'"
-                            @update:tab="plannerState.showingTab = $event"
-                        />
-                        <AppTab
-                            name="Attributes"
-                            tab="attributes"
-                            class="w-full"
-                            :active="plannerState.showingTab === 'attributes'"
-                            @update:tab="plannerState.showingTab = $event"
-                        />
-                    </TabContainer>
+                    <TabContainer
+                        :tabs="sideTabs"
+                        :active-tab="plannerState.showingTab"
+                        @update:active-tab="plannerState.showingTab = $event"
+                    />
                 </div>
 
                 <div class="w-[320px]">

@@ -1,4 +1,4 @@
-export function useItemCalculator(reactiveItem) {
+export function useItemCalculator(reactiveItem, level) {
     const calculateStats = () => {
         if (!reactiveItem || !reactiveItem.value || !reactiveItem.value.modifiers) {
             return;
@@ -39,11 +39,14 @@ export function useItemCalculator(reactiveItem) {
             ? base_stats.max_ac + 1
             : set_stats?.defense || 0;
 
-        const defenseModifiers = getModifierValue('armorclass') || 0;
-        const defenseMultiplier = getModifierValue('item_armor_percent', true) || 1;
+            console.log(baseDefense);
 
-        const isModified = defenseModifiers > 0 || defenseMultiplier > 1;
-        const finalDefense = Math.floor(baseDefense * defenseMultiplier + defenseModifiers);
+
+        const defenseModifiers = getModifierValue('armorclass') || 0;
+        const defensePerLevelModifiers = getModifierPerLevel('item_armor_perlevel') || 0;
+        const defenseMultiplier = getModifierValue('item_armor_percent', true) || 1;
+        const isModified = defenseModifiers > 0 || defensePerLevelModifiers > 0 || defenseMultiplier > 1;
+        const finalDefense = Math.floor(baseDefense * defenseMultiplier + defenseModifiers + defensePerLevelModifiers);
 
         return { value: finalDefense, modified: isModified };
     };
@@ -136,13 +139,30 @@ export function useItemCalculator(reactiveItem) {
 
     // Utility function to get the value of a modifier
     const getModifierValue = (modifierName, isMultiplier) => {
-        const modifier = reactiveItem.value.modifiers.find(mod => mod.name === modifierName);
+        const modifier = getModifier(modifierName);
 
         if (isMultiplier) {
             return modifier ? (parseInt(modifier.values.value) / 100 + 1) : null;
         } else {
             return modifier ? parseInt(modifier.values.value) : null;
         }
+    };
+
+    // Utility function to get the per Level value of a modifier
+    const getModifierPerLevel = (modifierName, isMultiplier) => {
+        const modifier = getModifier(modifierName);
+
+        const value = parseFloat(modifier.values.perLevel) * level;
+
+        if (isMultiplier) {
+            return modifier ? (value / 100 + 1) : null;
+        } else {
+            return modifier ? value : null;
+        }
+    };
+
+    const getModifier = (modifierName) => {
+        return reactiveItem.value.modifiers.find(mod => mod.name === modifierName);
     };
 
     // Return functions to use in components

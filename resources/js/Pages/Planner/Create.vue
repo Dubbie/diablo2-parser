@@ -10,14 +10,22 @@ import { useForm } from "@inertiajs/vue3";
 import { IconSearch } from "@tabler/icons-vue";
 import { computed, inject, onMounted, onUnmounted, provide, ref } from "vue";
 import CharacterAttributes from "@/Components/Planner/CharacterAttributes.vue";
-import AppButton from "@/Components/AppButton.vue";
 import AppTab from "@/Components/AppTab.vue";
+
+const props = defineProps({
+    debug: {
+        type: Boolean,
+        default: false,
+    },
+});
 
 const showingTab = ref("inventory");
 const showItemFinder = ref(false);
 const emitter = inject("emitter");
 const loading = ref(true);
 const characters = ref([]);
+
+provide("item_debug", props.debug);
 
 const pdollSlots = ref({
     larm: null,

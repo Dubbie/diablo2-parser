@@ -19,18 +19,7 @@ class DescFunc6Handler implements DescriptionFunctionHandlerInterface
         $value = $values['value'] ?? null;
 
         // Param is the first value
-        $param = $values['param'];
-
-        // Set min and max values based on the availability of a single value or multiple
-        $min = $max = $value ?? $modifier->getMin();
-        $max = $value ?? $modifier->getMax();
-        if ($min !== $max) {
-            throw new Exception("Differing min max values in Desc Func 6 is not implemented.");
-        }
-
-        // OP Param calculation
-        $opParam = pow(2, $param);
-        $perLevel = $min / $opParam;
+        $perLevel = $values['perLevel'];
 
         // Modify the min max values
         $min = floor(1 * $perLevel);

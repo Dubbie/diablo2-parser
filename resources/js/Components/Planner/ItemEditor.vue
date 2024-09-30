@@ -10,8 +10,10 @@ import ItemCalculatedStats from "@/Components/ItemCalculatedStats.vue";
 import ItemDefenseEditor from "@/Components/Planner/ItemDefenseEditor.vue";
 
 const emitter = inject("emitter");
+const itemDebug = inject("item_debug");
 const loading = ref(true);
 const reactiveItem = ref(null);
+const { level } = inject("character");
 const showing = ref(false);
 
 const buttonLabel = computed(() => {
@@ -31,7 +33,7 @@ const itemNameColor = computed(() => {
     }
 });
 
-const { calculateStats } = useItemCalculator(reactiveItem);
+const { calculateStats } = useItemCalculator(reactiveItem, level);
 
 const getDetails = async (item) => {
     loading.value = true;
@@ -158,6 +160,12 @@ onUnmounted(() => {
                     v-for="(modifier, index) in reactiveItem.modifiers"
                     :key="index"
                 >
+                    <p
+                        v-if="itemDebug"
+                        class="text-sm text-zinc-500 font-semibold"
+                    >
+                        {{ modifier.name }}
+                    </p>
                     <InputPlaceholder
                         :entry="modifier"
                         :index="index"

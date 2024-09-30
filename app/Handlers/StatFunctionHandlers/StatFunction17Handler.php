@@ -15,13 +15,17 @@ class StatFunction17Handler implements StatFunctionHandlerInterface
         $modifier = new Modifier();
 
         // Handle if we have op param
+        $perLevel = 0;
         if ($mappedStat->getStat()->operations->count() > 0) {
             $min = $max = $param;
             $param = $mappedStat->getStat()->operations[0]->parameter;
+            $opParam = pow(2, $param);
+            $perLevel = $min / $opParam;
+        } else {
+            dd($min, $max, $param, $mappedStat->getStat());
         }
 
         $values = [];
-        $values['param'] = $param;
 
         if ($min !== $max) {
             $modifier->setRange([
@@ -31,7 +35,7 @@ class StatFunction17Handler implements StatFunctionHandlerInterface
                 ]
             ]);
         } else {
-            $values['value'] = $max;
+            $values['perLevel'] = $perLevel;
         }
 
         $modifier->setValues($values);

@@ -28,14 +28,8 @@ const getModifierLabel = (modifier) => {
     let template = modifier.template;
 
     if (character && character.level && isPerLevelModifier(modifier)) {
-        const modifierMatch = modifier.template.match(
-            /\(\+(\d+) per Character Level\)/
-        );
-        const modifierValue = modifierMatch ? parseInt(modifierMatch[1]) : 0;
-
-        // Calculate the new value for the bracket
-        const perLevel = modifierValue; // This is the +5 per Character Level
-        const newValue = character.level * perLevel;
+        const perLevel = modifier.values.perLevel; // Get the per level value
+        const newValue = Math.floor(perLevel * character.level);
 
         // Replace the values inside brackets
         template = modifier.template.replace(/\[\d+-\d+\]/, `${newValue}`);

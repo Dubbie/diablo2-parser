@@ -78,6 +78,11 @@ const initValues = () => {
         initialValues.value = props.entry.values.value;
     }
 
+    // If per level is there, add it
+    if (props.entry.values.perLevel) {
+        initialValues.perLevel = props.entry.values.perLevel;
+    }
+
     values.value = initialValues;
 
     emitUpdate();

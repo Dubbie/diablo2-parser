@@ -6,7 +6,6 @@ import ItemFinder from "@/Components/ItemFinder.vue";
 import SelectInputComplex from "@/Components/SelectInputComplex.vue";
 import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
-import { useForm } from "@inertiajs/vue3";
 import { IconSearch } from "@tabler/icons-vue";
 import {
     computed,
@@ -29,31 +28,34 @@ const props = defineProps({
     },
 });
 
-const showingTab = ref("inventory");
-const showItemFinder = ref(false);
 const emitter = inject("emitter");
 const loading = ref(true);
 const characters = ref([]);
-
-provide("item_debug", props.debug);
-
-const pdollSlots = ref({
-    larm: null,
-    rarm: null,
-    tors: null,
-    head: null,
-    boot: null,
-    belt: null,
-    glov: null,
-    lrin: null,
-    rrin: null,
-    neck: null,
-});
-
-const form = useForm({
+const plannerState = reactive({
+    filter: {
+        slot: null,
+        templates: true,
+    },
+    pdollSlots: {
+        larm: null,
+        rarm: null,
+        tors: null,
+        head: null,
+        boot: null,
+        belt: null,
+        glov: null,
+        lrin: null,
+        rrin: null,
+        neck: null,
+    },
+    showItemFinder: false,
+    showingTab: "inventory",
     characterClass: null,
     level: 99,
 });
+
+provide("item_debug", props.debug);
+provide("character", plannerState);
 
 const characterClassOptions = computed(() => {
     return characters.value.map((char) => {
@@ -64,33 +66,24 @@ const characterClassOptions = computed(() => {
     });
 });
 
-provide("character", form);
-
-const filter = ref({
-    slot: null,
-    templates: true,
-});
-
 const allItems = computed(() => {
-    return Object.values(pdollSlots.value).filter((item) => !!item);
+    return Object.values(plannerState.pdollSlots).filter((item) => !!item);
 });
-
-// Method to handle filter update from ItemFinder
-const updateFilter = (newSearch) => {
-    filter.value = { ...filter.value, search: newSearch };
-};
 
 // Method to handle filter update from CharacterInventory
 const handleSetFilter = (slotName) => {
-    filter.value = { ...filter.value, slot: slotName };
+    plannerState.filter = {
+        ...plannerState.filter,
+        slot: slotName,
+    };
 
-    if (!showItemFinder.value) {
-        showItemFinder.value = true;
+    if (!plannerState.showItemFinder) {
+        plannerState.showItemFinder = true;
     }
 
     // Check if that slot has an item
-    if (pdollSlots.value[slotName]) {
-        emitter.emit("item-selected", pdollSlots.value[slotName]);
+    if (plannerState.pdollSlots[slotName]) {
+        emitter.emit("item-selected", plannerState.pdollSlots[slotName]);
     }
 };
 
@@ -102,12 +95,13 @@ const handleItemSelected = (item) => {
 // Method to handle item creation
 const handleItemCreated = (item) => {
     item.added = true;
-    pdollSlots.value[filter.value.slot] = item;
+    plannerState.pdollSlots[filter.value.slot] = item;
 };
 
 // Method to handle reset items
 const handleResetItems = () => {
-    pdollSlots.value = {
+    plannerState.filter.slot = null;
+    plannerState.pdollSlots = {
         larm: null,
         rarm: null,
         tors: null,
@@ -119,8 +113,6 @@ const handleResetItems = () => {
         rrin: null,
         neck: null,
     };
-
-    filter.value.slot = null;
 };
 
 const loadCharacters = async () => {
@@ -129,7 +121,7 @@ const loadCharacters = async () => {
         characters.value = response.data;
 
         // Set default class
-        form.characterClass = characters.value[0];
+        plannerState.characterClass = characters.value[0];
     } catch (error) {
         console.error(error);
     } finally {
@@ -140,9 +132,12 @@ const loadCharacters = async () => {
 const calculateStats = (item = null) => {
     if (!item) {
         // Calculate stats for all items
-        Object.values(pdollSlots.value).forEach((item) => {
+        Object.values(plannerState.pdollSlots).forEach((item) => {
             if (item) {
-                const { calculateStats } = useItemCalculator(item, form.level);
+                const { calculateStats } = useItemCalculator(
+                    item,
+                    plannerState.level
+                );
                 item.calculated_stats = calculateStats();
             }
         });
@@ -151,35 +146,43 @@ const calculateStats = (item = null) => {
     }
 
     // Calculate stats for single item
-    const { calculateStats } = useItemCalculator(item.value, form.level);
+    const { calculateStats } = useItemCalculator(
+        item.value,
+        plannerState.level
+    );
     item.value.calculated_stats = calculateStats();
 };
 
 watch(
-    () => [form.characterClass, form.level],
+    () => [plannerState.characterClass, plannerState.level],
     () => {
         calculateStats();
     }
 );
 
+const handleItemAdded = (item) => {
+    item.added = true;
+    plannerState.pdollSlots[plannerState.filter.slot] = item;
+    plannerState.filter.slot = null;
+    plannerState.showItemFinder = false;
+};
+
+const setUpEventListeners = () => {
+    emitter.on("item-added", handleItemAdded);
+    emitter.on("item-changed", calculateStats);
+};
+
+const tearDownEventListeners = () => {
+    emitter.off("item-added");
+    emitter.off("item-changed");
+};
+
 onMounted(() => {
     loadCharacters();
-
-    emitter.on("item-added", (item) => {
-        item.added = true;
-        pdollSlots.value[filter.value.slot] = item;
-        filter.value.slot = null;
-        showItemFinder.value = false;
-    });
-
-    emitter.on("item-changed", (item) => {
-        calculateStats(item);
-    });
+    setUpEventListeners();
 });
 
-onUnmounted(() => {
-    emitter.off("item-added");
-});
+onUnmounted(tearDownEventListeners);
 </script>
 
 <template>
@@ -198,12 +201,12 @@ onUnmounted(() => {
                 <div class="flex space-x-1 mb-1">
                     <SelectInputComplex
                         class="flex-1"
-                        v-model="form.characterClass"
+                        v-model="plannerState.characterClass"
                         :options="characterClassOptions"
                     />
 
                     <TextInput
-                        v-model="form.level"
+                        v-model="plannerState.level"
                         :min="1"
                         :max="99"
                         type="number"
@@ -215,45 +218,49 @@ onUnmounted(() => {
                     <AppTab
                         name="Inventory"
                         tab="inventory"
-                        :active="showingTab === 'inventory'"
-                        @update:tab="showingTab = $event"
+                        :active="plannerState.showingTab === 'inventory'"
+                        @update:tab="plannerState.showingTab = $event"
                     />
                     <AppTab
                         name="Attributes"
                         tab="attributes"
-                        :active="showingTab === 'attributes'"
-                        @update:tab="showingTab = $event"
+                        :active="plannerState.showingTab === 'attributes'"
+                        @update:tab="plannerState.showingTab = $event"
                     />
                 </div>
 
                 <div class="w-[320px]">
                     <CharacterInventory
-                        v-show="showingTab === 'inventory'"
-                        :filter="filter"
-                        :larm="pdollSlots.larm"
-                        :rarm="pdollSlots.rarm"
-                        :head="pdollSlots.head"
-                        :boot="pdollSlots.boot"
-                        :tors="pdollSlots.tors"
-                        :belt="pdollSlots.belt"
-                        :glov="pdollSlots.glov"
-                        :neck="pdollSlots.neck"
-                        :lrin="pdollSlots.lrin"
-                        :rrin="pdollSlots.rrin"
-                        @unequip-item="pdollSlots[filter.slot] = null"
+                        v-show="plannerState.showingTab === 'inventory'"
+                        :filter="plannerState.filter"
+                        :larm="plannerState.pdollSlots.larm"
+                        :rarm="plannerState.pdollSlots.rarm"
+                        :head="plannerState.pdollSlots.head"
+                        :boot="plannerState.pdollSlots.boot"
+                        :tors="plannerState.pdollSlots.tors"
+                        :belt="plannerState.pdollSlots.belt"
+                        :glov="plannerState.pdollSlots.glov"
+                        :neck="plannerState.pdollSlots.neck"
+                        :lrin="plannerState.pdollSlots.lrin"
+                        :rrin="plannerState.pdollSlots.rrin"
+                        @unequip-item="
+                            plannerState.pdollSlots[plannerState.filter.slot] =
+                                null
+                        "
                         @set-filter="handleSetFilter"
                         @reset-items="handleResetItems"
                     />
 
-                    <CharacterAttributes v-show="showingTab === 'attributes'" />
+                    <CharacterAttributes
+                        v-show="plannerState.showingTab === 'attributes'"
+                    />
                 </div>
             </div>
 
             <div class="flex-1">
                 <ItemFinder
-                    v-if="showItemFinder"
-                    :filter="filter"
-                    @update-filter="updateFilter"
+                    v-if="plannerState.showItemFinder"
+                    :filter="plannerState.filter"
                     @item-selected="handleItemSelected"
                 />
 

@@ -72,12 +72,6 @@ class PropertyService
                 'stats' => ['fireresist', 'lightresist', 'coldresist', 'poisonresist'],
             ],
             [
-                'priority' => 67,
-                'name' => 'all_attributes',
-                'match' => true,
-                'stats' => ['strength', 'dexterity', 'energy', 'vitality'],
-            ],
-            [
                 'priority' => 120,
                 'name' => 'maxdamage_percent',
                 'stats' => ['item_maxdamage_percent'],
@@ -126,6 +120,10 @@ class PropertyService
 
     private function shouldMap(array $mapping, array $propertyStats): bool
     {
+        if ($mapping['name'] === 'all_attributes') {
+            dump($propertyStats);
+        }
+
         if (isset($mapping['partial']) && count(array_intersect($mapping['stats'], $propertyStats)) > 0) {
             return true;
         }
@@ -224,6 +222,11 @@ class PropertyService
                 'stats' => ['poisonmindam', 'poisonmaxdam', 'poisonlength'],
             ],
             [
+                'name' => 'all_attributes',
+                'priority' => 'strength',
+                'stats' => ['strength', 'dexterity', 'energy', 'vitality'],
+            ],
+            [
                 'name' => 'dmg_cold',
                 'priority' => 'coldmindam',
                 'stats' => ['coldmindam', 'coldmaxdam'],
@@ -284,6 +287,11 @@ class PropertyService
             }
             if ($isLength) {
                 $newModifier->setValues($modifier->getValues());
+            }
+
+            if (!$isMax && !$isMin && !$isLength) {
+                $range['value']['min'] = $fixedValue ?? $modifier->getRange()['value']['min'];
+                $range['value']['max'] = $fixedValue ?? $modifier->getRange()['value']['max'];
             }
 
             if ($modifier->getName() === $mapping['priority']) {

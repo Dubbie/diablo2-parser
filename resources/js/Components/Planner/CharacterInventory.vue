@@ -1,6 +1,7 @@
 <script setup>
 import AppButton from "@/Components/AppButton.vue";
 import ItemDisplay from "@/Components/ItemDisplay.vue";
+import { watch } from "vue";
 
 const emit = defineEmits(["set-filter", "reset-items", "unequip-item"]);
 

@@ -12,8 +12,16 @@ const props = defineProps({
     },
 });
 
+const getDefaultDefense = () => {
+    if (props.item?.set_stats?.defense) {
+        return props.item.set_stats.defense.toString();
+    }
+
+    return props.item.base_stats.max_ac.toString();
+};
+
 const showingRange = ref(false);
-const defense = ref(props.item.base_stats.max_ac.toString());
+const defense = ref(getDefaultDefense());
 
 const handleFocus = () => {
     showingRange.value = true;

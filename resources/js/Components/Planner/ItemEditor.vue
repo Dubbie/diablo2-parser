@@ -5,7 +5,6 @@ import AppButton from "@/Components/AppButton.vue";
 import Modal from "@/Components/Modal.vue";
 import ItemDisplay from "@/Components/ItemDisplay.vue";
 import InputPlaceholder from "@/Components/Planner/InputPlaceholder.vue";
-import { useItemCalculator } from "@/Composables/itemCalculator";
 import ItemCalculatedStats from "@/Components/ItemCalculatedStats.vue";
 import ItemDefenseEditor from "@/Components/Planner/ItemDefenseEditor.vue";
 
@@ -13,7 +12,6 @@ const emitter = inject("emitter");
 const itemDebug = inject("item_debug");
 const loading = ref(true);
 const reactiveItem = ref(null);
-const { level } = inject("character");
 const showing = ref(false);
 
 const buttonLabel = computed(() => {
@@ -33,14 +31,12 @@ const itemNameColor = computed(() => {
     }
 });
 
-const { calculateStats } = useItemCalculator(reactiveItem, level);
-
 const getDetails = async (item) => {
     loading.value = true;
 
     // Check if this item already has the good stuff
     if (item.modifiers) {
-        reactiveItem.value = item;
+        reactiveItem.value = JSON.parse(JSON.stringify(item));
         loading.value = false;
         return;
     }
@@ -85,7 +81,6 @@ const handleNewDefense = (defense) => {
 };
 
 const handleAddOrUpdateItem = () => {
-    console.log(reactiveItem.value);
     // emitting to the planner that the item should be added or updated...
     emitter.emit("item-added", reactiveItem.value);
 
@@ -104,7 +99,7 @@ watch(
             return;
         }
 
-        reactiveItem.value.calculated_stats = calculateStats();
+        emitter.emit("item-changed", reactiveItem);
     },
     {
         deep: true,

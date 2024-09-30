@@ -8,9 +8,19 @@ import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { useForm } from "@inertiajs/vue3";
 import { IconSearch } from "@tabler/icons-vue";
-import { computed, inject, onMounted, onUnmounted, provide, ref } from "vue";
+import {
+    computed,
+    inject,
+    onMounted,
+    onUnmounted,
+    provide,
+    reactive,
+    ref,
+    watch,
+} from "vue";
 import CharacterAttributes from "@/Components/Planner/CharacterAttributes.vue";
 import AppTab from "@/Components/AppTab.vue";
+import { useItemCalculator } from "@/Composables/itemCalculator";
 
 const props = defineProps({
     debug: {
@@ -127,6 +137,31 @@ const loadCharacters = async () => {
     }
 };
 
+const calculateStats = (item = null) => {
+    if (!item) {
+        // Calculate stats for all items
+        Object.values(pdollSlots.value).forEach((item) => {
+            if (item) {
+                const { calculateStats } = useItemCalculator(item, form.level);
+                item.calculated_stats = calculateStats();
+            }
+        });
+
+        return;
+    }
+
+    // Calculate stats for single item
+    const { calculateStats } = useItemCalculator(item.value, form.level);
+    item.value.calculated_stats = calculateStats();
+};
+
+watch(
+    () => [form.characterClass, form.level],
+    () => {
+        calculateStats();
+    }
+);
+
 onMounted(() => {
     loadCharacters();
 
@@ -135,6 +170,10 @@ onMounted(() => {
         pdollSlots.value[filter.value.slot] = item;
         filter.value.slot = null;
         showItemFinder.value = false;
+    });
+
+    emitter.on("item-changed", (item) => {
+        calculateStats(item);
     });
 });
 

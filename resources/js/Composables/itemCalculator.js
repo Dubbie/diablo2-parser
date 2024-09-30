@@ -1,10 +1,10 @@
-export function useItemCalculator(reactiveItem, level) {
+export function useItemCalculator(item, level) {
     const calculateStats = () => {
-        if (!reactiveItem || !reactiveItem.value || !reactiveItem.value.modifiers) {
+        if (!item || !item.modifiers) {
             return;
         }
 
-        const { base_stats } = reactiveItem.value;
+        const { base_stats } = item;
         const stats = {};
 
         const statConfig = [
@@ -28,7 +28,7 @@ export function useItemCalculator(reactiveItem, level) {
 
     // Generic stat calculator for required_str, required_dex, etc.
     const calculateStatWithMultiplier = (statKey) => () => {
-        const { base_stats } = reactiveItem.value;
+        const { base_stats } = item;
         let isModified = false;
 
         const multiplier = getModifierValue('item_req_percent', true) || 1;
@@ -40,7 +40,7 @@ export function useItemCalculator(reactiveItem, level) {
     };
 
     const calculateDefense = () => {
-        const { base_stats, set_stats } = reactiveItem.value;
+        const { base_stats, set_stats } = item;
 
         const baseDefense = hasModifier('item_armor_percent')
             ? base_stats.max_ac + 1
@@ -57,7 +57,7 @@ export function useItemCalculator(reactiveItem, level) {
 
     // Damage calculation remains similar but using helper function
     const calculateDamageByKey = (minKey, maxKey) => {
-        const { base_stats } = reactiveItem.value;
+        const { base_stats } = item;
         let _min = base_stats[minKey];
         let _max = base_stats[maxKey];
         let _minAdd = 0;
@@ -65,7 +65,7 @@ export function useItemCalculator(reactiveItem, level) {
 
         const dmgMultiplier = getModifierValue('maxdamage_percent', true) || 1;
 
-        reactiveItem.value.modifiers.forEach(modifier => {
+        item.modifiers.forEach(modifier => {
             _minAdd += getModifierDamage(modifier, 'minimum_dmg', 'minValue');
             _maxAdd += getModifierDamage(modifier, 'maximum_dmg', 'maxValue');
         });
@@ -89,7 +89,7 @@ export function useItemCalculator(reactiveItem, level) {
     };
 
     const calculateLevel = () => {
-        const { base_stats } = reactiveItem.value;
+        const { base_stats } = item;
         return { value: base_stats.required_level, modified: false };
     };
 
@@ -109,7 +109,7 @@ export function useItemCalculator(reactiveItem, level) {
     };
 
     const hasModifier = (modifierName) => {
-        return reactiveItem.value.modifiers.some(mod => mod.name === modifierName);
+        return item.modifiers.some(mod => mod.name === modifierName);
     };
 
     const getModifierValue = (modifierName, isMultiplier) => {
@@ -128,7 +128,7 @@ export function useItemCalculator(reactiveItem, level) {
     };
 
     const getModifier = (modifierName) => {
-        return reactiveItem.value.modifiers.find(mod => mod.name === modifierName);
+        return item.modifiers.find(mod => mod.name === modifierName);
     };
 
     return {

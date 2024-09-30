@@ -50,7 +50,7 @@ const emit = defineEmits(["update:model-value"]);
         v-slot="{ open }"
     >
         <ListboxButton
-            class="py-2 px-3 text-sm border-none bg-transparent rounded-lg ring-1 ring-inset text-white w-full"
+            class="py-2 px-3 text-sm border-none bg-transparent rounded-xl ring-1 ring-inset text-white w-full"
             :class="{
                 'ring-2 ring-indigo-500': open,
                 'ring-white/10 hover:ring-white/30': !open,

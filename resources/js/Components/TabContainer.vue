@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch, nextTick } from "vue";
+import { onMounted, ref, watch, nextTick, onUpdated, inject } from "vue";
 import AppTab from "./AppTab.vue";
 
 // Props and emits
@@ -15,6 +15,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["update:activeTab"]);
+const emitter = inject("emitter");
 
 // Initialize the indicator styles
 const indicatorStyle = ref({
@@ -34,6 +35,8 @@ const updateIndicator = () => {
         const activeTabEl = tabRefs.value[activeIndex];
 
         if (activeTabEl) {
+            console.log("Triggered with active tab!");
+
             // Use getBoundingClientRect() to include padding, borders, etc.
             const { left, width } = activeTabEl.$el.getBoundingClientRect();
 
@@ -45,6 +48,8 @@ const updateIndicator = () => {
                 left: `${left - containerLeft - 8}px`,
                 width: `${width + 8}px`,
             };
+
+            console.log(indicatorStyle.value);
         }
     });
 };
@@ -52,6 +57,11 @@ const updateIndicator = () => {
 // Update the indicator on mounted and when activeTab changes
 onMounted(() => {
     updateIndicator();
+    emitter.on("loading-planner", () => {
+        setTimeout(() => {
+            updateIndicator();
+        }, 300);
+    });
 });
 
 watch(

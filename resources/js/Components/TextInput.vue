@@ -107,7 +107,7 @@ onMounted(() => {
 
 <template>
     <input
-        class="bg-transparent ring-inset ring-1 ring-white/10 border-none rounded-lg hover:ring-white/20 focus:ring-inset focus:ring-2 focus:ring-indigo-500"
+        class="bg-transparent ring-inset ring-1 ring-white/10 border-none rounded-xl hover:ring-white/20 focus:ring-inset focus:ring-2 focus:ring-indigo-500"
         :class="paddingClasses"
         v-model="inputValue"
         :type="type"

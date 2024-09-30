@@ -19,6 +19,7 @@ import CharacterAttributes from "@/Components/Planner/CharacterAttributes.vue";
 import { useItemCalculator } from "@/Composables/itemCalculator";
 import TabContainer from "@/Components/TabContainer.vue";
 import CharacterSetup from "./Partials/CharacterSetup.vue";
+import AppSpinner from "@/Components/AppSpinner.vue";
 
 const props = defineProps({
     debug: {
@@ -193,74 +194,88 @@ onUnmounted(tearDownEventListeners);
         </p>
 
         <div v-if="loading">
-            <p>Loading planner...</p>
+            <div class="flex flex-col justify-center items-center">
+                <AppSpinner color="text-blue-400" size="size-6" class="mb-1" />
+                <p class="font-bold">Loading planner...</p>
+            </div>
         </div>
 
-        <div class="flex space-x-6">
-            <div class="shrink-0">
-                <CharacterSetup :planner-state="plannerState" />
+        <transition
+            enter-active-class="transition transform ease-out duration-300"
+            enter-from-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            enter-to-class="opacity-100 translate-y-0 sm:scale-100"
+            leave-active-class="transition transform ease-in duration-200"
+            leave-from-class="opacity-100 translate-y-0 sm:scale-100"
+            leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        >
+            <div class="flex space-x-6" v-show="!loading">
+                <div class="shrink-0">
+                    <CharacterSetup :planner-state="plannerState" />
 
-                <div class="mb-1">
-                    <TabContainer
-                        :tabs="sideTabs"
-                        :active-tab="plannerState.showingTab"
-                        @update:active-tab="plannerState.showingTab = $event"
-                    />
+                    <div class="mb-1">
+                        <TabContainer
+                            :tabs="sideTabs"
+                            :active-tab="plannerState.showingTab"
+                            @update:active-tab="
+                                plannerState.showingTab = $event
+                            "
+                        />
+                    </div>
+
+                    <div class="w-[320px]" v-if="!loading">
+                        <CharacterInventory
+                            v-show="plannerState.showingTab === 'inventory'"
+                            :filter="plannerState.filter"
+                            :slots="plannerState.pdollSlots"
+                            @unequip-item="handleUneqip"
+                            @set-filter="handleSetFilter"
+                            @reset-items="handleResetItems"
+                        />
+
+                        <CharacterAttributes
+                            v-show="plannerState.showingTab === 'attributes'"
+                        />
+                    </div>
                 </div>
 
-                <div class="w-[320px]" v-if="!loading">
-                    <CharacterInventory
-                        v-show="plannerState.showingTab === 'inventory'"
+                <div class="flex-1">
+                    <ItemFinder
+                        v-if="plannerState.showItemFinder"
                         :filter="plannerState.filter"
-                        :slots="plannerState.pdollSlots"
-                        @unequip-item="handleUneqip"
-                        @set-filter="handleSetFilter"
-                        @reset-items="handleResetItems"
+                        @item-selected="handleItemSelected"
                     />
 
-                    <CharacterAttributes
-                        v-show="plannerState.showingTab === 'attributes'"
-                    />
-                </div>
-            </div>
-
-            <div class="flex-1">
-                <ItemFinder
-                    v-if="plannerState.showItemFinder"
-                    :filter="plannerState.filter"
-                    @item-selected="handleItemSelected"
-                />
-
-                <div v-else>
-                    <div class="flex space-x-3 items-start">
-                        <div
-                            class="p-2 ring-1 ring-white/10 flex justify-center items-center rounded-lg"
-                        >
-                            <IconSearch
-                                class="text-zinc-400 size-5"
-                                stroke-width="2"
-                            />
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-semibold">
-                                Choose an equippable slot to search for items.
-                            </p>
-                            <p class="text-zinc-500 text-sm">
-                                You can choose slots on the paperdoll.
-                            </p>
+                    <div v-else>
+                        <div class="flex space-x-3 items-start">
+                            <div
+                                class="p-2 ring-1 ring-white/10 flex justify-center items-center rounded-lg"
+                            >
+                                <IconSearch
+                                    class="text-zinc-400 size-5"
+                                    stroke-width="2"
+                                />
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold">
+                                    Choose an equippable slot to search for
+                                    items.
+                                </p>
+                                <p class="text-zinc-500 text-sm">
+                                    You can choose slots on the paperdoll.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div>
-                <CharacterStats
-                    v-if="!loading"
-                    :items="allItems"
-                    @item-created="handleItemCreated"
-                />
+                <div v-if="!loading">
+                    <CharacterStats
+                        :items="allItems"
+                        @item-created="handleItemCreated"
+                    />
+                </div>
             </div>
-        </div>
+        </transition>
 
         <ItemEditor />
     </AppLayout>

@@ -19,6 +19,10 @@ const props = defineProps({
         type: String,
         default: "text", // Default to text input
     },
+    paddingClasses: {
+        type: String,
+        default: "py-2 px-3",
+    },
 });
 
 // Create a local ref for the input
@@ -103,7 +107,8 @@ onMounted(() => {
 
 <template>
     <input
-        class="bg-white/5 px-4 border-none focus:ring-inset focus:ring-2 focus:ring-indigo-500"
+        class="bg-transparent ring-inset ring-1 ring-white/10 border-none rounded-lg hover:ring-white/20 focus:ring-inset focus:ring-2 focus:ring-indigo-500"
+        :class="paddingClasses"
         v-model="inputValue"
         :type="type"
         ref="input"

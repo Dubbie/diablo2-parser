@@ -9,16 +9,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-    larm: Object,
-    rarm: Object,
-    head: Object,
-    boot: Object,
-    tors: Object,
-    belt: Object,
-    glov: Object,
-    neck: Object,
-    lrin: Object,
-    rrin: Object,
+    slots: {
+        type: Object,
+        required: true,
+    },
 });
 
 const baseSize = 25;
@@ -31,7 +25,7 @@ const getHeight = (y) => {
     return y * baseSize + "px";
 };
 
-const itemPositions = {
+const slotData = {
     larm: {
         top: "38px",
         left: "20px",
@@ -94,19 +88,6 @@ const itemPositions = {
     },
 };
 
-const elements = [
-    "larm",
-    "rarm",
-    "head",
-    "tors",
-    "glov",
-    "boot",
-    "belt",
-    "lrin",
-    "rrin",
-    "neck",
-];
-
 const handleUneqip = ($event, slot) => {
     $event.preventDefault();
     emit("unequip-item", slot);
@@ -116,16 +97,8 @@ const setFilter = (element) => {
     emit("set-filter", element);
 };
 
-const isTwoHandedInRightHand = (element) => {
-    if (
-        element === "rarm" &&
-        props.rarm &&
-        props.rarm.base_stats?.min_2h_damage > 0
-    ) {
-        return true;
-    }
-
-    return false;
+const isActiveSlot = (slot) => {
+    return props.filter.slot === slot;
 };
 </script>
 
@@ -144,24 +117,23 @@ const isTwoHandedInRightHand = (element) => {
         </div>
 
         <div
-            v-for="element in elements"
-            :key="element"
-            class="absolute flex justify-center items-center hover:bg-yellow-600/30"
-            :style="itemPositions[element]"
+            v-for="(position, slot) in slotData"
+            :key="slot"
+            class="absolute flex justify-center items-center"
+            :style="position"
             :class="{
-                'opacity-70': isTwoHandedInRightHand(element),
-                'hover:bg-yellow-300/20': filter.slot !== element,
-                'bg-yellow-300/20': filter.slot === element,
+                'hover:bg-yellow-300/20': !isActiveSlot(slot),
+                'bg-yellow-300/20': isActiveSlot(slot),
             }"
-            @click="setFilter(element)"
+            @click="setFilter(slot)"
         >
             <ItemDisplay
-                v-if="props[element]"
-                :item="props[element]"
+                v-if="slots[slot]"
+                :item="slots[slot]"
                 :padded="false"
                 :background="false"
                 tooltip-position="top-right"
-                @click.right="handleUneqip($event, element)"
+                @click.right="handleUneqip($event, slot)"
             />
         </div>
     </div>

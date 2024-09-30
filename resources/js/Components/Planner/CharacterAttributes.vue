@@ -51,23 +51,26 @@ watch(
     <div>
         <p class="font-bold mb-3">Attributes</p>
 
-        <div
-            v-for="(attribute, key) in character.characterClass
-                .modified_attributes"
-            :key="key"
-            class="flex justify-between"
-        >
-            <p>{{ labelMap[key] }}</p>
-            <TextInput
-                v-model="character.characterClass.modified_attributes[key]"
-                type="number"
-                class="text-sm w-16"
-                :min="character.characterClass.base_attributes[key]"
-                :max="
-                    character.characterClass.modified_attributes[key] +
-                    unallocatedPoints
-                "
-            />
+        <div class="space-y-1">
+            <div
+                v-for="(attribute, key) in character.characterClass
+                    .modified_attributes"
+                :key="key"
+                class="flex justify-between"
+            >
+                <p>{{ labelMap[key] }}</p>
+                <TextInput
+                    v-model="character.characterClass.modified_attributes[key]"
+                    type="number"
+                    class="text-sm w-10 text-center"
+                    padding-classes="py-1 px-2"
+                    :min="character.characterClass.base_attributes[key]"
+                    :max="
+                        character.characterClass.modified_attributes[key] +
+                        unallocatedPoints
+                    "
+                />
+            </div>
         </div>
 
         <div class="text-sm font-semibold mt-3 text-right">

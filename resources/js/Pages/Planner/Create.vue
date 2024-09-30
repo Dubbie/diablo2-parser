@@ -20,6 +20,7 @@ import {
 import CharacterAttributes from "@/Components/Planner/CharacterAttributes.vue";
 import AppTab from "@/Components/AppTab.vue";
 import { useItemCalculator } from "@/Composables/itemCalculator";
+import TabContainer from "@/Components/TabContainer.vue";
 
 const props = defineProps({
     debug: {
@@ -113,6 +114,10 @@ const handleResetItems = () => {
         rrin: null,
         neck: null,
     };
+};
+
+const handleUneqip = (slot) => {
+    plannerState.pdollSlots[slot] = null;
 };
 
 const loadCharacters = async () => {
@@ -214,39 +219,31 @@ onUnmounted(tearDownEventListeners);
                     />
                 </div>
 
-                <div class="flex space-x-2 mb-1">
-                    <AppTab
-                        name="Inventory"
-                        tab="inventory"
-                        :active="plannerState.showingTab === 'inventory'"
-                        @update:tab="plannerState.showingTab = $event"
-                    />
-                    <AppTab
-                        name="Attributes"
-                        tab="attributes"
-                        :active="plannerState.showingTab === 'attributes'"
-                        @update:tab="plannerState.showingTab = $event"
-                    />
+                <div class="mb-1">
+                    <TabContainer>
+                        <AppTab
+                            name="Inventory"
+                            tab="inventory"
+                            class="w-full"
+                            :active="plannerState.showingTab === 'inventory'"
+                            @update:tab="plannerState.showingTab = $event"
+                        />
+                        <AppTab
+                            name="Attributes"
+                            tab="attributes"
+                            class="w-full"
+                            :active="plannerState.showingTab === 'attributes'"
+                            @update:tab="plannerState.showingTab = $event"
+                        />
+                    </TabContainer>
                 </div>
 
                 <div class="w-[320px]">
                     <CharacterInventory
                         v-show="plannerState.showingTab === 'inventory'"
                         :filter="plannerState.filter"
-                        :larm="plannerState.pdollSlots.larm"
-                        :rarm="plannerState.pdollSlots.rarm"
-                        :head="plannerState.pdollSlots.head"
-                        :boot="plannerState.pdollSlots.boot"
-                        :tors="plannerState.pdollSlots.tors"
-                        :belt="plannerState.pdollSlots.belt"
-                        :glov="plannerState.pdollSlots.glov"
-                        :neck="plannerState.pdollSlots.neck"
-                        :lrin="plannerState.pdollSlots.lrin"
-                        :rrin="plannerState.pdollSlots.rrin"
-                        @unequip-item="
-                            plannerState.pdollSlots[plannerState.filter.slot] =
-                                null
-                        "
+                        :slots="plannerState.pdollSlots"
+                        @unequip-item="handleUneqip"
                         @set-filter="handleSetFilter"
                         @reset-items="handleResetItems"
                     />
@@ -265,7 +262,15 @@ onUnmounted(tearDownEventListeners);
                 />
 
                 <div v-else>
-                    <div class="flex space-x-2 items-start">
+                    <div class="flex space-x-3 items-start">
+                        <div
+                            class="p-2 ring-1 ring-white/10 flex justify-center items-center rounded-lg"
+                        >
+                            <IconSearch
+                                class="text-zinc-400 size-5"
+                                stroke-width="2"
+                            />
+                        </div>
                         <div class="flex-1">
                             <p class="font-semibold">
                                 Choose an equippable slot to search for items.
@@ -274,10 +279,6 @@ onUnmounted(tearDownEventListeners);
                                 You can choose slots on the paperdoll.
                             </p>
                         </div>
-                        <IconSearch
-                            class="text-zinc-400 mt-1 size-5"
-                            stroke-width="3"
-                        />
                     </div>
                 </div>
             </div>

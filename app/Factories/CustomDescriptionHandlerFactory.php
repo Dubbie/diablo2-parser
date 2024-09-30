@@ -24,6 +24,7 @@ class CustomDescriptionHandlerFactory
             'dmg_fire' => \App\Handlers\CustomDescriptionHandlers\DmgFireDescriptionHandler::class,
             'dmg_poison' => \App\Handlers\CustomDescriptionHandlers\DmgPoisonDescriptionHandler::class,
             'dmg_cold' => \App\Handlers\CustomDescriptionHandlers\DmgColdDescriptionHandler::class,
+            'dmg_magic' => \App\Handlers\CustomDescriptionHandlers\DmgMagicDescriptionHandler::class,
             'min_damage' => \App\Handlers\CustomDescriptionHandlers\DmgMinDescriptionHandler::class,
             'max_damage' => \App\Handlers\CustomDescriptionHandlers\DmgMaxDescriptionHandler::class,
             'maxdurability' => \App\Handlers\CustomDescriptionHandlers\DurabilityDescriptionHandler::class,

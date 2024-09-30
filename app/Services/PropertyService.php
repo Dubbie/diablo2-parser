@@ -217,6 +217,11 @@ class PropertyService
                 'stats' => ['firemindam', 'firemaxdam'],
             ],
             [
+                'name' => 'dmg_magic',
+                'priority' => 'magicmindam',
+                'stats' => ['magicmindam', 'magicmaxdam'],
+            ],
+            [
                 'name' => 'dmg_poison',
                 'priority' => 'poisonmindam',
                 'stats' => ['poisonmindam', 'poisonmaxdam', 'poisonlength'],

@@ -72,6 +72,12 @@ class PropertyService
                 'stats' => ['fireresist', 'lightresist', 'coldresist', 'poisonresist'],
             ],
             [
+                'priority' => 67,
+                'name' => 'all_attributes',
+                'match' => true,
+                'stats' => ['strength', 'dexterity', 'energy', 'vitality'],
+            ],
+            [
                 'priority' => 120,
                 'name' => 'maxdamage_percent',
                 'stats' => ['item_maxdamage_percent'],
@@ -307,7 +313,7 @@ class PropertyService
 
     private function same(array $modifiers, array $stats): bool
     {
-        // Check if arrays have the same elements and in the same order
-        return $modifiers === $stats;
+        // Check if arrays have the same elements
+        return count(array_intersect($modifiers, $stats)) === count($stats);
     }
 }

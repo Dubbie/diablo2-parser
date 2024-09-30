@@ -21,24 +21,16 @@ class StatFunction17Handler implements StatFunctionHandlerInterface
             $param = $mappedStat->getStat()->operations[0]->parameter;
             $opParam = pow(2, $param);
             $perLevel = $min / $opParam;
-        } else {
-            dd($min, $max, $param, $mappedStat->getStat());
-        }
 
-        $values = [];
-
-        if ($min !== $max) {
-            $modifier->setRange([
-                'value' => [
-                    'min' => $min,
-                    'max' => $max
-                ]
+            $modifier->setValues([
+                'perLevel' => $perLevel
             ]);
         } else {
-            $values['perLevel'] = $perLevel;
+            $modifier->setValues([
+                'param' => $param
+            ]);
         }
 
-        $modifier->setValues($values);
         $modifier->setName($mappedStat->getStat()->stat);
         $modifier->setStat($mappedStat->getStat());
         $modifier->setPriority($mappedStat->getStat()->description->priority ?? 999);

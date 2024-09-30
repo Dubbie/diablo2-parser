@@ -169,14 +169,6 @@ onUnmounted(() => {
                 </div>
             </div>
 
-            <!-- Calculated stats -->
-            <div>
-                <p class="font-bold my-3 border-b border-white/10">
-                    Calculated stats
-                </p>
-                <ItemCalculatedStats :item="reactiveItem" />
-            </div>
-
             <div class="mt-6 flex space-x-1">
                 <AppButton @click="handleAddOrUpdateItem">{{
                     buttonLabel

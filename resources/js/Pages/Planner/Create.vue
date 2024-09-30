@@ -21,6 +21,7 @@ import TabContainer from "@/Components/TabContainer.vue";
 import CharacterSetup from "./Partials/CharacterSetup.vue";
 import AppSpinner from "@/Components/AppSpinner.vue";
 import TabSidebar from "./Partials/TabSidebar.vue";
+import PlannerEquipment from "./Partials/PlannerEquipment.vue";
 
 const props = defineProps({
     debug: {
@@ -87,11 +88,6 @@ const handleSetFilter = (slotName) => {
     if (plannerState.pdollSlots[slotName]) {
         emitter.emit("item-selected", plannerState.pdollSlots[slotName]);
     }
-};
-
-// Method to handle item selection
-const handleItemSelected = (item) => {
-    emitter.emit("item-selected", item);
 };
 
 // Method to handle item creation
@@ -235,35 +231,10 @@ onUnmounted(tearDownEventListeners);
                     </div>
                 </div>
 
-                <div class="flex-1">
-                    <ItemFinder
-                        v-if="plannerState.showItemFinder"
-                        :filter="plannerState.filter"
-                        @item-selected="handleItemSelected"
-                    />
-
-                    <div v-else>
-                        <div class="flex space-x-3 items-start">
-                            <div
-                                class="p-2 ring-1 ring-white/10 flex justify-center items-center rounded-lg"
-                            >
-                                <IconSearch
-                                    class="text-zinc-400 size-5"
-                                    stroke-width="2"
-                                />
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-semibold">
-                                    Choose an equippable slot to search for
-                                    items.
-                                </p>
-                                <p class="text-zinc-500 text-sm">
-                                    You can choose slots on the paperdoll.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <PlannerEquipment
+                    :planner-state="plannerState"
+                    class="flex-1"
+                />
 
                 <div v-if="!loading">
                     <CharacterStats

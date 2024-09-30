@@ -27,6 +27,7 @@ abstract class BaseDescriptionFunctionHandler implements DescriptionFunctionHand
         $this->template = $this->getTemplate();
         $descValue = $stat->description->value;
         $string = $stat->description->positive;
+        $extra = $stat->description->extra;
         $formattedValue = StatFormatter::formatValue($min, $max);
 
         // Handle descValue logic
@@ -37,7 +38,9 @@ abstract class BaseDescriptionFunctionHandler implements DescriptionFunctionHand
                     break;
                 case 2:
                     $split = explode(' ', $this->template);
-                    $split = array_reverse($split);
+                    $tmp = $split[0];
+                    $split[0] = $split[1];
+                    $split[1] = $tmp;
                     $this->template = implode(' ', $split);
                     break;
                 default:
@@ -55,6 +58,7 @@ abstract class BaseDescriptionFunctionHandler implements DescriptionFunctionHand
 
         // Replace placeholders
         $this->template = str_replace('[string1]', $string, $this->template);
+        $this->template = str_replace('[string2]', $extra, $this->template);
 
         $range = $modifier->getRange();
         if (empty($range) || $range['value']['min'] === null && $range['value']['max'] === null) {

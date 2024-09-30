@@ -24,6 +24,7 @@ class DescriptionFunctionHandlerFactory
             6 => \App\Handlers\DescriptionFunctionHandlers\DescFunc6Handler::class,
             12 => \App\Handlers\DescriptionFunctionHandlers\DescFunc1Handler::class, // Same as 1
             13 => \App\Handlers\DescriptionFunctionHandlers\DescFunc13Handler::class,
+            14 => \App\Handlers\DescriptionFunctionHandlers\DescFunc14Handler::class,
             15 => \App\Handlers\DescriptionFunctionHandlers\DescFunc15Handler::class,
             16 => \App\Handlers\DescriptionFunctionHandlers\DescFunc16Handler::class,
             20 => \App\Handlers\DescriptionFunctionHandlers\DescFunc20Handler::class,

@@ -35,8 +35,6 @@ const updateIndicator = () => {
         const activeTabEl = tabRefs.value[activeIndex];
 
         if (activeTabEl) {
-            console.log("Triggered with active tab!");
-
             // Use getBoundingClientRect() to include padding, borders, etc.
             const { left, width } = activeTabEl.$el.getBoundingClientRect();
 

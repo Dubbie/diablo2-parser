@@ -20,6 +20,7 @@ import { useItemCalculator } from "@/Composables/itemCalculator";
 import TabContainer from "@/Components/TabContainer.vue";
 import CharacterSetup from "./Partials/CharacterSetup.vue";
 import AppSpinner from "@/Components/AppSpinner.vue";
+import TabSidebar from "./Partials/TabSidebar.vue";
 
 const props = defineProps({
     debug: {
@@ -171,12 +172,19 @@ const setUpEventListeners = () => {
     emitter.on("item-changed", calculateStats);
     emitter.on("loading-planner", handleLoading);
     emitter.on("change-class", handleClassChanged);
+    emitter.on("set-filter", handleSetFilter);
+    emitter.on("unequip-item", handleUneqip);
+    emitter.on("reset-items", handleResetItems);
 };
 
 const tearDownEventListeners = () => {
     emitter.off("item-added");
     emitter.off("item-changed");
     emitter.off("loading-planner");
+    emitter.off("change-class");
+    emitter.off("set-filter");
+    emitter.off("unequip-item");
+    emitter.off("reset-items");
 };
 
 onMounted(() => {
@@ -223,18 +231,7 @@ onUnmounted(tearDownEventListeners);
                     </div>
 
                     <div class="w-[320px]" v-if="!loading">
-                        <CharacterInventory
-                            v-show="plannerState.showingTab === 'inventory'"
-                            :filter="plannerState.filter"
-                            :slots="plannerState.pdollSlots"
-                            @unequip-item="handleUneqip"
-                            @set-filter="handleSetFilter"
-                            @reset-items="handleResetItems"
-                        />
-
-                        <CharacterAttributes
-                            v-show="plannerState.showingTab === 'attributes'"
-                        />
+                        <TabSidebar :planner-state="plannerState" />
                     </div>
                 </div>
 

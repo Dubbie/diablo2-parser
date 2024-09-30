@@ -3,8 +3,6 @@ import CharacterInventory from "@/Components/Planner/CharacterInventory.vue";
 import CharacterStats from "@/Components/Planner/CharacterStats.vue";
 import ItemEditor from "@/Components/Planner/ItemEditor.vue";
 import ItemFinder from "@/Components/ItemFinder.vue";
-import SelectInputComplex from "@/Components/SelectInputComplex.vue";
-import TextInput from "@/Components/TextInput.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { IconSearch } from "@tabler/icons-vue";
 import {
@@ -18,9 +16,9 @@ import {
     watch,
 } from "vue";
 import CharacterAttributes from "@/Components/Planner/CharacterAttributes.vue";
-import AppTab from "@/Components/AppTab.vue";
 import { useItemCalculator } from "@/Composables/itemCalculator";
 import TabContainer from "@/Components/TabContainer.vue";
+import CharacterSetup from "./Partials/CharacterSetup.vue";
 
 const props = defineProps({
     debug: {
@@ -42,7 +40,6 @@ const sideTabs = [
 
 const emitter = inject("emitter");
 const loading = ref(true);
-const characters = ref([]);
 const plannerState = reactive({
     filter: {
         slot: null,
@@ -68,15 +65,6 @@ const plannerState = reactive({
 
 provide("item_debug", props.debug);
 provide("character", plannerState);
-
-const characterClassOptions = computed(() => {
-    return characters.value.map((char) => {
-        return {
-            label: char.name,
-            value: char,
-        };
-    });
-});
 
 const allItems = computed(() => {
     return Object.values(plannerState.pdollSlots).filter((item) => !!item);
@@ -131,20 +119,6 @@ const handleUneqip = (slot) => {
     plannerState.pdollSlots[slot] = null;
 };
 
-const loadCharacters = async () => {
-    try {
-        const response = await axios.get(route("api.characters.fetch"));
-        characters.value = response.data;
-
-        // Set default class
-        plannerState.characterClass = characters.value[0];
-    } catch (error) {
-        console.error(error);
-    } finally {
-        loading.value = false;
-    }
-};
-
 const calculateStats = (item = null) => {
     if (!item) {
         // Calculate stats for all items
@@ -183,18 +157,28 @@ const handleItemAdded = (item) => {
     plannerState.showItemFinder = false;
 };
 
+const handleLoading = (value) => {
+    loading.value = value;
+};
+
+const handleClassChanged = (classData) => {
+    plannerState.characterClass = classData;
+};
+
 const setUpEventListeners = () => {
     emitter.on("item-added", handleItemAdded);
     emitter.on("item-changed", calculateStats);
+    emitter.on("loading-planner", handleLoading);
+    emitter.on("change-class", handleClassChanged);
 };
 
 const tearDownEventListeners = () => {
     emitter.off("item-added");
     emitter.off("item-changed");
+    emitter.off("loading-planner");
 };
 
 onMounted(() => {
-    loadCharacters();
     setUpEventListeners();
 });
 
@@ -209,26 +193,12 @@ onUnmounted(tearDownEventListeners);
         </p>
 
         <div v-if="loading">
-            <p>Loading...</p>
+            <p>Loading planner...</p>
         </div>
 
-        <div v-else class="flex space-x-6">
+        <div class="flex space-x-6">
             <div class="shrink-0">
-                <div class="flex space-x-1 mb-1">
-                    <SelectInputComplex
-                        class="flex-1"
-                        v-model="plannerState.characterClass"
-                        :options="characterClassOptions"
-                    />
-
-                    <TextInput
-                        v-model="plannerState.level"
-                        :min="1"
-                        :max="99"
-                        type="number"
-                        class="text-sm w-16"
-                    />
-                </div>
+                <CharacterSetup :planner-state="plannerState" />
 
                 <div class="mb-1">
                     <TabContainer
@@ -238,7 +208,7 @@ onUnmounted(tearDownEventListeners);
                     />
                 </div>
 
-                <div class="w-[320px]">
+                <div class="w-[320px]" v-if="!loading">
                     <CharacterInventory
                         v-show="plannerState.showingTab === 'inventory'"
                         :filter="plannerState.filter"
@@ -285,6 +255,7 @@ onUnmounted(tearDownEventListeners);
 
             <div>
                 <CharacterStats
+                    v-if="!loading"
                     :items="allItems"
                     @item-created="handleItemCreated"
                 />

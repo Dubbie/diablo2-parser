@@ -35,8 +35,6 @@ const label = computed(() => {
 });
 
 const handleChange = (newValue) => {
-    console.log(newValue);
-
     emit("update:model-value", newValue);
 };
 
@@ -71,7 +69,7 @@ const emit = defineEmits(["update:model-value"]);
             leave-to-class="opacity-100"
         >
             <ListboxOptions
-                class="absolute top-full left-0 z-10 bg-zinc-800 p-1 rounded-xl border border-white/15 mt-1 max-h-64 overflow-y-scroll shadow-lg shadow-black/5"
+                class="absolute top-full left-0 z-20 bg-zinc-800 p-1 rounded-xl border border-white/15 mt-1 max-h-64 overflow-y-scroll shadow-lg shadow-black/5"
             >
                 <ListboxOption
                     v-for="option in options"

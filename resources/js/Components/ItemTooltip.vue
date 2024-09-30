@@ -51,7 +51,7 @@ const getModifierLabel = (modifier) => {
 };
 
 const isPerLevelModifier = (modifier) => {
-    const perLevelDescFuncs = [6];
+    const perLevelDescFuncs = [6, 8];
 
     return perLevelDescFuncs.includes(modifier.desc_func);
 };

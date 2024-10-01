@@ -68,13 +68,19 @@ onMounted(() => {
                     <p>Energy: {{ calculatedStats.attributes.energy }}</p>
 
                     <p class="font-bold mt-3 mb-1">Resistances:</p>
-                    <p>Fire: {{ calculatedStats.resistances.fire }}%</p>
+                    <p>
+                        Fire:
+                        {{ Math.min(calculatedStats.resistances.fire, 95) }}%
+                    </p>
                     <p>Cold: {{ calculatedStats.resistances.cold }}%</p>
                     <p>
                         Lightning: {{ calculatedStats.resistances.lightning }}%
                     </p>
                     <p>Poison: {{ calculatedStats.resistances.poison }}%</p>
                     <p>Curse: {{ calculatedStats.resistances.curse }}%</p>
+
+                    <p class="font-bold mt-3 mb-1">Defense:</p>
+                    <p>Defense: {{ calculatedStats.defense }}</p>
                 </div>
             </div>
         </div>

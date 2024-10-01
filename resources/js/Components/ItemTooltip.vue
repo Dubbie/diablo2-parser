@@ -2,9 +2,6 @@
 import { computed, inject } from "vue";
 import ItemCalculatedStats from "@/Components/ItemCalculatedStats.vue";
 
-// Get the data from the character
-const character = inject("character", null);
-
 const props = defineProps({
     item: {
         type: Object,
@@ -26,14 +23,6 @@ const positionClasses = computed(() => {
 
 const getModifierLabel = (modifier) => {
     let template = modifier.template;
-
-    if (character && character.level && isPerLevelModifier(modifier)) {
-        const perLevel = modifier.values.perLevel; // Get the per level value
-        const newValue = Math.floor(perLevel * character.level);
-
-        // Replace the values inside brackets
-        template = modifier.template.replace(/\[\d+-\d+\]/, `${newValue}`);
-    }
 
     if (modifier.range.value && modifier.values.value) {
         template = template.replace("[value]", modifier.values.value);

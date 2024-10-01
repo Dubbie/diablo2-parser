@@ -1,6 +1,5 @@
 // stores/characterStore.js
 import { defineStore } from 'pinia';
-import { computed } from 'vue';
 
 export const useCharacterStore = defineStore('character', {
     state: () => ({
@@ -18,7 +17,19 @@ export const useCharacterStore = defineStore('character', {
                 dex: 0,
                 vit: 0,
                 int: 0,
-            }
+            },
+            equippedItems: {
+                larm: null,
+                rarm: null,
+                tors: null,
+                head: null,
+                boot: null,
+                belt: null,
+                glov: null,
+                lrin: null,
+                rrin: null,
+                neck: null,
+            },
         },
         charactersList: [],
         error: null,

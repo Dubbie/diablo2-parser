@@ -1,15 +1,21 @@
 <script setup>
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { useCharacterStore } from "@/Stores/CharacterStore";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, reactive } from "vue";
 import CharacterInputs from "./Partials/CharacterInputs.vue";
 import SideTabs from "./Partials/SideTabs.vue";
+import ItemFinder from "@/Components/ItemFinder.vue";
 
 const props = defineProps({
     debug: {
         type: Boolean,
         default: false,
     },
+});
+
+const filter = reactive({
+    slot: null,
+    templates: true,
 });
 
 const characterStore = useCharacterStore();
@@ -37,18 +43,17 @@ onMounted(() => {
                 {{ characterStore.error }}
             </div>
 
-            <div class="grid grid-cols-4 gap-6">
+            <div class="flex space-x-4">
                 <div>
                     <CharacterInputs />
                     <SideTabs class="mt-2" />
                 </div>
 
-                <div class="col-span-2">
-                    <p>Main view here</p>
-                    <p>{{ selectedClass }}</p>
+                <div class="flex-1">
+                    <ItemFinder :filter="filter" />
                 </div>
 
-                <div>
+                <div class="min-w-[200px]">
                     <p>Stats here</p>
                 </div>
             </div>

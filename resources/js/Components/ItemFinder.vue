@@ -1,5 +1,6 @@
 <script setup>
 import ItemDisplay from "./ItemDisplay.vue";
+import ItemLineDisplay from "./ItemLineDisplay.vue";
 import TextInput from "./TextInput.vue";
 import { computed, ref, watch } from "vue";
 
@@ -127,14 +128,20 @@ watch(
         >
             <template v-if="!loading">
                 <div v-if="limitedItems.length" class="mt-6">
-                    <div class="grid grid-cols-5 gap-6">
+                    <!-- <div class="grid grid-cols-5 gap-6">
                         <ItemDisplay
                             v-for="item in limitedItems"
                             :key="item.id"
                             :item="item"
                             @click="selectItem(item)"
                         />
-                    </div>
+                    </div> -->
+                    <ItemLineDisplay
+                        v-for="item in limitedItems"
+                        :key="item.id"
+                        :item="item"
+                        @click="selectItem(item)"
+                    />
                     <p
                         v-if="limitedItems.length < items.length"
                         class="mt-6 text-center text-zinc-500 text-sm font-semibold"

@@ -1,5 +1,7 @@
 <script setup>
 import { computed } from "vue";
+import { useCharacterStore } from "@/Stores/CharacterStore";
+import { useStatCalculationStore } from "@/Stores/StatCalculationStore";
 import StatDisplay from "@/Components/StatDisplay.vue";
 
 const props = defineProps({
@@ -8,6 +10,12 @@ const props = defineProps({
         required: true,
     },
 });
+
+const characterStore = useCharacterStore();
+const statCalculationStore = useStatCalculationStore();
+
+const level = computed(() => characterStore.character.level);
+const attributes = computed(() => statCalculationStore.attributes);
 
 // Create a computed property for calculated stats
 const calculatedStats = computed(() => props.item.calculated_stats || {});
@@ -35,14 +43,17 @@ const getStat = (key) => calculatedStats.value[key];
             <StatDisplay
                 label="Required Dexterity"
                 :stat="getStat('required_dex')"
+                :compare="attributes.strength"
             />
             <StatDisplay
                 label="Required Strength"
                 :stat="getStat('required_str')"
+                :compare="attributes.strength"
             />
             <StatDisplay
                 label="Required Level"
                 :stat="getStat('required_level')"
+                :compare="level"
             />
         </div>
     </div>

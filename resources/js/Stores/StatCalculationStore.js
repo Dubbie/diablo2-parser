@@ -14,9 +14,6 @@ export const useStatCalculationStore = defineStore('statCalculation', {
         calculateFinalAttributes() {
             const characterStore = useCharacterStore();
 
-            console.log('Calculating final attributes...');
-            console.log(characterStore.character);
-
             // Reset the final attributes
             this.attributes.strength = characterStore.character.attributes.str + characterStore.character.modified_attributes.str;
             this.attributes.dexterity = characterStore.character.attributes.dex + characterStore.character.modified_attributes.dex;

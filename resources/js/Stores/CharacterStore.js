@@ -149,6 +149,13 @@ export const useCharacterStore = defineStore('character', {
                 },
                 { deep: true }
             );
+
+            watch(
+                () => this.character.level,
+                () => {
+                    statCalculationStore.calculateFinalAttributes();
+                }
+            );
         }
     },
 });

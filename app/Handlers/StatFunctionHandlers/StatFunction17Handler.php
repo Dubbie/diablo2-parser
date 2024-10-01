@@ -17,7 +17,9 @@ class StatFunction17Handler implements StatFunctionHandlerInterface
         // Handle if we have op param
         $perLevel = 0;
         if ($mappedStat->getStat()->operations->count() > 0) {
-            $min = $max = $param;
+            if ($param) {
+                $min = $max = intval($param);
+            }
             $param = $mappedStat->getStat()->operations[0]->parameter;
             $opParam = pow(2, $param);
             $perLevel = $min / $opParam;

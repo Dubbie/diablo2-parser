@@ -1,17 +1,19 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useItemStore } from "@/Stores/ItemStore";
+import { useCharacterStore } from "@/Stores/CharacterStore";
 import Modal from "@/Components/Modal.vue";
 import ItemDisplay from "@/Components/ItemDisplay.vue";
 import AppButton from "@/Components/AppButton.vue";
 import ModifierRangeInput from "./ModifierRangeInput.vue";
 
 const itemStore = useItemStore();
+
 const isVisible = computed(() => itemStore.selectedItem !== null);
 const selectedItem = computed(() => itemStore.selectedItem);
 
 const saveItem = () => {
-    // itemStore.saveSelectedItem();
+    itemStore.addItemToCharacter();
     closeModal();
 };
 

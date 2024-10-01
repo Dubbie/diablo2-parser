@@ -97,8 +97,21 @@ export const useItemStore = defineStore('item', {
             this.selectedItem.calculated_stats = calculateStats();
         },
 
-        resetItems() {
+        resetItems(withSlot = false) {
             this.items = [];
+
+            if (withSlot) {
+                this.selectedItem = null;
+                this.slot = null;
+                this.q = "";
+            }
         },
+
+        addItemToCharacter() {
+            const characterStore = useCharacterStore();
+            characterStore.addItemToEquippedSlot(this.slot, this.selectedItem);
+
+            this.resetItems(true);
+        }
     },
 });

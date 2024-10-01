@@ -123,5 +123,9 @@ export const useCharacterStore = defineStore('character', {
             };
             this.totalPointsAllocated = 0;
         },
+
+        addItemToEquippedSlot(slot, item) {
+            this.character.equippedItems[slot] = item;
+        }
     },
 });

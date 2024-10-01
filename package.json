@@ -20,6 +20,7 @@
     "dependencies": {
         "@headlessui/vue": "^1.7.23",
         "@tabler/icons-vue": "^3.17.0",
-        "mitt": "^3.0.1"
+        "mitt": "^3.0.1",
+        "pinia": "^2.2.4"
     }
 }

@@ -9,7 +9,7 @@ class PlannerController extends Controller
 {
     public function create()
     {
-        return Inertia::render('Planner/Create', [
+        return Inertia::render('Planner/Planner', [
             'debug' => config('item.debug'),
         ]);
     }

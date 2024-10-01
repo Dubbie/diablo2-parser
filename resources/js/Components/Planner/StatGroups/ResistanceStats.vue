@@ -31,6 +31,12 @@ const statMap = {
         colorClass: "text-purple-500",
     },
 };
+
+const getCappedResist = (data) => {
+    const capped = Math.min(data.value.total, data.value.cap);
+
+    return Math.min(capped, 95); // Max res can't go above 95%
+};
 </script>
 
 <template>
@@ -60,16 +66,11 @@ const statMap = {
                         @mouseenter="showingHistory = stat"
                         @mouseleave="showingHistory = null"
                     >
-                        <p :class="labelClasses">
+                        <p :class="[statMap[stat]?.colorClass || '']">
                             {{ statMap[stat]?.label || stat }}
                         </p>
-                        <p
-                            :class="[
-                                valueClasses,
-                                statMap[stat]?.colorClass || '',
-                            ]"
-                        >
-                            {{ data.value.total }}%
+                        <p :class="valueClasses">
+                            <span>{{ getCappedResist(data) }}%</span>
                         </p>
                     </div>
 

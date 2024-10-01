@@ -13,7 +13,7 @@ const character = inject("character");
 
 // Define stat-to-modifiers mappings
 const statModifiers = {
-    fireResist: ["fireresist", "all_resist"],
+    fireResist: ["fireresist", "all_resist", "maxfireresist"],
     coldResist: ["coldresist", "all_resist"],
     lightResist: ["lightresist", "all_resist"],
     poisonResist: ["poisonresist", "all_resist"],
@@ -28,6 +28,7 @@ const statModifiers = {
 // Generic function to calculate stats
 function calculateStat(statName) {
     let total = 0;
+    let cap = 75;
     let required = 0;
     let history = []; // Track history of modifiers
 
@@ -94,19 +95,32 @@ function calculateStat(statName) {
                         );
                     }
 
-                    total += value;
+                    if (
+                        modifier.name.includes("max") &&
+                        modifier.name.includes("resist")
+                    ) {
+                        cap += value;
 
-                    // Save item to history
-                    history.push({
-                        source: item.name ?? item.base_name,
-                        value: value,
-                    });
+                        // Save item to history
+                        history.push({
+                            source: (item.name ?? item.base_name) + " (max)",
+                            value: value,
+                        });
+                    } else {
+                        total += value;
+
+                        // Save item to history
+                        history.push({
+                            source: item.name ?? item.base_name,
+                            value: value,
+                        });
+                    }
                 }
             });
         }
     });
 
-    return { total, required, history };
+    return { total, required, history, cap };
 }
 
 const isItemUsable = (item) => {

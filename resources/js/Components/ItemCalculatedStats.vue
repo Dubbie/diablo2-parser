@@ -43,7 +43,7 @@ const getStat = (key) => calculatedStats.value[key];
             <StatDisplay
                 label="Required Dexterity"
                 :stat="getStat('required_dex')"
-                :compare="attributes.strength"
+                :compare="attributes.dexterity"
             />
             <StatDisplay
                 label="Required Strength"

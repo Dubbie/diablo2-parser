@@ -1,4 +1,3 @@
-// stores/characterStore.js
 import { defineStore } from 'pinia';
 import { useStatCalculationStore } from './StatCalculationStore';
 import { watch } from 'vue';
@@ -68,8 +67,6 @@ export const useCharacterStore = defineStore('character', {
         selectCharacter(character) {
             this.character.classData = character;
             this.character.attributes = character.base_attributes;
-
-            // Reset modified attributes and total points when a new character is selected
             this.resetAttributes();
         },
 
@@ -91,11 +88,7 @@ export const useCharacterStore = defineStore('character', {
                 }
             }
 
-            if (action === 'add') {
-                this.addAttribute(attribute, amount);
-            } else if (action === 'remove') {
-                this.removeAttribute(attribute, amount);
-            }
+            this[action + 'Attribute'](attribute, amount);
         },
 
         addAttribute(attribute, amount = 1) {
@@ -132,30 +125,20 @@ export const useCharacterStore = defineStore('character', {
 
         initStatWatcher() {
             const statCalculationStore = useStatCalculationStore();
+            const updateStats = () => {
+                statCalculationStore.calculateStats();
+            };
 
-            // Watch modified attributes and equipped items for changes
+            // Combine watchers for modified attributes, equipped items, and character level
             watch(
-                () => this.character.modified_attributes,
-                () => {
-                    statCalculationStore.calculateFinalAttributes();
-                },
+                () => [
+                    this.character.modified_attributes,
+                    this.character.equippedItems,
+                    this.character.level,
+                ],
+                updateStats,
                 { deep: true }
             );
-
-            watch(
-                () => this.character.equippedItems,
-                () => {
-                    statCalculationStore.calculateFinalAttributes();
-                },
-                { deep: true }
-            );
-
-            watch(
-                () => this.character.level,
-                () => {
-                    statCalculationStore.calculateFinalAttributes();
-                }
-            );
-        }
+        },
     },
 });

@@ -23,18 +23,7 @@ const characterStore = useCharacterStore();
 const statCalculationStore = useStatCalculationStore();
 const isLoading = computed(() => characterStore.loading); // Get loading state
 
-const strength = computed(() => {
-    return statCalculationStore.attributes.strength;
-});
-const dexterity = computed(() => {
-    return statCalculationStore.attributes.dexterity;
-});
-const vitality = computed(() => {
-    return statCalculationStore.attributes.vitality;
-});
-const energy = computed(() => {
-    return statCalculationStore.attributes.energy;
-});
+const calculatedStats = computed(() => statCalculationStore);
 
 onMounted(() => {
     characterStore.fetchCharacterClasses();
@@ -72,10 +61,20 @@ onMounted(() => {
                 </div>
 
                 <div class="min-w-[200px]">
-                    <p>Strength: {{ strength }}</p>
-                    <p>Dexterity: {{ dexterity }}</p>
-                    <p>Vitality: {{ vitality }}</p>
-                    <p>Energy: {{ energy }}</p>
+                    <p class="font-bold mb-1">Attributes:</p>
+                    <p>Strength: {{ calculatedStats.attributes.strength }}</p>
+                    <p>Dexterity: {{ calculatedStats.attributes.dexterity }}</p>
+                    <p>Vitality: {{ calculatedStats.attributes.vitality }}</p>
+                    <p>Energy: {{ calculatedStats.attributes.energy }}</p>
+
+                    <p class="font-bold mt-3 mb-1">Resistances:</p>
+                    <p>Fire: {{ calculatedStats.resistances.fire }}%</p>
+                    <p>Cold: {{ calculatedStats.resistances.cold }}%</p>
+                    <p>
+                        Lightning: {{ calculatedStats.resistances.lightning }}%
+                    </p>
+                    <p>Poison: {{ calculatedStats.resistances.poison }}%</p>
+                    <p>Curse: {{ calculatedStats.resistances.curse }}%</p>
                 </div>
             </div>
         </div>

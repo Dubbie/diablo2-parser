@@ -60,7 +60,9 @@ const finalAttributes = computed(() => {
                 </div>
 
                 <div class="text-center col-span-2">
-                    <p class="font-semibold px-3">{{ value.mod }}</p>
+                    <p class="font-semibold px-3 select-none">
+                        {{ value.mod }}
+                    </p>
                 </div>
 
                 <div>

@@ -217,7 +217,7 @@ provide("valueClasses", valueClasses);
 </script>
 
 <template>
-    <div class="text-sm min-w-[160px] space-y-3">
+    <div class="text-sm min-w-[200px] space-y-3">
         <AttributeStats />
         <ResistanceStats />
         <DefenseStats />

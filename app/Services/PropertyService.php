@@ -120,10 +120,6 @@ class PropertyService
 
     private function shouldMap(array $mapping, array $propertyStats): bool
     {
-        if ($mapping['name'] === 'all_attributes') {
-            dump($propertyStats);
-        }
-
         if (isset($mapping['partial']) && count(array_intersect($mapping['stats'], $propertyStats)) > 0) {
             return true;
         }

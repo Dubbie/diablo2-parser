@@ -41,7 +41,9 @@ class ItemController
             $items = $items->bySlot($slot);
         }
 
-        return response()->json($items->get());
+        $items = $items->get()->map(fn($item) => $item->append('modifiers'));
+
+        return response()->json($items);
     }
 
     public function details(Item $item)

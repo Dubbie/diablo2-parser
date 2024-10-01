@@ -35,15 +35,15 @@ const getModifierLabel = (modifier) => {
         template = modifier.template.replace(/\[\d+-\d+\]/, `${newValue}`);
     }
 
-    if (modifier.range.value) {
+    if (modifier.range.value && modifier.values.value) {
         template = template.replace("[value]", modifier.values.value);
     }
 
-    if (modifier.range.minValue) {
+    if (modifier.range.minValue && modifier.values.minValue) {
         template = template.replace("[minValue]", modifier.values.minValue);
     }
 
-    if (modifier.range.maxValue) {
+    if (modifier.range.maxValue && modifier.values.maxValue) {
         template = template.replace("[maxValue]", modifier.values.maxValue);
     }
 

@@ -19,144 +19,145 @@ const statModifiers = {
     poisonResist: ["poisonresist", "all_resist"],
     curseResist: ["curse_effectiveness"],
     armorclass: ["armorclass"],
-    str: ["strength", "item_strength_perlevel"],
-    dex: ["dexterity", "item_dexterity_perlevel"],
-    vit: ["vitality", "item_vitality_perlevel"],
-    int: ["energy", "item_energy_perlevel"],
+    str: ["strength", "all_attributes", "item_strength_perlevel"],
+    dex: ["dexterity", "all_attributes", "item_dexterity_perlevel"],
+    vit: ["vitality", "all_attributes", "item_vitality_perlevel"],
+    int: ["energy", "all_attributes", "item_energy_perlevel"],
 };
 
-// Generic function to calculate stats
-function calculateStat(statName) {
-    let total = 0;
-    let cap = 75;
+// Define strategies for calculating stats
+const statStrategies = {
+    fireResist: calculateResistStat,
+    coldResist: calculateResistStat,
+    lightResist: calculateResistStat,
+    poisonResist: calculateResistStat,
+    curseResist: calculateResistStat,
+    armorclass: calculateGenericStat,
+    str: calculateAttributeStat,
+    dex: calculateAttributeStat,
+    vit: calculateAttributeStat,
+    int: calculateAttributeStat,
+    default: calculateGenericStat,
+};
+
+function calculateResistStat(statName) {
+    const baseValue = 30 - 100; // Quests and Difficulty
+    const baseHistory = [
+        { source: "Quests", value: 30 },
+        { source: "Difficulty", value: -100 },
+    ];
+
+    return calculateBaseStat(statName, baseValue, baseHistory);
+}
+
+function calculateAttributeStat(statName) {
+    let total = character.characterClass.modified_attributes[statName]; // Base character attribute
     let required = 0;
-    let history = []; // Track history of modifiers
+    let history = [{ source: "Character", value: total }];
 
-    const modifiers = statModifiers[statName]; // Get modifiers for the stat
+    // Apply item modifiers using the helper function
+    const result = applyItemModifiers(statName, total, history);
+    total = result.total;
+    history = result.history;
 
-    // Add custom history
-    if (isResistStat(statName)) {
-        history.push({
-            source: "Quests",
-            value: 30,
-        });
-        history.push({
-            source: "Difficulty",
-            value: -100,
-        });
-
-        total = 30 - 100;
-    }
-
-    if (isAttributeStat(statName)) {
-        const value = character.characterClass.modified_attributes[statName];
-
-        // Make total the modified attr base
-        total = value;
-
-        // Save stat to history
-        history.push({
-            source: "Character",
-            value: value,
-        });
-    }
-
-    // Add defense from items
+    // Check for any required attributes from items
     props.items.forEach((item) => {
-        // Check requirement
-        const requiredStat = getRequirementByStat(statName, item);
-        if (requiredStat) {
-            if (requiredStat > required) {
-                required = requiredStat;
-            }
-        }
-
-        // Check if character can use item
         if (!isItemUsable(item)) return;
 
-        if (item.calculated_stats.defense && statName === "armorclass") {
-            const value = item.calculated_stats.defense.value;
-            total += value;
-
-            // Save item to history
-            history.push({
-                source: item.name ?? item.base_name,
-                value,
-            });
-        } else {
-            item.modifiers.forEach((modifier) => {
-                if (modifiers.includes(modifier.name)) {
-                    let value = null;
-                    if (modifier.values.value) {
-                        value = parseInt(modifier.values.value);
-                    } else if (modifier.values.perLevel) {
-                        value = parseInt(
-                            modifier.values.perLevel * character.level
-                        );
-                    }
-
-                    if (
-                        modifier.name.includes("max") &&
-                        modifier.name.includes("resist")
-                    ) {
-                        cap += value;
-
-                        // Save item to history
-                        history.push({
-                            source: (item.name ?? item.base_name) + " (max)",
-                            value: value,
-                        });
-                    } else {
-                        total += value;
-
-                        // Save item to history
-                        history.push({
-                            source: item.name ?? item.base_name,
-                            value: value,
-                        });
-                    }
-                }
-            });
+        const requiredStat = getRequirementByStat(statName, item);
+        if (requiredStat > required) {
+            required = requiredStat;
         }
     });
+
+    return { total, required, history };
+}
+
+function calculateGenericStat(statName) {
+    return calculateBaseStat(statName);
+}
+
+function applyItemModifiers(statName, total, history, cap = 75) {
+    props.items.forEach((item) => {
+        if (!isItemUsable(item)) return;
+
+        // Early return for armorclass (defense)
+        if (statName === "armorclass" && item.calculated_stats.defense) {
+            const value = item.calculated_stats.defense.value;
+            total += value;
+            history.push({
+                source: item.name ?? item.base_name,
+                value: value,
+            });
+            return;
+        }
+
+        // Apply other modifiers
+        item.modifiers.forEach((modifier) => {
+            if (statModifiers[statName]?.includes(modifier.name)) {
+                let value = getModifierValue(modifier);
+
+                if (
+                    modifier.name.includes("max") &&
+                    modifier.name.includes("resist")
+                ) {
+                    cap += value;
+                    history.push({
+                        source: (item.name ?? item.base_name) + " (max)",
+                        value: value,
+                    });
+                } else {
+                    total += value;
+                    history.push({
+                        source: item.name ?? item.base_name,
+                        value: value,
+                    });
+                }
+            }
+        });
+    });
+
+    return { total, cap, history };
+}
+
+function calculateBaseStat(
+    statName,
+    baseValue = 0,
+    baseHistory = [],
+    defaultCap = 75
+) {
+    let total = baseValue;
+    let cap = defaultCap;
+    let required = 0;
+    let history = [...baseHistory];
+
+    // Apply modifiers from items
+    const result = applyItemModifiers(statName, total, history, cap);
+    total = result.total;
+    cap = result.cap;
+    history = result.history;
 
     return { total, required, history, cap };
 }
 
-const isItemUsable = (item) => {
-    // Check requirements
-    if (!item.calculated_stats) return false;
+function getModifierValue(modifier) {
+    return modifier.values.value
+        ? parseInt(modifier.values.value)
+        : parseInt(modifier.values.perLevel * character.level);
+}
 
-    if (
-        item.calculated_stats?.required_level.value > parseInt(character.level)
-    ) {
-        return false;
-    }
-
-    if (
-        item.calculated_stats?.required_dex?.value &&
-        item.calculated_stats.required_dex.value >
-            character.characterClass.modified_attributes.dex
-    ) {
-        return false;
-    }
-
-    if (
-        item.calculated_stats?.required_str?.value &&
-        item.calculated_stats.required_str.value >
-            character.characterClass.modified_attributes.str
-    ) {
-        return false;
-    }
-
-    return true;
-};
-
-const isResistStat = (stat) => {
-    return ["fireResist", "coldResist", "lightResist", "poisonResist"].includes(
-        stat
+function isItemUsable(item) {
+    return (
+        item.calculated_stats &&
+        item.calculated_stats.required_level.value <= character.level &&
+        (!item.calculated_stats.required_dex ||
+            item.calculated_stats.required_dex.value <=
+                character.characterClass.modified_attributes.dex) &&
+        (!item.calculated_stats.required_str ||
+            item.calculated_stats.required_str.value <=
+                character.characterClass.modified_attributes.str)
     );
-};
+}
 
 const isAttributeStat = (stat) => {
     return ["str", "dex", "vit", "int"].includes(stat);
@@ -171,16 +172,18 @@ const getRequirementByStat = (stat, item) => {
 };
 
 // Computed properties for each stat
-const fireResist = computed(() => calculateStat("fireResist"));
-const coldResist = computed(() => calculateStat("coldResist"));
-const lightResist = computed(() => calculateStat("lightResist"));
-const poisonResist = computed(() => calculateStat("poisonResist"));
-const curseResist = computed(() => calculateStat("curseResist"));
-const armorClass = computed(() => calculateStat("armorclass"));
-const str = computed(() => calculateStat("str"));
-const dex = computed(() => calculateStat("dex"));
-const vit = computed(() => calculateStat("vit"));
-const int = computed(() => calculateStat("int"));
+const fireResist = computed(() => statStrategies.fireResist("fireResist"));
+const coldResist = computed(() => statStrategies.coldResist("coldResist"));
+const lightResist = computed(() => statStrategies.lightResist("lightResist"));
+const poisonResist = computed(() =>
+    statStrategies.poisonResist("poisonResist")
+);
+const curseResist = computed(() => statStrategies.curseResist("curseResist"));
+const armorClass = computed(() => statStrategies.armorclass("armorclass"));
+const str = computed(() => statStrategies.str("str"));
+const dex = computed(() => statStrategies.dex("dex"));
+const vit = computed(() => statStrategies.vit("vit"));
+const int = computed(() => statStrategies.int("int"));
 
 // Stats object
 const stats = {

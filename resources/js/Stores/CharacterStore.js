@@ -1,8 +1,8 @@
-import { defineStore } from 'pinia';
-import { useStatCalculationStore } from './StatCalculationStore';
-import { watch } from 'vue';
+import { defineStore } from "pinia";
+import { useStatCalculationStore } from "./StatCalculationStore";
+import { watch } from "vue";
 
-export const useCharacterStore = defineStore('character', {
+export const useCharacterStore = defineStore("character", {
     state: () => ({
         character: {
             classData: {},
@@ -44,7 +44,11 @@ export const useCharacterStore = defineStore('character', {
             return str + dex + vit + int;
         },
         maxAllocatablePoints(state) {
-            return this.maxPoints - this.totalBaseAttributes - state.totalPointsAllocated;
+            return (
+                this.maxPoints -
+                this.totalBaseAttributes -
+                state.totalPointsAllocated
+            );
         },
     },
     actions: {
@@ -52,13 +56,14 @@ export const useCharacterStore = defineStore('character', {
             this.loading = true;
 
             try {
-                const response = await axios.get(route('api.characters.fetch'));
+                const response = await axios.get(route("api.characters.fetch"));
                 this.charactersList = response.data;
 
                 this.selectCharacter(this.charactersList[0]);
             } catch (error) {
-                console.error('Failed to fetch classes:', error);
-                this.error = "Failed to fetch character classes. Please try again.";
+                console.error("Failed to fetch classes:", error);
+                this.error =
+                    "Failed to fetch character classes. Please try again.";
             } finally {
                 this.loading = false;
             }
@@ -81,32 +86,46 @@ export const useCharacterStore = defineStore('character', {
             } else if (event.altKey) {
                 amount = 100; // Alt adds/removes 100 points
             } else if (event.shiftKey) {
-                if (action === 'add') {
+                if (action === "add") {
                     amount = this.maxAllocatablePoints; // Use max allocatable points
                 } else {
                     amount = this.character.modified_attributes[attribute]; // Remove all allocated points for that attribute
                 }
             }
 
-            this[action + 'Attribute'](attribute, amount);
+            this[action + "Attribute"](attribute, amount);
         },
 
         addAttribute(attribute, amount = 1) {
-            if (this.totalPointsAllocated + amount > this.maxAllocatablePoints) {
-                amount = this.maxAllocatablePoints; // Limit to remaining allocatable points
+            // Calculate how much can be added without exceeding max allocatable points
+            const maxAllocatable = this.maxAllocatablePoints;
+
+            if (amount > maxAllocatable) {
+                amount = maxAllocatable;
             }
 
+            // Update the modified attribute and total points allocated
             this.character.modified_attributes[attribute] += amount;
             this.totalPointsAllocated += amount;
         },
 
         removeAttribute(attribute, amount = 1) {
-            if (this.character.modified_attributes[attribute] - amount < 0) {
-                amount = this.character.modified_attributes[attribute]; // Don't go negative
+            // Calculate how much can be removed without going negative
+            const currentAllocated =
+                this.character.modified_attributes[attribute];
+
+            if (amount > currentAllocated) {
+                amount = currentAllocated; // Prevent removing more than allocated
             }
 
+            // Update the modified attribute and total points allocated
             this.character.modified_attributes[attribute] -= amount;
             this.totalPointsAllocated -= amount;
+
+            // Ensure totalPointsAllocated doesn't go negative after removal
+            if (this.totalPointsAllocated < 0) {
+                this.totalPointsAllocated = 0; // Cap it at zero
+            }
         },
 
         resetAttributes() {

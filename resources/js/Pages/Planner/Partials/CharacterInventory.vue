@@ -117,6 +117,9 @@ const isActiveSlot = (slot) => {
                 'bg-yellow-300/20': isActiveSlot(slot),
             }"
             @click="setActiveSlot(slot)"
+            @click.right.prevent="
+                characterStore.removeItemFromEquippedSlot(slot)
+            "
         >
             <ItemDisplay
                 v-if="slots[slot]"

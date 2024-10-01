@@ -25,6 +25,7 @@ const handleNewInput = (value) => {
                     :model-value="itemStore.q"
                     class="text-sm w-full"
                     placeholder="Search..."
+                    autofocus
                     @input="handleNewInput($event.target.value)"
                 />
             </div>

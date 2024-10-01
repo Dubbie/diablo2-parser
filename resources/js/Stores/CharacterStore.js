@@ -142,6 +142,10 @@ export const useCharacterStore = defineStore("character", {
             this.character.equippedItems[slot] = item;
         },
 
+        removeItemFromEquippedSlot(slot) {
+            this.character.equippedItems[slot] = null;
+        },
+
         initStatWatcher() {
             const statCalculationStore = useStatCalculationStore();
             const updateStats = () => {

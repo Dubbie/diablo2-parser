@@ -14,10 +14,10 @@ import {
 } from "vue";
 import { useItemCalculator } from "@/Composables/itemCalculator";
 import TabContainer from "@/Components/TabContainer.vue";
-import CharacterSetup from "./Partials/CharacterSetup.vue";
 import AppSpinner from "@/Components/AppSpinner.vue";
-import TabSidebar from "./Partials/TabSidebar.vue";
-import PlannerEquipment from "./Partials/PlannerEquipment.vue";
+import CharacterSetup from "@/Pages/Planner/Partials/CharacterSetup.vue";
+import TabSidebar from "@/Pages/Planner/Partials/TabSidebar.vue";
+import TabMain from "@/Pages/Planner/Partials/TabMain.vue";
 
 const props = defineProps({
     debug: {
@@ -57,7 +57,8 @@ const plannerState = reactive({
         neck: null,
     },
     showItemFinder: false,
-    showingTab: "inventory",
+    showingSideTab: "inventory",
+    showingMainTab: "equipment",
     characterClass: null,
     level: 99,
 });
@@ -75,6 +76,10 @@ const handleSetFilter = (slotName) => {
         ...plannerState.filter,
         slot: slotName,
     };
+
+    if (plannerState.showingMainTab !== "equipment") {
+        plannerState.showingMainTab = "equipment";
+    }
 
     if (!plannerState.showItemFinder) {
         plannerState.showItemFinder = true;
@@ -159,6 +164,10 @@ const handleClassChanged = (classData) => {
     plannerState.characterClass = classData;
 };
 
+const handleChangeMainTab = (tab) => {
+    plannerState.showingMainTab = tab;
+};
+
 const setUpEventListeners = () => {
     emitter.on("item-added", handleItemAdded);
     emitter.on("item-changed", calculateStats);
@@ -167,6 +176,7 @@ const setUpEventListeners = () => {
     emitter.on("set-filter", handleSetFilter);
     emitter.on("unequip-item", handleUneqip);
     emitter.on("reset-items", handleResetItems);
+    emitter.on("change-main-tab", handleChangeMainTab);
 };
 
 const tearDownEventListeners = () => {
@@ -177,6 +187,7 @@ const tearDownEventListeners = () => {
     emitter.off("set-filter");
     emitter.off("unequip-item");
     emitter.off("reset-items");
+    emitter.off("change-main-tab");
 };
 
 onMounted(() => {
@@ -215,9 +226,9 @@ onUnmounted(tearDownEventListeners);
                     <div class="mb-1">
                         <TabContainer
                             :tabs="sideTabs"
-                            :active-tab="plannerState.showingTab"
+                            :active-tab="plannerState.showingSideTab"
                             @update:active-tab="
-                                plannerState.showingTab = $event
+                                plannerState.showingSideTab = $event
                             "
                         />
                     </div>
@@ -227,10 +238,7 @@ onUnmounted(tearDownEventListeners);
                     </div>
                 </div>
 
-                <PlannerEquipment
-                    :planner-state="plannerState"
-                    class="flex-1"
-                />
+                <TabMain :planner-state="plannerState" />
 
                 <div v-if="!loading">
                     <CharacterStats

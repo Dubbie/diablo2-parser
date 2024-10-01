@@ -16,7 +16,7 @@ const emitter = inject("emitter");
 <template>
     <div>
         <CharacterInventory
-            v-show="plannerState.showingTab === 'inventory'"
+            v-show="plannerState.showingSideTab === 'inventory'"
             :filter="plannerState.filter"
             :slots="plannerState.pdollSlots"
             @unequip-item="emitter.emit('unequip-item', $event)"
@@ -25,7 +25,7 @@ const emitter = inject("emitter");
         />
 
         <CharacterAttributes
-            v-show="plannerState.showingTab === 'attributes'"
+            v-show="plannerState.showingSideTab === 'attributes'"
         />
     </div>
 </template>

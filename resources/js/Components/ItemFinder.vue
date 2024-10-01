@@ -1,12 +1,13 @@
 <script setup>
 import { useItemStore } from "@/Stores/ItemStore";
 import TextInput from "./TextInput.vue";
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import ItemLineDisplay from "./ItemLineDisplay.vue";
 import ItemEditorModal from "@/Pages/Planner/Partials/ItemEditorModal.vue";
 
 const itemStore = useItemStore();
 
+const searchInput = ref(null);
 const loading = computed(() => itemStore.loading);
 const items = computed(() => itemStore.items);
 const slot = computed(() => itemStore.slot);
@@ -15,6 +16,15 @@ const slot = computed(() => itemStore.slot);
 const handleNewInput = (value) => {
     itemStore.setQuery(value); // Set the query and automatically fetch items
 };
+
+watch(
+    () => slot.value,
+    () => {
+        if (slot.value && searchInput.value) {
+            searchInput.value.focus();
+        }
+    }
+);
 </script>
 
 <template>
@@ -25,6 +35,7 @@ const handleNewInput = (value) => {
                     :model-value="itemStore.q"
                     class="text-sm w-full"
                     placeholder="Search..."
+                    ref="searchInput"
                     autofocus
                     @input="handleNewInput($event.target.value)"
                 />

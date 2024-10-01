@@ -97,12 +97,20 @@ const handleBlur = () => {
     }
 };
 
-// Optional: Focus the input on mount if it has autofocus
-onMounted(() => {
-    if (input.value.hasAttribute("autofocus")) {
+const focus = () => {
+    if (input.value) {
         input.value.focus();
     }
+};
+
+onMounted(() => {
+    if (input.value.hasAttribute("autofocus")) {
+        focus();
+    }
 });
+
+// Expose the focus method
+defineExpose({ focus });
 </script>
 
 <template>

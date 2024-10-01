@@ -1,6 +1,7 @@
 <script setup>
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { useCharacterStore } from "@/Stores/CharacterStore";
+import { useStatCalculationStore } from "@/Stores/StatCalculationStore";
 import { computed, onMounted, reactive } from "vue";
 import CharacterInputs from "./Partials/CharacterInputs.vue";
 import SideTabs from "./Partials/SideTabs.vue";
@@ -19,11 +20,28 @@ const filter = reactive({
 });
 
 const characterStore = useCharacterStore();
+const statCalculationStore = useStatCalculationStore();
 const isLoading = computed(() => characterStore.loading); // Get loading state
-const selectedClass = computed(() => characterStore.character.classData);
+
+const strength = computed(() => {
+    return statCalculationStore.attributes.strength;
+});
+const dexterity = computed(() => {
+    return statCalculationStore.attributes.dexterity;
+});
+const vitality = computed(() => {
+    return statCalculationStore.attributes.vitality;
+});
+const energy = computed(() => {
+    return statCalculationStore.attributes.energy;
+});
 
 onMounted(() => {
     characterStore.fetchCharacterClasses();
+    // statCalculationStore.calculateFinalStrength();
+
+    // Watch
+    characterStore.initStatWatcher();
 });
 </script>
 
@@ -54,7 +72,10 @@ onMounted(() => {
                 </div>
 
                 <div class="min-w-[200px]">
-                    <p>Stats here</p>
+                    <p>Strength: {{ strength }}</p>
+                    <p>Dexterity: {{ dexterity }}</p>
+                    <p>Vitality: {{ vitality }}</p>
+                    <p>Energy: {{ energy }}</p>
                 </div>
             </div>
         </div>

@@ -1,5 +1,7 @@
 // stores/characterStore.js
 import { defineStore } from 'pinia';
+import { useStatCalculationStore } from './StatCalculationStore';
+import { watch } from 'vue';
 
 export const useCharacterStore = defineStore('character', {
     state: () => ({
@@ -126,6 +128,27 @@ export const useCharacterStore = defineStore('character', {
 
         addItemToEquippedSlot(slot, item) {
             this.character.equippedItems[slot] = item;
+        },
+
+        initStatWatcher() {
+            const statCalculationStore = useStatCalculationStore();
+
+            // Watch modified attributes and equipped items for changes
+            watch(
+                () => this.character.modified_attributes,
+                () => {
+                    statCalculationStore.calculateFinalAttributes();
+                },
+                { deep: true }
+            );
+
+            watch(
+                () => this.character.equippedItems,
+                () => {
+                    statCalculationStore.calculateFinalAttributes();
+                },
+                { deep: true }
+            );
         }
     },
 });

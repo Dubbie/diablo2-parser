@@ -1,11 +1,11 @@
 <script setup>
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { useCharacterStore } from "@/Stores/CharacterStore";
-import { useStatCalculationStore } from "@/Stores/StatCalculationStore";
 import { computed, onMounted, reactive } from "vue";
 import CharacterInputs from "./Partials/CharacterInputs.vue";
 import SideTabs from "./Partials/SideTabs.vue";
 import ItemFinder from "@/Components/ItemFinder.vue";
+import StatSummary from "./Partials/StatSummary.vue";
 
 const props = defineProps({
     debug: {
@@ -20,16 +20,10 @@ const filter = reactive({
 });
 
 const characterStore = useCharacterStore();
-const statCalculationStore = useStatCalculationStore();
 const isLoading = computed(() => characterStore.loading); // Get loading state
-
-const calculatedStats = computed(() => statCalculationStore);
 
 onMounted(() => {
     characterStore.fetchCharacterClasses();
-    // statCalculationStore.calculateFinalStrength();
-
-    // Watch
     characterStore.initStatWatcher();
 });
 </script>
@@ -60,27 +54,8 @@ onMounted(() => {
                     <ItemFinder :filter="filter" />
                 </div>
 
-                <div class="min-w-[200px]">
-                    <p class="font-bold mb-1">Attributes:</p>
-                    <p>Strength: {{ calculatedStats.attributes.strength }}</p>
-                    <p>Dexterity: {{ calculatedStats.attributes.dexterity }}</p>
-                    <p>Vitality: {{ calculatedStats.attributes.vitality }}</p>
-                    <p>Energy: {{ calculatedStats.attributes.energy }}</p>
-
-                    <p class="font-bold mt-3 mb-1">Resistances:</p>
-                    <p>
-                        Fire:
-                        {{ Math.min(calculatedStats.resistances.fire, 95) }}%
-                    </p>
-                    <p>Cold: {{ calculatedStats.resistances.cold }}%</p>
-                    <p>
-                        Lightning: {{ calculatedStats.resistances.lightning }}%
-                    </p>
-                    <p>Poison: {{ calculatedStats.resistances.poison }}%</p>
-                    <p>Curse: {{ calculatedStats.resistances.curse }}%</p>
-
-                    <p class="font-bold mt-3 mb-1">Defense:</p>
-                    <p>Defense: {{ calculatedStats.defense }}</p>
+                <div class="min-w-[200px] text-sm">
+                    <StatSummary />
                 </div>
             </div>
         </div>

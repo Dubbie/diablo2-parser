@@ -9,6 +9,7 @@ const itemStore = useItemStore();
 
 const loading = computed(() => itemStore.loading);
 const items = computed(() => itemStore.items);
+const slot = computed(() => itemStore.slot);
 
 // Input event handler
 const handleNewInput = (value) => {
@@ -18,29 +19,36 @@ const handleNewInput = (value) => {
 
 <template>
     <div>
-        <h1>Items</h1>
+        <div v-if="slot">
+            <div>
+                <TextInput
+                    :model-value="itemStore.q"
+                    class="text-sm w-full"
+                    placeholder="Search..."
+                    @input="handleNewInput($event.target.value)"
+                />
+            </div>
 
-        <div>
-            <TextInput
-                :model-value="itemStore.q"
-                class="text-sm w-full"
-                placeholder="Search..."
-                @input="handleNewInput($event.target.value)"
-            />
+            <div v-if="loading">
+                <p>Loading items...</p>
+            </div>
+            <div v-else>
+                <ItemLineDisplay
+                    v-for="item in items"
+                    :key="item.id"
+                    :item="item"
+                    @click="itemStore.selectItem(item)"
+                />
+            </div>
+
+            <ItemEditorModal />
         </div>
 
-        <div v-if="loading">
-            <p>Loading items...</p>
-        </div>
         <div v-else>
-            <ItemLineDisplay
-                v-for="item in items"
-                :key="item.id"
-                :item="item"
-                @click="itemStore.selectItem(item)"
-            />
+            <p class="font-semibold text-xl">Choose a slot to search</p>
+            <p class="text-zinc-400 text-sm">
+                You can choose the slots by clicking in the paperdoll.
+            </p>
         </div>
-
-        <ItemEditorModal />
     </div>
 </template>

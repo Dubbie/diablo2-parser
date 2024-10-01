@@ -19,10 +19,10 @@ const statModifiers = {
     poisonResist: ["poisonresist", "all_resist"],
     curseResist: ["curse_effectiveness"],
     armorclass: ["armorclass"],
-    str: ["strength"],
-    dex: ["dexterity"],
-    vit: ["vitality"],
-    int: ["energy"],
+    str: ["strength", "item_strength_perlevel"],
+    dex: ["dexterity", "item_dexterity_perlevel"],
+    vit: ["vitality", "item_vitality_perlevel"],
+    int: ["energy", "item_energy_perlevel"],
 };
 
 // Generic function to calculate stats
@@ -85,7 +85,15 @@ function calculateStat(statName) {
         } else {
             item.modifiers.forEach((modifier) => {
                 if (modifiers.includes(modifier.name)) {
-                    const value = parseInt(modifier.values.value); // Get the value of the modifier
+                    let value = null;
+                    if (modifier.values.value) {
+                        value = parseInt(modifier.values.value);
+                    } else if (modifier.values.perLevel) {
+                        value = parseInt(
+                            modifier.values.perLevel * character.level
+                        );
+                    }
+
                     total += value;
 
                     // Save item to history

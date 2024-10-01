@@ -1,10 +1,10 @@
 // stores/itemStore.js
-import { defineStore } from 'pinia';
-import { useCharacterStore } from '@/Stores/CharacterStore';
-import { useItemCalculator } from '@/Composables/itemCalculator';
-import axios from 'axios';
+import { defineStore } from "pinia";
+import { useCharacterStore } from "@/Stores/CharacterStore";
+import { useItemCalculator } from "@/Composables/itemCalculator";
+import axios from "axios";
 
-export const useItemStore = defineStore('item', {
+export const useItemStore = defineStore("item", {
     state: () => ({
         items: [], // List of available items from the backend
         selectedItem: null,
@@ -20,7 +20,7 @@ export const useItemStore = defineStore('item', {
 
             // Abort the previous request if it's still ongoing
             if (this.abortController) {
-                console.log('Aborting previous request');
+                console.log("Aborting previous request");
                 this.abortController.abort(); // Abort the previous request
             }
 
@@ -28,8 +28,8 @@ export const useItemStore = defineStore('item', {
             this.abortController = new AbortController();
 
             try {
-                console.log('Fetching items with query:', this.q);
-                const response = await axios.get(route('api.items.fetch'), {
+                console.log("Fetching items with query:", this.q);
+                const response = await axios.get(route("api.items.fetch"), {
                     params: {
                         slot: this.slot,
                         q: this.q,
@@ -39,12 +39,12 @@ export const useItemStore = defineStore('item', {
                 });
 
                 this.items = response.data; // Assuming the API returns an array of items
-                console.log('Items fetched:', this.items);
+                console.log("Items fetched:", this.items);
             } catch (error) {
-                if (error.name === 'AbortError') {
-                    console.log('Fetch aborted:', error.message);
+                if (error.name === "AbortError") {
+                    console.log("Fetch aborted:", error.message);
                 } else {
-                    console.error('Failed to fetch items:', error);
+                    console.error("Failed to fetch items:", error);
                 }
             } finally {
                 this.loading = false; // Reset loading state
@@ -72,6 +72,14 @@ export const useItemStore = defineStore('item', {
         setSlot(value) {
             this.slot = value;
 
+            // Check if character has items in the selected slot
+            const characterStore = useCharacterStore();
+            const equippedItem =
+                characterStore.character.equippedItems[this.slot];
+            if (equippedItem) {
+                this.selectedItem = JSON.parse(JSON.stringify(equippedItem));
+            }
+
             // Reset items
             this.resetItems();
 
@@ -93,7 +101,10 @@ export const useItemStore = defineStore('item', {
 
             // Calculate the stats after modifier updates
             const characterStore = useCharacterStore();
-            const { calculateStats } = useItemCalculator(this.selectedItem, characterStore.level);
+            const { calculateStats } = useItemCalculator(
+                this.selectedItem,
+                characterStore.level
+            );
             this.selectedItem.calculated_stats = calculateStats();
         },
 
@@ -112,6 +123,6 @@ export const useItemStore = defineStore('item', {
             characterStore.addItemToEquippedSlot(this.slot, this.selectedItem);
 
             this.resetItems(true);
-        }
+        },
     },
 });

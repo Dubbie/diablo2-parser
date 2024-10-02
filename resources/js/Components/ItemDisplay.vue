@@ -49,19 +49,10 @@ const showingTooltip = ref(false);
                 :alt="item.full_name"
             />
         </div>
-        <transition
-            enter-active-class="transition transform ease-out duration-200"
-            enter-from-class="-translate-x-3 opacity-0"
-            enter-to-class="translate-x-0 opacity-100"
-            leave-active-class="transition transform ease-in duration-100"
-            leave-from-class="translate-x-0 opacity-100"
-            leave-to-class="-translate-x-3 opacity-0"
-        >
-            <ItemTooltip
-                :item="item"
-                v-show="showingTooltip"
-                :position="tooltipPosition"
-            />
-        </transition>
+        <ItemTooltip
+            :item="item"
+            v-show="showingTooltip"
+            :position="tooltipPosition"
+        />
     </component>
 </template>

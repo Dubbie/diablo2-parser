@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from "vue";
 import { useCharacterStore } from "@/Stores/CharacterStore";
+import { isItemUsable } from "@/Stores/StatCalculation/Utils";
 import { useItemStore } from "@/Stores/ItemStore";
 import AppButton from "@/Components/AppButton.vue";
 import ItemDisplay from "@/Components/ItemDisplay.vue";
@@ -172,6 +173,7 @@ const charmInventory = {
                 'border-zinc-700 bg-black/40 hover:border-yellow-600/40 hover:bg-yellow-600/20':
                     !isActiveSlot(slot),
                 'border-yellow-600 bg-yellow-600/20': isActiveSlot(slot),
+                'bg-red-400/20 border-red-400/50': !isItemUsable(slots[slot]),
             }"
             @click="setActiveSlot(slot)"
             @click.right.prevent="

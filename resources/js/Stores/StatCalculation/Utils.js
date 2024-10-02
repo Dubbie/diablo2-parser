@@ -35,6 +35,10 @@ export function applyModifiers(
 }
 
 export function isItemUsable(item) {
+    if (!item) {
+        return true;
+    }
+
     const statStore = useStatCalculationStore(); // Get the stat calculation store
     const characterStore = useCharacterStore(); // Get the character store
 

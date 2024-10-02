@@ -55,9 +55,7 @@ const initValues = () => {
         }
     });
 
-    // If minValue is set but not maxValue, add it
-    console.log(props.entry);
-
+    // Handle min value
     if (
         props.entry.range.minValue &&
         !initialValues.minValue &&
@@ -66,7 +64,7 @@ const initValues = () => {
         initialValues.minValue = props.entry.range.minValue.min;
     }
 
-    // If maxValue is set but not minValue, add it
+    // Handle max value
     if (
         props.entry.range.maxValue &&
         !initialValues.maxValue &&

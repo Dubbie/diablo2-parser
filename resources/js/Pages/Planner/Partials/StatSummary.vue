@@ -105,9 +105,33 @@ const dexterityBelowRequired = computed(() => {
     <p class="flex justify-between">
         <span>Attack Damage</span>
         <p>
-            <span>{{ calculatedStats.weapon.attackDamage.min }}</span>
+            <span>{{ calculatedStats.totalMinDamage }}</span>
             <span>-</span>
-            <span>{{ calculatedStats.weapon.attackDamage.max }}</span>
+            <span>{{ calculatedStats.totalMaxDamage }}</span>
+        </p>
+    </p>
+    <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.physical.min || calculatedStats.weapon.attackDamage.physical.max">
+        <span class="text-zinc-300">Physical</span>
+        <p>
+            <span>{{ calculatedStats.weapon.attackDamage.physical.min }}</span>
+            <span>-</span>
+            <span>{{ calculatedStats.weapon.attackDamage.physical.max }}</span>
+        </p>
+    </p>
+    <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.fire.min || calculatedStats.weapon.attackDamage.elemental.fire.max">
+        <span class="text-red-300">Fire</span>
+        <p>
+            <span>{{ calculatedStats.weapon.attackDamage.elemental.fire.min }}</span>
+            <span>-</span>
+            <span>{{ calculatedStats.weapon.attackDamage.elemental.fire.max }}</span>
+        </p>
+    </p>
+    <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.lightning.min || calculatedStats.weapon.attackDamage.elemental.lightning.max">
+        <span class="text-yellow-300">Lightning</span>
+        <p>
+            <span>{{ calculatedStats.weapon.attackDamage.elemental.lightning.min }}</span>
+            <span>-</span>
+            <span>{{ calculatedStats.weapon.attackDamage.elemental.lightning.max }}</span>
         </p>
     </p>
     <p class="flex justify-between">

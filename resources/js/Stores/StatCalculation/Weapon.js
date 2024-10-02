@@ -27,8 +27,11 @@ const resetWeapon = (characterStore, statStore) => {
         range: 0,
         attackRating: baseAr,
         attackDamage: {
-            min: 1,
-            max: 2,
+            physical: { min: 1, max: 2 }, // Initialize separate physical damage
+            elemental: {
+                fire: { min: 0, max: 0 },
+                lightning: { min: 0, max: 0 },
+            },
         },
         attackSpeed: 0,
     };
@@ -44,16 +47,19 @@ export const updateWeapon = (characterStore, statStore) => {
     const { strength, dexterity } = statStore.attributes;
 
     // Initialize multiplier and attack rating
-    let damageMultiplier = 1 + (strength > 0 ? strength / 100 : 0);
-    let minAdd = 0;
-    let maxAdd = 0;
+    let physicalDamageMultiplier = 1 + (strength > 0 ? strength / 100 : 0);
+    let physicalMinAdd = 0;
+    let physicalMaxAdd = 0;
+    let elementalDamage = {
+        fire: { min: 0, max: 0 },
+        lightning: { min: 0, max: 0 },
+    };
     let attackRatingFromModifiers = 0;
     let attackRatingMultiplier = 1; // Initialize attack rating multiplier
 
     // Iterate through equipped items to check for modifiers
     const equippedItems = characterStore.character.equippedItems;
 
-    // Iterate over equipped items to check for modifiers
     for (const slot in equippedItems) {
         const item = equippedItems[slot];
 
@@ -66,7 +72,7 @@ export const updateWeapon = (characterStore, statStore) => {
                 !WEAPON_SLOTS.includes(slot)
             ) {
                 const value = parseInt(modifier?.values?.value) / 100 || 0;
-                damageMultiplier += value;
+                physicalDamageMultiplier += value; // Only affect physical damage
             }
 
             // Check for attack rating modifiers
@@ -81,20 +87,40 @@ export const updateWeapon = (characterStore, statStore) => {
                 attackRatingMultiplier += value;
             }
 
-            // Check for combined lightning damage
+            // Check for elemental damage modifiers
             if (modifier.name === "dmg_lightning") {
-                minAdd += parseInt(modifier?.values?.minValue) || 0;
-                maxAdd += parseInt(modifier?.values?.maxValue) || 0;
+                elementalDamage.lightning.min +=
+                    parseInt(modifier?.values?.minValue) || 0;
+                elementalDamage.lightning.max +=
+                    parseInt(modifier?.values?.maxValue) || 0;
+            }
+
+            if (modifier.name === "dmg_fire") {
+                elementalDamage.fire.min +=
+                    parseInt(modifier?.values?.minValue) || 0;
+                elementalDamage.fire.max +=
+                    parseInt(modifier?.values?.maxValue) || 0;
+            }
+
+            // Physical damage additions
+            if (modifier.name === "mindamage") {
+                physicalMinAdd += parseInt(modifier?.values?.value) || 0;
+            }
+
+            if (modifier.name === "maxdamage") {
+                physicalMaxAdd += parseInt(modifier?.values?.value) || 0;
             }
         });
     }
 
+    // Update physical and elemental damage separately
     updateWeaponDamage(
         mainHandWeapon,
         statStore,
-        damageMultiplier,
-        minAdd,
-        maxAdd
+        physicalDamageMultiplier,
+        physicalMinAdd,
+        physicalMaxAdd,
+        elementalDamage
     );
 
     // Update attack rating from Dexterity and modifiers
@@ -110,11 +136,21 @@ export const updateWeapon = (characterStore, statStore) => {
  * Updates weapon damage based on the equipped weapon's stats.
  * @param {Object} weapon - The equipped weapon.
  * @param {Object} statStore - The stat calculation store.
- * @param {number} multiplier - The damage multiplier.
+ * @param {number} multiplier - The physical damage multiplier.
+ * @param {number} physicalMinAdd - Added physical minimum damage.
+ * @param {number} physicalMaxAdd - Added physical maximum damage.
+ * @param {Object} elementalDamage - Elemental damage additions (fire and lightning).
  */
-const updateWeaponDamage = (weapon, statStore, multiplier, minAdd, maxAdd) => {
-    let baseMin = 1;
-    let baseMax = 2;
+const updateWeaponDamage = (
+    weapon,
+    statStore,
+    physicalMultiplier,
+    physicalMinAdd,
+    physicalMaxAdd,
+    elementalDamage
+) => {
+    let basePhysicalMin = 1;
+    let basePhysicalMax = 2;
 
     if (weapon && isItemUsable(weapon)) {
         const { two_handed, calculated_stats } = weapon;
@@ -122,15 +158,26 @@ const updateWeaponDamage = (weapon, statStore, multiplier, minAdd, maxAdd) => {
             calculated_stats?.damage?.[two_handed ? "two_handed" : "one_handed"]
                 ?.value || {};
 
-        baseMin = damageStats.min;
-        baseMax = damageStats.max || 2;
+        basePhysicalMin = damageStats.min;
+        basePhysicalMax = damageStats.max || 2;
     }
 
-    const finalMin = Math.floor(baseMin * multiplier + minAdd);
-    const finalMax = Math.floor(baseMax * multiplier + maxAdd);
+    // Calculate final physical damage
+    const finalPhysicalMin = Math.floor(
+        basePhysicalMin * physicalMultiplier + physicalMinAdd
+    );
+    const finalPhysicalMax = Math.floor(
+        basePhysicalMax * physicalMultiplier + physicalMaxAdd
+    );
 
-    statStore.weapon.attackDamage.min = finalMin;
-    statStore.weapon.attackDamage.max = finalMax;
+    // Set physical damage
+    statStore.weapon.attackDamage.physical.min = finalPhysicalMin;
+    statStore.weapon.attackDamage.physical.max = finalPhysicalMax;
+
+    // Set elemental damage (additive)
+    statStore.weapon.attackDamage.elemental.fire = elementalDamage.fire;
+    statStore.weapon.attackDamage.elemental.lightning =
+        elementalDamage.lightning;
 };
 
 /**

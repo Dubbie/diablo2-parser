@@ -41,67 +41,88 @@ const weaponElementalDamage = [
     { label: "Poison", key: "poison", class: "text-green-300" },
     { label: "Magic", key: "magic", class: "text-blue-400" },
 ];
+
+const statGroupTitleClass = "font-bold text-sm text-zinc-500 mb-1";
 </script>
 
 <template>
-    <p class="font-bold mb-1">Attributes</p>
-    <StatDisplay
-        label="Strength"
-        :value="calculatedStats.attributes.strength"
-        :value-class="{ 'text-red-500': strengthBelowRequired }"
-    />
-    <StatDisplay
-        label="Dexterity"
-        :value="calculatedStats.attributes.dexterity"
-        :value-class="{ 'text-red-500': dexterityBelowRequired }"
-    />
-    <StatDisplay
-        label="Vitality"
-        :value="calculatedStats.attributes.vitality"
-    />
-    <StatDisplay label="Energy" :value="calculatedStats.attributes.energy" />
+    <div class="space-y-4">
+        <div>
+            <p :class="statGroupTitleClass">Attributes</p>
+            <StatDisplay
+                label="Strength"
+                :value="calculatedStats.attributes.strength"
+                :value-class="{ 'text-red-500': strengthBelowRequired }"
+            />
+            <StatDisplay
+                label="Dexterity"
+                :value="calculatedStats.attributes.dexterity"
+                :value-class="{ 'text-red-500': dexterityBelowRequired }"
+            />
+            <StatDisplay
+                label="Vitality"
+                :value="calculatedStats.attributes.vitality"
+            />
+            <StatDisplay
+                label="Energy"
+                :value="calculatedStats.attributes.energy"
+            />
+        </div>
 
-    <p class="font-bold mt-3 mb-1">Resistances</p>
-    <StatDisplay
-        v-for="resistance in resistances"
-        :key="resistance.key"
-        :label="resistance.label"
-        :label-class="resistance.class"
-        :value="calculatedStats.cappedResistances[resistance.key] + '%'"
-        :value-class="{
-            'text-red-400':
-                calculatedStats.cappedResistances[resistance.key] < 0,
-        }"
-    />
+        <div>
+            <p :class="statGroupTitleClass">Resistances</p>
+            <StatDisplay
+                v-for="resistance in resistances"
+                :key="resistance.key"
+                :label="resistance.label"
+                :label-class="resistance.class"
+                :value="calculatedStats.cappedResistances[resistance.key] + '%'"
+                :value-class="{
+                    'text-red-400':
+                        calculatedStats.cappedResistances[resistance.key] < 0,
+                }"
+            />
+        </div>
 
-    <p class="font-bold mt-3 mb-1">Defense</p>
-    <StatDisplay label="Defense" :value="calculatedStats.defense" />
+        <div>
+            <p :class="statGroupTitleClass">Defense</p>
+            <StatDisplay label="Defense" :value="calculatedStats.defense" />
+        </div>
 
-    <p class="font-bold mt-3 mb-1">Weapon</p>
-    <StatDisplay
-        label="Attack Damage"
-        :value="
-            calculatedStats.totalMinDamage +
-            ' - ' +
-            calculatedStats.totalMaxDamage
-        "
-    />
-    <DamageStatDisplay
-        label="Physical"
-        :min="calculatedStats.weapon.attackDamage.physical.min"
-        :max="calculatedStats.weapon.attackDamage.physical.max"
-        label-class="text-zinc-300"
-    />
-    <DamageStatDisplay
-        v-for="damage in weaponElementalDamage"
-        :key="damage.key"
-        :label="damage.label"
-        :min="calculatedStats.weapon.attackDamage.elemental[damage.key].min"
-        :max="calculatedStats.weapon.attackDamage.elemental[damage.key].max"
-        :label-class="damage.class"
-    />
-    <StatDisplay
-        label="Attack Rating"
-        :value="calculatedStats.weapon.attackRating"
-    />
+        <div>
+            <p :class="statGroupTitleClass">Weapon</p>
+            <StatDisplay
+                label="Attack Damage"
+                :value="
+                    calculatedStats.totalMinDamage +
+                    ' - ' +
+                    calculatedStats.totalMaxDamage
+                "
+            />
+            <DamageStatDisplay
+                label="Physical"
+                :min="calculatedStats.weapon.attackDamage.physical.min"
+                :max="calculatedStats.weapon.attackDamage.physical.max"
+                label-class="text-zinc-300"
+            />
+            <DamageStatDisplay
+                v-for="damage in weaponElementalDamage"
+                :key="damage.key"
+                :label="damage.label"
+                :min="
+                    calculatedStats.weapon.attackDamage.elemental[damage.key]
+                        .min
+                "
+                :max="
+                    calculatedStats.weapon.attackDamage.elemental[damage.key]
+                        .max
+                "
+                :label-class="damage.class"
+            />
+            <StatDisplay
+                label="Attack Rating"
+                :value="calculatedStats.weapon.attackRating"
+            />
+        </div>
+    </div>
 </template>

@@ -54,7 +54,7 @@ onMounted(() => {
                     <ItemFinder :filter="filter" />
                 </div>
 
-                <div class="min-w-[200px] text-sm">
+                <div class="min-w-[160px] text-sm">
                     <StatSummary />
                 </div>
             </div>

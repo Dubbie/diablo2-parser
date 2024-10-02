@@ -8,7 +8,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <p class="flex justify-between">
+    <p class="flex justify-between text-xs">
         <span :class="labelClass">{{ label }}</span>
         <span :class="valueClass">{{ value }}</span>
     </p>

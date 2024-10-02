@@ -50,24 +50,49 @@ const dexterityBelowRequired = computed(() => {
 
     <p class="font-bold mt-3 mb-1">Resistances</p>
     <p class="flex justify-between">
-        <span>Fire</span>
-        <span>{{ calculatedStats.cappedResistances.fire }}%</span>
+        <span class="text-red-300">Fire</span>
+        <span
+            :class="{
+                'text-red-400': calculatedStats.cappedResistances.fire < 0,
+            }"
+            >{{ calculatedStats.cappedResistances.fire }}%</span
+        >
     </p>
     <p class="flex justify-between">
-        <span>Cold</span>
-        <span>{{ calculatedStats.cappedResistances.cold }}%</span>
+        <span class="text-blue-300">Cold</span>
+        <span
+            :class="{
+                'text-red-400': calculatedStats.cappedResistances.cold < 0,
+            }"
+            >{{ calculatedStats.cappedResistances.cold }}%</span
+        >
     </p>
     <p class="flex justify-between">
-        <span>Lightning</span>
-        <span>{{ calculatedStats.cappedResistances.lightning }}%</span>
+        <span class="text-yellow-300">Lightning</span>
+        <span
+            :class="{
+                'text-red-400': calculatedStats.cappedResistances.lightning < 0,
+            }"
+            >{{ calculatedStats.cappedResistances.lightning }}%</span
+        >
     </p>
     <p class="flex justify-between">
-        <span>Poison</span>
-        <span>{{ calculatedStats.cappedResistances.poison }}%</span>
+        <span class="text-green-300">Poison</span>
+        <span
+            :class="{
+                'text-red-400': calculatedStats.cappedResistances.poison < 0,
+            }"
+            >{{ calculatedStats.cappedResistances.poison }}%</span
+        >
     </p>
     <p class="flex justify-between">
-        <span>Curse</span>
-        <span>{{ calculatedStats.cappedResistances.curse }}%</span>
+        <span class="text-purple-300">Curse</span>
+        <span
+            :class="{
+                'text-red-400': calculatedStats.cappedResistances.curse < 0,
+            }"
+            >{{ calculatedStats.cappedResistances.curse }}%</span
+        >
     </p>
 
     <p class="font-bold mt-3 mb-1">Defense</p>

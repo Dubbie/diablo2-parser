@@ -45,6 +45,8 @@ export const updateWeapon = (characterStore, statStore) => {
 
     // Initialize multiplier and attack rating
     let damageMultiplier = 1 + (strength > 0 ? strength / 100 : 0);
+    let minAdd = 0;
+    let maxAdd = 0;
     let attackRatingFromModifiers = 0;
     let attackRatingMultiplier = 1; // Initialize attack rating multiplier
 
@@ -78,14 +80,22 @@ export const updateWeapon = (characterStore, statStore) => {
                 const value = parseInt(modifier?.values?.value) / 100 || 0;
                 attackRatingMultiplier += value;
             }
+
+            // Check for combined lightning damage
+            if (modifier.name === "dmg_lightning") {
+                minAdd += parseInt(modifier?.values?.minValue) || 0;
+                maxAdd += parseInt(modifier?.values?.maxValue) || 0;
+            }
         });
     }
 
-    // Check if a main hand weapon is equipped
-    if (mainHandWeapon && isItemUsable(mainHandWeapon)) {
-        // Update attack damage based on the damage multiplier
-        updateWeaponDamage(mainHandWeapon, statStore, damageMultiplier);
-    }
+    updateWeaponDamage(
+        mainHandWeapon,
+        statStore,
+        damageMultiplier,
+        minAdd,
+        maxAdd
+    );
 
     // Update attack rating from Dexterity and modifiers
     updateAttackRating(
@@ -102,17 +112,25 @@ export const updateWeapon = (characterStore, statStore) => {
  * @param {Object} statStore - The stat calculation store.
  * @param {number} multiplier - The damage multiplier.
  */
-const updateWeaponDamage = (weapon, statStore, multiplier) => {
-    const { two_handed, calculated_stats } = weapon;
-    const damageStats =
-        calculated_stats?.damage?.[two_handed ? "two_handed" : "one_handed"]
-            ?.value || {};
+const updateWeaponDamage = (weapon, statStore, multiplier, minAdd, maxAdd) => {
+    let baseMin = 1;
+    let baseMax = 2;
 
-    const baseMin = damageStats.min || 1;
-    const baseMax = damageStats.max || 2;
+    if (weapon && isItemUsable(weapon)) {
+        const { two_handed, calculated_stats } = weapon;
+        const damageStats =
+            calculated_stats?.damage?.[two_handed ? "two_handed" : "one_handed"]
+                ?.value || {};
 
-    statStore.weapon.attackDamage.min = Math.floor(baseMin * multiplier);
-    statStore.weapon.attackDamage.max = Math.floor(baseMax * multiplier);
+        baseMin = damageStats.min;
+        baseMax = damageStats.max || 2;
+    }
+
+    const finalMin = Math.floor(baseMin * multiplier + minAdd);
+    const finalMax = Math.floor(baseMax * multiplier + maxAdd);
+
+    statStore.weapon.attackDamage.min = finalMin;
+    statStore.weapon.attackDamage.max = finalMax;
 };
 
 /**

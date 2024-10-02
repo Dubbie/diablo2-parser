@@ -86,16 +86,11 @@ const weaponElementalDamage = [
             calculatedStats.totalMaxDamage
         "
     />
-    <StatDisplay
-        label="Attack Rating"
-        :value="calculatedStats.weapon.attackRating"
-    />
-
     <DamageStatDisplay
         label="Physical"
         :min="calculatedStats.weapon.attackDamage.physical.min"
         :max="calculatedStats.weapon.attackDamage.physical.max"
-        label-class="text-red-300"
+        label-class="text-zinc-300"
     />
     <DamageStatDisplay
         v-for="damage in weaponElementalDamage"
@@ -104,5 +99,9 @@ const weaponElementalDamage = [
         :min="calculatedStats.weapon.attackDamage.elemental[damage.key].min"
         :max="calculatedStats.weapon.attackDamage.elemental[damage.key].max"
         :label-class="damage.class"
+    />
+    <StatDisplay
+        label="Attack Rating"
+        :value="calculatedStats.weapon.attackRating"
     />
 </template>

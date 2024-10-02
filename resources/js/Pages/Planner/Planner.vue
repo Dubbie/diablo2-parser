@@ -45,7 +45,7 @@ onMounted(() => {
             </div>
 
             <div class="flex space-x-4">
-                <div class="min-w-[320px]">
+                <div class="w-[383px]">
                     <CharacterInputs />
                     <SideTabs class="mt-2" />
                 </div>

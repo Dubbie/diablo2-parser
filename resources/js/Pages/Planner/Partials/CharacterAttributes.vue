@@ -33,16 +33,23 @@ const finalAttributes = computed(() => {
 </script>
 
 <template>
-    <div>
+    <div class="bg-white/5 border border-white/10 rounded-xl p-5">
         <div class="space-y-2">
             <div
                 v-for="(value, key) in finalAttributes"
                 :key="key"
-                class="grid grid-cols-11 items-center justify-items-center"
+                class="flex items-center justify-items-center"
             >
-                <p class="col-span-4 justify-self-start">{{ value.label }}</p>
+                <p
+                    class="flex-1 justify-self-start flex justify-between items-baseline mr-2"
+                >
+                    <span>{{ value.label }}</span>
+                    <span class="text-xs font-semibold text-zinc-500">
+                        (Base: {{ value.base }})
+                    </span>
+                </p>
 
-                <div>
+                <div class="bg-black/40 rounded-l-xl">
                     <AppButton
                         square
                         size="xs"
@@ -59,13 +66,15 @@ const finalAttributes = computed(() => {
                     </AppButton>
                 </div>
 
-                <div class="text-center col-span-2">
-                    <p class="font-semibold px-3 select-none">
+                <div
+                    class="text-center w-[12%] justify-self-stretch bg-black/40"
+                >
+                    <p class="font-semibold px-1 select-none">
                         {{ value.mod }}
                     </p>
                 </div>
 
-                <div>
+                <div class="bg-black/40 rounded-r-xl">
                     <AppButton
                         square
                         size="xs"
@@ -81,31 +90,33 @@ const finalAttributes = computed(() => {
                         <IconPlus class="size-4" stroke-width="3" />
                     </AppButton>
                 </div>
-
-                <div class="col-span-3 justify-self-end">
-                    <p class="text-xs font-semibold text-zinc-400">
-                        (Base: {{ value.base }})
-                    </p>
-                </div>
             </div>
         </div>
 
         <div class="grid grid-cols-2 mt-3">
-            <div class="text-xs text-zinc-400">
+            <div>
+                <AppButton
+                    color="red"
+                    plain
+                    size="xs"
+                    class="-ml-2"
+                    @click="characterStore.resetAttributes()"
+                >
+                    Reset Attributes</AppButton
+                >
+            </div>
+            <p class="text-zinc-400 text-sm text-right">
+                Unspent Points:
+                <span class="font-semibold text-zinc-200">{{
+                    characterStore.maxAllocatablePoints
+                }}</span>
+            </p>
+            <div class="text-xs col-span-2 mt-3 text-zinc-500">
                 <p>Tips:</p>
 
                 <p>Ctrl + Click = 5 points</p>
                 <p>Alt + Click = 100 points</p>
                 <p>Shift + Click = All points</p>
-            </div>
-
-            <div>
-                <p class="text-zinc-400 text-sm text-right">
-                    Unspent Points:
-                    <span class="font-semibold text-zinc-200">{{
-                        characterStore.maxAllocatablePoints
-                    }}</span>
-                </p>
             </div>
         </div>
     </div>

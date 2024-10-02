@@ -3,11 +3,13 @@ import { useStatCalculationStore } from "@/Stores/StatCalculationStore";
 import { useCharacterStore } from "@/Stores/CharacterStore";
 import { computed } from "vue";
 
+import StatDisplay from "./StatDisplay.vue";
+import DamageStatDisplay from "./DamageStatDisplay.vue";
+
 const statCalculationStore = useStatCalculationStore();
 const characterStore = useCharacterStore();
 const calculatedStats = computed(() => statCalculationStore);
 
-// Compute whether the character meets the strength and dexterity requirements
 const strengthBelowRequired = computed(() => {
     return Object.values(characterStore.character.equippedItems).some(
         (item) =>
@@ -23,149 +25,78 @@ const dexterityBelowRequired = computed(() => {
             statCalculationStore.attributes.dexterity
     );
 });
+
+const resistances = [
+    { label: "Fire", key: "fire", class: "text-red-300" },
+    { label: "Cold", key: "cold", class: "text-blue-300" },
+    { label: "Lightning", key: "lightning", class: "text-yellow-300" },
+    { label: "Poison", key: "poison", class: "text-green-300" },
+    { label: "Curse", key: "curse", class: "text-purple-300" },
+];
+
+const weaponElementalDamage = [
+    { label: "Fire", key: "fire", class: "text-red-300" },
+    { label: "Cold", key: "cold", class: "text-blue-300" },
+    { label: "Lightning", key: "lightning", class: "text-yellow-300" },
+    { label: "Poison", key: "poison", class: "text-green-300" },
+    { label: "Magic", key: "magic", class: "text-blue-400" },
+];
 </script>
 
 <template>
     <p class="font-bold mb-1">Attributes</p>
-    <p class="flex justify-between">
-        <span>Strength</span>
-        <span :class="{ 'text-red-500': strengthBelowRequired }">{{
-            calculatedStats.attributes.strength
-        }}</span>
-    </p>
-    <p class="flex justify-between">
-        <span>Dexterity</span>
-        <span :class="{ 'text-red-500': dexterityBelowRequired }">{{
-            calculatedStats.attributes.dexterity
-        }}</span>
-    </p>
-    <p class="flex justify-between">
-        <span>Vitality</span>
-        <span>{{ calculatedStats.attributes.vitality }}</span>
-    </p>
-    <p class="flex justify-between">
-        <span>Energy</span>
-        <span>{{ calculatedStats.attributes.energy }}</span>
-    </p>
+    <StatDisplay
+        label="Strength"
+        :value="calculatedStats.attributes.strength"
+        :valueClass="{ 'text-red-500': strengthBelowRequired }"
+    />
+    <StatDisplay
+        label="Dexterity"
+        :value="calculatedStats.attributes.dexterity"
+        :valueClass="{ 'text-red-500': dexterityBelowRequired }"
+    />
+    <StatDisplay
+        label="Vitality"
+        :value="calculatedStats.attributes.vitality"
+    />
+    <StatDisplay label="Energy" :value="calculatedStats.attributes.energy" />
 
     <p class="font-bold mt-3 mb-1">Resistances</p>
-    <p class="flex justify-between">
-        <span class="text-red-300">Fire</span>
-        <span
-            :class="{
-                'text-red-400': calculatedStats.cappedResistances.fire < 0,
-            }"
-            >{{ calculatedStats.cappedResistances.fire }}%</span
-        >
-    </p>
-    <p class="flex justify-between">
-        <span class="text-blue-300">Cold</span>
-        <span
-            :class="{
-                'text-red-400': calculatedStats.cappedResistances.cold < 0,
-            }"
-            >{{ calculatedStats.cappedResistances.cold }}%</span
-        >
-    </p>
-    <p class="flex justify-between">
-        <span class="text-yellow-300">Lightning</span>
-        <span
-            :class="{
-                'text-red-400': calculatedStats.cappedResistances.lightning < 0,
-            }"
-            >{{ calculatedStats.cappedResistances.lightning }}%</span
-        >
-    </p>
-    <p class="flex justify-between">
-        <span class="text-green-300">Poison</span>
-        <span
-            :class="{
-                'text-red-400': calculatedStats.cappedResistances.poison < 0,
-            }"
-            >{{ calculatedStats.cappedResistances.poison }}%</span
-        >
-    </p>
-    <p class="flex justify-between">
-        <span class="text-purple-300">Curse</span>
-        <span
-            :class="{
-                'text-red-400': calculatedStats.cappedResistances.curse < 0,
-            }"
-            >{{ calculatedStats.cappedResistances.curse }}%</span
-        >
-    </p>
+    <StatDisplay
+        v-for="resistance in resistances"
+        :key="resistance.key"
+        :label="resistance.label"
+        :labelClass="resistance.class"
+        :value="calculatedStats.cappedResistances[resistance.key] + '%'"
+        :valueClass="{
+            'text-red-400':
+                calculatedStats.cappedResistances[resistance.key] < 0,
+        }"
+    />
 
     <p class="font-bold mt-3 mb-1">Defense</p>
-    <p class="flex justify-between">
-        <span>Defense</span>
-        <span>{{ calculatedStats.defense }}</span>
-    </p>
+    <StatDisplay label="Defense" :value="calculatedStats.defense" />
 
     <p class="font-bold mt-3 mb-1">Weapon</p>
-    <p class="flex justify-between">
-        <span>Attack Damage</span>
-        <p>
-            <span>{{ calculatedStats.totalMinDamage }}</span>
-            <span>-</span>
-            <span>{{ calculatedStats.totalMaxDamage }}</span>
-        </p>
-    </p>
-    <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.physical.min || calculatedStats.weapon.attackDamage.physical.max">
-        <span class="text-zinc-300">Physical</span>
-        <p v-if="calculatedStats.weapon.attackDamage.physical.min !== calculatedStats.weapon.attackDamage.physical.max">
-            <span>{{ calculatedStats.weapon.attackDamage.physical.min }}</span>
-            <span>-</span>
-            <span>{{ calculatedStats.weapon.attackDamage.physical.max }}</span>
-        </p>
-        <p v-else>+{{ calculatedStats.weapon.attackDamage.physical.min }}</p>
-    </p>
-    <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.fire.min || calculatedStats.weapon.attackDamage.elemental.fire.max">
-        <span class="text-red-300">Fire</span>
-        <p v-if="calculatedStats.weapon.attackDamage.elemental.fire.min !== calculatedStats.weapon.attackDamage.elemental.fire.max">
-            <span>{{ calculatedStats.weapon.attackDamage.elemental.fire.min }}</span>
-            <span>-</span>
-            <span>{{ calculatedStats.weapon.attackDamage.elemental.fire.max }}</span>
-        </p>
-        <p v-else>+{{ calculatedStats.weapon.attackDamage.elemental.fire.min }}</p>
-    </p>
-    <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.lightning.min || calculatedStats.weapon.attackDamage.elemental.lightning.max">
-        <span class="text-yellow-300">Lightning</span>
-        <p v-if="calculatedStats.weapon.attackDamage.elemental.lightning.min !== calculatedStats.weapon.attackDamage.elemental.lightning.max">
-            <span>{{ calculatedStats.weapon.attackDamage.elemental.lightning.min }}</span>
-            <span>-</span>
-            <span>{{ calculatedStats.weapon.attackDamage.elemental.lightning.max }}</span>
-        </p>
-        <p v-else>+{{ calculatedStats.weapon.attackDamage.elemental.lightning.min }}</p>
-    </p>
-    <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.cold.min || calculatedStats.weapon.attackDamage.elemental.cold.max">
-        <span class="text-blue-300">Cold</span>
-        <p v-if="calculatedStats.weapon.attackDamage.elemental.cold.min !== calculatedStats.weapon.attackDamage.elemental.cold.max">
-            <span>{{ calculatedStats.weapon.attackDamage.elemental.cold.min }}</span>
-            <span>-</span>
-            <span>{{ calculatedStats.weapon.attackDamage.elemental.cold.max }}</span>
-        </p>
-        <p v-else>+{{ calculatedStats.weapon.attackDamage.elemental.cold.min }}</p>
-    </p>
-    <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.poison.min || calculatedStats.weapon.attackDamage.elemental.poison.max">
-        <span class="text-green-300">Poison</span>
-        <p v-if="calculatedStats.weapon.attackDamage.elemental.poison.min !== calculatedStats.weapon.attackDamage.elemental.poison.max">
-            <span>{{ calculatedStats.weapon.attackDamage.elemental.poison.min }}</span>
-            <span>-</span>
-            <span>{{ calculatedStats.weapon.attackDamage.elemental.poison.max }}</span>
-        </p>
-        <p v-else>+{{ calculatedStats.weapon.attackDamage.elemental.poison.min }}</p>
-    </p>
-    <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.magic.min || calculatedStats.weapon.attackDamage.elemental.magic.max">
-        <span class="text-blue-400">Magic</span>
-        <p v-if="calculatedStats.weapon.attackDamage.elemental.magic.min !== calculatedStats.weapon.attackDamage.elemental.magic.max">
-            <span>{{ calculatedStats.weapon.attackDamage.elemental.magic.min }}</span>
-            <span>-</span>
-            <span>{{ calculatedStats.weapon.attackDamage.elemental.magic.max }}</span>
-        </p>
-        <p v-else>+{{ calculatedStats.weapon.attackDamage.elemental.magic.min }}</p>
-    </p>
-    <p class="flex justify-between">
-        <span>Attack Rating</span>
-        <span>{{ calculatedStats.weapon.attackRating }}</span>
-    </p>
+    <StatDisplay
+        label="Attack Damage"
+        :value="
+            calculatedStats.totalMinDamage +
+            ' - ' +
+            calculatedStats.totalMaxDamage
+        "
+    />
+    <StatDisplay
+        label="Attack Rating"
+        :value="calculatedStats.weapon.attackRating"
+    />
+
+    <DamageStatDisplay
+        v-for="damage in weaponElementalDamage"
+        :key="damage.key"
+        :label="damage.label"
+        :min="calculatedStats.weapon.attackDamage.elemental[damage.key].min"
+        :max="calculatedStats.weapon.attackDamage.elemental[damage.key].max"
+        :labelClass="damage.class"
+    />
 </template>

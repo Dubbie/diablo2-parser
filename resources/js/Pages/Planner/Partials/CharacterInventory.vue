@@ -113,8 +113,8 @@ const isActiveSlot = (slot) => {
             class="absolute"
             :style="position"
             :class="{
-                'hover:bg-yellow-300/20': !isActiveSlot(slot),
-                'bg-yellow-300/20': isActiveSlot(slot),
+                'bg-black/40 hover:bg-yellow-600/20': !isActiveSlot(slot),
+                'bg-yellow-600/20': isActiveSlot(slot),
             }"
             @click="setActiveSlot(slot)"
             @click.right.prevent="

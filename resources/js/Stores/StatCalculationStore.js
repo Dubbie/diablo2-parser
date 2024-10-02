@@ -16,6 +16,9 @@ export const useStatCalculationStore = defineStore("statCalculation", {
                 elemental: {
                     fire: { min: 0, max: 0 },
                     lightning: { min: 0, max: 0 },
+                    cold: { min: 0, max: 0 },
+                    poison: { min: 0, max: 0 },
+                    magic: { min: 0, max: 0 },
                 },
             },
             attackSpeed: 0,
@@ -91,7 +94,10 @@ export const useStatCalculationStore = defineStore("statCalculation", {
             return (
                 state.weapon.attackDamage.physical.min +
                 state.weapon.attackDamage.elemental.fire.min +
-                state.weapon.attackDamage.elemental.lightning.min
+                state.weapon.attackDamage.elemental.lightning.min +
+                state.weapon.attackDamage.elemental.cold.min +
+                state.weapon.attackDamage.elemental.poison.min +
+                state.weapon.attackDamage.elemental.magic.min
             );
         },
         totalMaxDamage(state) {
@@ -99,7 +105,10 @@ export const useStatCalculationStore = defineStore("statCalculation", {
             return (
                 state.weapon.attackDamage.physical.max +
                 state.weapon.attackDamage.elemental.fire.max +
-                state.weapon.attackDamage.elemental.lightning.max
+                state.weapon.attackDamage.elemental.lightning.max +
+                state.weapon.attackDamage.elemental.cold.max +
+                state.weapon.attackDamage.elemental.poison.max +
+                state.weapon.attackDamage.elemental.magic.max
             );
         },
     },

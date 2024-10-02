@@ -31,6 +31,9 @@ const resetWeapon = (characterStore, statStore) => {
             elemental: {
                 fire: { min: 0, max: 0 },
                 lightning: { min: 0, max: 0 },
+                cold: { min: 0, max: 0 },
+                poison: { min: 0, max: 0 },
+                magic: { min: 0, max: 0 },
             },
         },
         attackSpeed: 0,
@@ -53,6 +56,9 @@ export const updateWeapon = (characterStore, statStore) => {
     let elementalDamage = {
         fire: { min: 0, max: 0 },
         lightning: { min: 0, max: 0 },
+        cold: { min: 0, max: 0 },
+        poison: { min: 0, max: 0 },
+        magic: { min: 0, max: 0 },
     };
     let attackRatingFromModifiers = 0;
     let attackRatingMultiplier = 1; // Initialize attack rating multiplier
@@ -88,6 +94,7 @@ export const updateWeapon = (characterStore, statStore) => {
             }
 
             // Check for elemental damage modifiers
+            // - Lightning
             if (modifier.name === "dmg_lightning") {
                 elementalDamage.lightning.min +=
                     parseInt(modifier?.values?.minValue) || 0;
@@ -95,6 +102,17 @@ export const updateWeapon = (characterStore, statStore) => {
                     parseInt(modifier?.values?.maxValue) || 0;
             }
 
+            if (modifier.name === "lightmindam") {
+                elementalDamage.lightning.min +=
+                    parseInt(modifier?.values?.value) || 0;
+            }
+
+            if (modifier.name === "lightmaxdam") {
+                elementalDamage.lightning.max +=
+                    parseInt(modifier?.values?.value) || 0;
+            }
+
+            // - Fire
             if (modifier.name === "dmg_fire") {
                 elementalDamage.fire.min +=
                     parseInt(modifier?.values?.minValue) || 0;
@@ -102,13 +120,79 @@ export const updateWeapon = (characterStore, statStore) => {
                     parseInt(modifier?.values?.maxValue) || 0;
             }
 
-            // Physical damage additions
-            if (modifier.name === "mindamage") {
-                physicalMinAdd += parseInt(modifier?.values?.value) || 0;
+            if (modifier.name === "firemindam") {
+                elementalDamage.fire.min +=
+                    parseInt(modifier?.values?.value) || 0;
             }
 
-            if (modifier.name === "maxdamage") {
-                physicalMaxAdd += parseInt(modifier?.values?.value) || 0;
+            if (modifier.name === "firemaxdam") {
+                elementalDamage.fire.max +=
+                    parseInt(modifier?.values?.value) || 0;
+            }
+
+            // - Cold
+            if (modifier.name === "dmg_cold") {
+                elementalDamage.cold.min +=
+                    parseInt(modifier?.values?.minValue) || 0;
+                elementalDamage.cold.max +=
+                    parseInt(modifier?.values?.maxValue) || 0;
+            }
+
+            if (modifier.name === "coldmindam") {
+                elementalDamage.cold.min +=
+                    parseInt(modifier?.values?.value) || 0;
+            }
+
+            if (modifier.name === "coldmaxdam") {
+                elementalDamage.cold.max +=
+                    parseInt(modifier?.values?.value) || 0;
+            }
+
+            // - Poison
+            if (modifier.name === "dmg_poison") {
+                elementalDamage.poison.min +=
+                    parseInt(modifier?.values?.minValue) || 0;
+                elementalDamage.poison.max +=
+                    parseInt(modifier?.values?.maxValue) || 0;
+            }
+
+            if (modifier.name === "poisonmindam") {
+                elementalDamage.poison.min +=
+                    parseInt(modifier?.values?.value) || 0;
+            }
+
+            if (modifier.name === "poisonmaxdam") {
+                elementalDamage.poison.max +=
+                    parseInt(modifier?.values?.value) || 0;
+            }
+
+            // - Magic
+            if (modifier.name === "dmg_magic") {
+                elementalDamage.magic.min +=
+                    parseInt(modifier?.values?.minValue) || 0;
+                elementalDamage.magic.max +=
+                    parseInt(modifier?.values?.maxValue) || 0;
+            }
+
+            if (modifier.name === "magicmindam") {
+                elementalDamage.magic.min +=
+                    parseInt(modifier?.values?.value) || 0;
+            }
+
+            if (modifier.name === "magicmaxdam") {
+                elementalDamage.magic.max +=
+                    parseInt(modifier?.values?.value) || 0;
+            }
+
+            // Physical damage additions when item is not in weapon slot
+            if (modifier.name === "mindamage" && !WEAPON_SLOTS.includes(slot)) {
+                physicalMinAdd +=
+                    parseInt(modifier?.values?.value) / 256.0 || 0;
+            }
+
+            if (modifier.name === "maxdamage" && !WEAPON_SLOTS.includes(slot)) {
+                physicalMaxAdd +=
+                    parseInt(modifier?.values?.value) / 256.0 || 0;
             }
         });
     }
@@ -178,6 +262,9 @@ const updateWeaponDamage = (
     statStore.weapon.attackDamage.elemental.fire = elementalDamage.fire;
     statStore.weapon.attackDamage.elemental.lightning =
         elementalDamage.lightning;
+    statStore.weapon.attackDamage.elemental.cold = elementalDamage.cold;
+    statStore.weapon.attackDamage.elemental.poison = elementalDamage.poison;
+    statStore.weapon.attackDamage.elemental.magic = elementalDamage.magic;
 };
 
 /**

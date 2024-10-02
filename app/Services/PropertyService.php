@@ -301,6 +301,12 @@ class PropertyService
         }
 
         $newModifier->setRange($range);
+
+        // If poison damage, to the calculations here instead.
+        if ($mapping['name'] === 'dmg_poison') {
+            $newModifier = $this->calculatePoisonDamage($newModifier);
+        }
+
         return $newModifier;
     }
 
@@ -324,5 +330,44 @@ class PropertyService
     {
         // Check if arrays have the same elements
         return count(array_intersect($modifiers, $stats)) === count($stats);
+    }
+
+    private function calculatePoisonDamage(Modifier $modifier): Modifier
+    {
+        $min = $modifier->getRange('minValue')['min'];
+        $max = $modifier->getRange('minValue')['max'];
+        $length = $modifier->getValues()['value'] ?? $modifier->getValues()['param'];
+        // Convert poison length to seconds (length is given in frames, 25 frames per second)
+        $poisLenFrames = $length;
+
+        // Damage per frame is in 1/256ths, so convert to damage per frame
+        $poisMinPerFrame = $min / 256.0;
+        $poisMaxPerFrame = $max / 256.0;
+
+        // Total damage over the duration in frames
+        $poisTotalMin = $poisMinPerFrame * $poisLenFrames;
+        $poisTotalMax = $poisMaxPerFrame * $poisLenFrames;
+
+        // Convert duration from frames to seconds
+        $poisLenSeconds = $poisLenFrames / 25.0;
+
+        $modifier->setValues([
+            'minValue' => ceil($poisTotalMin),
+            'maxValue' => ceil($poisTotalMax),
+            'value' => round($poisLenSeconds),
+        ]);
+
+        $modifier->setRange([
+            'minValue' => [
+                'min' => ceil($poisTotalMin),
+                'max' => ceil($poisTotalMin),
+            ],
+            'maxValue' => [
+                'min' => ceil($poisTotalMax),
+                'max' => ceil($poisTotalMax),
+            ]
+        ]);
+
+        return $modifier;
     }
 }

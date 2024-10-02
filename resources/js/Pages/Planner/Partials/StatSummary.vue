@@ -134,6 +134,30 @@ const dexterityBelowRequired = computed(() => {
             <span>{{ calculatedStats.weapon.attackDamage.elemental.lightning.max }}</span>
         </p>
     </p>
+    <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.cold.min || calculatedStats.weapon.attackDamage.elemental.cold.max">
+        <span class="text-blue-300">Cold</span>
+        <p>
+            <span>{{ calculatedStats.weapon.attackDamage.elemental.cold.min }}</span>
+            <span>-</span>
+            <span>{{ calculatedStats.weapon.attackDamage.elemental.cold.max }}</span>
+        </p>
+    </p>
+    <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.poison.min || calculatedStats.weapon.attackDamage.elemental.poison.max">
+        <span class="text-green-300">Poison</span>
+        <p>
+            <span>{{ calculatedStats.weapon.attackDamage.elemental.poison.min }}</span>
+            <span>-</span>
+            <span>{{ calculatedStats.weapon.attackDamage.elemental.poison.max }}</span>
+        </p>
+    </p>
+    <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.magic.min || calculatedStats.weapon.attackDamage.elemental.magic.max">
+        <span class="text-blue-400">Magic</span>
+        <p>
+            <span>{{ calculatedStats.weapon.attackDamage.elemental.magic.min }}</span>
+            <span>-</span>
+            <span>{{ calculatedStats.weapon.attackDamage.elemental.magic.max }}</span>
+        </p>
+    </p>
     <p class="flex justify-between">
         <span>Attack Rating</span>
         <span>{{ calculatedStats.weapon.attackRating }}</span>

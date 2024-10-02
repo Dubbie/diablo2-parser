@@ -9,6 +9,9 @@ export const calculateFinalDefense = () => {
     // Reset defense to zero before calculating
     statStore.defense = 0;
 
+    // Apply defense from dexterity
+    statStore.defense += Math.floor(statStore.attributes.dexterity / 4);
+
     // Apply defense modifiers from equipped items
     applyModifiers(
         characterStore.character.equippedItems,

@@ -47,9 +47,7 @@ abstract class BaseDamageHandler implements CustomDescriptionHandlerInterface
     private function buildTemplate(Modifier $modifier, array &$range): string
     {
         // Default template for simple values
-        $template = "Adds [value] " . $this->getDamageType();
-
-        $template = "Adds [minValue] to [maxValue] " . $this->getDamageType();
+        $template = "Adds [minValue]-[maxValue] " . $this->getDamageType();
 
         // Process minValue array
         $template = $this->processMinMaxArray($modifier->getRange('minValue'), '[minValue]', $range, $template);
@@ -92,11 +90,16 @@ abstract class BaseDamageHandler implements CustomDescriptionHandlerInterface
     {
         $minFormatted =  StatFormatter::formatValue($modifier->getMin('minValue'), $modifier->getMax('minValue'));
         $maxFormatted =  StatFormatter::formatValue($modifier->getMin('maxValue'), $modifier->getMax('maxValue'));
+        $combined = StatFormatter::formatValue($minFormatted, $maxFormatted);
+
+        if ($minFormatted === $maxFormatted) {
+            return str_replace("$combined-$combined", $combined, $template);
+        }
 
         // Replace placeholders in the template
         return str_replace(
             ['[minValue]', '[maxValue]', '[value]'],
-            [$minFormatted, $maxFormatted, StatFormatter::formatValue($minFormatted, $maxFormatted)],
+            [$minFormatted, $maxFormatted, $combined],
             $template
         );
     }

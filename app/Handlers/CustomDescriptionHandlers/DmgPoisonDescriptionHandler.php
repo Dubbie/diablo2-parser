@@ -2,22 +2,27 @@
 
 namespace App\Handlers\CustomDescriptionHandlers;
 
-use App\Handlers\CustomDescriptionHandlerInterface;
 use App\Services\StatFormatter;
 use App\ValueObjects\Modifier;
 use App\ValueObjects\ModifierLabel;
 
-class DmgPoisonDescriptionHandler implements CustomDescriptionHandlerInterface
+class DmgPoisonDescriptionHandler extends BaseDamageHandler
 {
+    protected function getDamageType(): string
+    {
+        return "Poison Damage";
+    }
+
     public function handle(Modifier $modifier): ModifierLabel
     {
-        $values = $modifier->getValues();
-        $min = $values['minValue'];
-        $max = $values['maxValue'];
-        $duration = $values['value'];
-
-        $formattedValue = StatFormatter::formatValue($min, $max, '');
-        $string = sprintf('+%s Poison Damage Over %s Seconds', $formattedValue, $duration);
-        return new ModifierLabel($string, $string);
+        $modifierLabel = parent::handle($modifier);
+        $statString = $modifierLabel->label;
+        $template = $modifierLabel->template;
+        $template .= ' Over [duration] Seconds';
+        str_replace('[duration]', $modifier->getValues()['value'], $template);
+        $statString .= ' Over ' . $modifier->getValues()['value'] . ' Seconds';
+        $template = str_replace('Adds ', '+', $template);
+        $statString = str_replace('Adds ', '+', $statString);
+        return new ModifierLabel($statString, $template);
     }
 }

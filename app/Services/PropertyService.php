@@ -272,6 +272,7 @@ class PropertyService
         $newModifier->setName($mapping['name']);
         $range = [];
 
+
         foreach ($foundModifiers as $modifier) {
             $isMin = strpos($modifier->getName(), 'min') !== false;
             $isMax = strpos($modifier->getName(), 'max') !== false;
@@ -301,7 +302,6 @@ class PropertyService
         }
 
         $newModifier->setRange($range);
-
         // If poison damage, to the calculations here instead.
         if ($mapping['name'] === 'dmg_poison') {
             $newModifier = $this->calculatePoisonDamage($newModifier);
@@ -335,7 +335,7 @@ class PropertyService
     private function calculatePoisonDamage(Modifier $modifier): Modifier
     {
         $min = $modifier->getRange('minValue')['min'];
-        $max = $modifier->getRange('minValue')['max'];
+        $max = $modifier->getRange('maxValue')['max'];
         $length = $modifier->getValues()['value'] ?? $modifier->getValues()['param'];
         // Convert poison length to seconds (length is given in frames, 25 frames per second)
         $poisLenFrames = $length;

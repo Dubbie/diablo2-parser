@@ -42,64 +42,76 @@ export const useStatCalculationStore = defineStore("statCalculation", {
         },
 
         calculateFinalAttributes() {
-            const characterStore = useCharacterStore();
-            const character = characterStore.character;
+            const { character } = useCharacterStore();
+            const { str, dex, vit, int: energy } = character.attributes;
+            const { modified_attributes } = character;
 
             // Reset the final attributes to base + modified values
-            this.attributes.strength =
-                character.attributes.str + character.modified_attributes.str;
-            this.attributes.dexterity =
-                character.attributes.dex + character.modified_attributes.dex;
-            this.attributes.vitality =
-                character.attributes.vit + character.modified_attributes.vit;
-            this.attributes.energy =
-                character.attributes.int + character.modified_attributes.int;
+            this.attributes.strength = str + modified_attributes.str;
+            this.attributes.dexterity = dex + modified_attributes.dex;
+            this.attributes.vitality = vit + modified_attributes.vit;
+            this.attributes.energy = energy + modified_attributes.int;
 
-            // Iterate over equipped items and apply modifiers
-            this.applyModifiers(character.equippedItems, this.updateAttributes);
+            // Apply attribute modifiers
+            this.applyModifiers(
+                character.equippedItems,
+                ATTRIBUTE_MODIFIERS,
+                this.updateAttributes
+            );
         },
 
         calculateFinalResistances() {
-            const characterStore = useCharacterStore();
-
+            const { character } = useCharacterStore();
             const baseRes = -70; // Configurable based on quests, for now hardcoded
 
             // Initialize resistances
-            this.resistances.fire = baseRes;
-            this.resistances.cold = baseRes;
-            this.resistances.lightning = baseRes;
-            this.resistances.poison = baseRes;
-            this.resistances.curse = 0;
+            this.resistances = {
+                fire: baseRes,
+                cold: baseRes,
+                lightning: baseRes,
+                poison: baseRes,
+                curse: 0,
+            };
 
-            // Iterate over equipped items and apply resistance modifiers
+            // Apply resistance modifiers
             this.applyModifiers(
-                characterStore.character.equippedItems,
+                character.equippedItems,
+                RESISTANCE_MODIFIERS,
                 this.updateResistances
             );
         },
 
         calculateFinalDefense() {
-            const characterStore = useCharacterStore();
+            const { character } = useCharacterStore();
 
             this.defense = 0;
-
-            // Iterate over equipped items and apply defense modifiers
+            // Apply defense modifiers
             this.applyModifiers(
-                characterStore.character.equippedItems,
+                character.equippedItems,
+                null,
                 this.updateDefense
             );
         },
 
-        applyModifiers(equippedItems, updateFunction) {
-            Object.keys(equippedItems).forEach((slot) => {
-                const item = equippedItems[slot];
+        applyModifiers(equippedItems, modifierMappings, updateFunction) {
+            Object.values(equippedItems).forEach((item) => {
                 if (!item || !this.isItemUsable(item)) return;
 
                 if (updateFunction === this.updateDefense) {
+                    // Directly pass the item for defense calculation
                     updateFunction.call(this, item);
                 } else {
+                    // Apply only relevant modifiers based on mapping
                     item.modifiers.forEach((modifier) => {
-                        updateFunction.call(this, modifier);
+                        const { name } = modifier;
+                        if (
+                            !modifierMappings ||
+                            Object.values(modifierMappings).some((modifiers) =>
+                                modifiers.includes(name)
+                            )
+                        ) {
+                            updateFunction.call(this, modifier);
+                        }
                     });
                 }
             });
@@ -107,32 +119,33 @@ export const useStatCalculationStore = defineStore("statCalculation", {
 
         updateAttributes(modifier) {
             const { name, values } = modifier;
-            const characterStore = useCharacterStore();
+            const { level } = useCharacterStore().character;
 
-            Object.keys(ATTRIBUTE_MODIFIERS).forEach((attr) => {
-                const attrModifiers = ATTRIBUTE_MODIFIERS[attr];
-                if (attrModifiers.includes(name)) {
-                    if (name.includes("perlevel")) {
-                        // calculate the per level value
-                        this.attributes[attr] +=
-                            parseInt(values.perLevel) *
-                            characterStore.character.level;
-                    } else {
-                        this.attributes[attr] += parseInt(values.value);
+            Object.entries(ATTRIBUTE_MODIFIERS).forEach(
+                ([attr, attrModifiers]) => {
+                    if (attrModifiers.includes(name)) {
+                        if (name.includes("perlevel")) {
+                            // calculate the per level value
+                            this.attributes[attr] +=
+                                parseInt(values.perLevel) * level;
+                        } else {
+                            this.attributes[attr] += parseInt(values.value);
+                        }
                     }
                 }
-            });
+            );
         },
 
         updateResistances(modifier) {
             const { name, values } = modifier;
 
-            Object.keys(RESISTANCE_MODIFIERS).forEach((resistance) => {
-                const resistanceModifiers = RESISTANCE_MODIFIERS[resistance];
-                if (resistanceModifiers.includes(name)) {
-                    this.resistances[resistance] += parseInt(values.value);
+            Object.entries(RESISTANCE_MODIFIERS).forEach(
+                ([resistance, resModifiers]) => {
+                    if (resModifiers.includes(name)) {
+                        this.resistances[resistance] += parseInt(values.value);
+                    }
                 }
-            });
+            );
         },
 
         updateDefense(item) {
@@ -144,8 +157,7 @@ export const useStatCalculationStore = defineStore("statCalculation", {
             }
 
             // No defense on item, add based on modifiers instead
-            item.modifiers.forEach((modifier) => {
-                const { name, values } = modifier;
+            item.modifiers.forEach(({ name, values }) => {
                 if (name === "armorclass") {
                     this.defense += parseInt(values.value);
                 }
@@ -153,8 +165,7 @@ export const useStatCalculationStore = defineStore("statCalculation", {
         },
 
         isItemUsable(item) {
-            const characterStore = useCharacterStore();
-            const level = characterStore.character.level || 1;
+            const { level } = useCharacterStore().character;
 
             const requiredStr = item.calculated_stats?.required_str?.value || 0;
             const requiredDex = item.calculated_stats?.required_dex?.value || 0;

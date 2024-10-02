@@ -48,12 +48,12 @@ const weaponElementalDamage = [
     <StatDisplay
         label="Strength"
         :value="calculatedStats.attributes.strength"
-        :valueClass="{ 'text-red-500': strengthBelowRequired }"
+        :value-class="{ 'text-red-500': strengthBelowRequired }"
     />
     <StatDisplay
         label="Dexterity"
         :value="calculatedStats.attributes.dexterity"
-        :valueClass="{ 'text-red-500': dexterityBelowRequired }"
+        :value-class="{ 'text-red-500': dexterityBelowRequired }"
     />
     <StatDisplay
         label="Vitality"
@@ -66,9 +66,9 @@ const weaponElementalDamage = [
         v-for="resistance in resistances"
         :key="resistance.key"
         :label="resistance.label"
-        :labelClass="resistance.class"
+        :label-class="resistance.class"
         :value="calculatedStats.cappedResistances[resistance.key] + '%'"
-        :valueClass="{
+        :value-class="{
             'text-red-400':
                 calculatedStats.cappedResistances[resistance.key] < 0,
         }"
@@ -92,11 +92,17 @@ const weaponElementalDamage = [
     />
 
     <DamageStatDisplay
+        label="Physical"
+        :min="calculatedStats.weapon.attackDamage.physical.min"
+        :max="calculatedStats.weapon.attackDamage.physical.max"
+        label-class="text-red-300"
+    />
+    <DamageStatDisplay
         v-for="damage in weaponElementalDamage"
         :key="damage.key"
         :label="damage.label"
         :min="calculatedStats.weapon.attackDamage.elemental[damage.key].min"
         :max="calculatedStats.weapon.attackDamage.elemental[damage.key].max"
-        :labelClass="damage.class"
+        :label-class="damage.class"
     />
 </template>

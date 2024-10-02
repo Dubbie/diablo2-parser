@@ -1,20 +1,43 @@
 <script setup>
 import { useStatCalculationStore } from "@/Stores/StatCalculationStore";
+import { useCharacterStore } from "@/Stores/CharacterStore";
 import { computed } from "vue";
 
 const statCalculationStore = useStatCalculationStore();
+const characterStore = useCharacterStore();
 const calculatedStats = computed(() => statCalculationStore);
+
+// Compute whether the character meets the strength and dexterity requirements
+const strengthBelowRequired = computed(() => {
+    return Object.values(characterStore.character.equippedItems).some(
+        (item) =>
+            item?.calculated_stats?.required_str?.value >
+            statCalculationStore.attributes.strength
+    );
+});
+
+const dexterityBelowRequired = computed(() => {
+    return Object.values(characterStore.character.equippedItems).some(
+        (item) =>
+            item?.calculated_stats?.required_dex?.value >
+            statCalculationStore.attributes.dexterity
+    );
+});
 </script>
 
 <template>
     <p class="font-bold mb-1">Attributes</p>
     <p class="flex justify-between">
         <span>Strength</span>
-        <span>{{ calculatedStats.attributes.strength }}</span>
+        <span :class="{ 'text-red-500': strengthBelowRequired }">{{
+            calculatedStats.attributes.strength
+        }}</span>
     </p>
     <p class="flex justify-between">
         <span>Dexterity</span>
-        <span>{{ calculatedStats.attributes.dexterity }}</span>
+        <span :class="{ 'text-red-500': dexterityBelowRequired }">{{
+            calculatedStats.attributes.dexterity
+        }}</span>
     </p>
     <p class="flex justify-between">
         <span>Vitality</span>

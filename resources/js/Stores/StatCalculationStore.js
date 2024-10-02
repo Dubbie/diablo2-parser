@@ -2,10 +2,10 @@ import { defineStore } from "pinia";
 import { useCharacterStore } from "@/Stores/CharacterStore";
 
 const ATTRIBUTE_MODIFIERS = {
-    strength: "strength",
-    dexterity: "dexterity",
-    vitality: "vitality",
-    energy: "energy",
+    strength: ["strength", "item_strength_perlevel"],
+    dexterity: ["dexterity", "item_dexterity_perlevel"],
+    vitality: ["vitality", "item_vitality_perlevel"],
+    energy: ["energy", "item_energy_perlevel"],
 };
 
 const RESISTANCE_MODIFIERS = {
@@ -107,10 +107,21 @@ export const useStatCalculationStore = defineStore("statCalculation", {
 
         updateAttributes(modifier) {
             const { name, values } = modifier;
+            const characterStore = useCharacterStore();
 
-            if (name in ATTRIBUTE_MODIFIERS) {
-                this.attributes[name] += parseInt(values.value);
-            }
+            Object.keys(ATTRIBUTE_MODIFIERS).forEach((attr) => {
+                const attrModifiers = ATTRIBUTE_MODIFIERS[attr];
+                if (attrModifiers.includes(name)) {
+                    if (name.includes("perlevel")) {
+                        // calculate the per level value
+                        this.attributes[attr] +=
+                            parseInt(values.perLevel) *
+                            characterStore.character.level;
+                    } else {
+                        this.attributes[attr] += parseInt(values.value);
+                    }
+                }
+            });
         },
 
         updateResistances(modifier) {

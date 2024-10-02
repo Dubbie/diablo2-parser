@@ -112,51 +112,57 @@ const dexterityBelowRequired = computed(() => {
     </p>
     <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.physical.min || calculatedStats.weapon.attackDamage.physical.max">
         <span class="text-zinc-300">Physical</span>
-        <p>
+        <p v-if="calculatedStats.weapon.attackDamage.physical.min !== calculatedStats.weapon.attackDamage.physical.max">
             <span>{{ calculatedStats.weapon.attackDamage.physical.min }}</span>
             <span>-</span>
             <span>{{ calculatedStats.weapon.attackDamage.physical.max }}</span>
         </p>
+        <p v-else>+{{ calculatedStats.weapon.attackDamage.physical.min }}</p>
     </p>
     <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.fire.min || calculatedStats.weapon.attackDamage.elemental.fire.max">
         <span class="text-red-300">Fire</span>
-        <p>
+        <p v-if="calculatedStats.weapon.attackDamage.elemental.fire.min !== calculatedStats.weapon.attackDamage.elemental.fire.max">
             <span>{{ calculatedStats.weapon.attackDamage.elemental.fire.min }}</span>
             <span>-</span>
             <span>{{ calculatedStats.weapon.attackDamage.elemental.fire.max }}</span>
         </p>
+        <p v-else>+{{ calculatedStats.weapon.attackDamage.elemental.fire.min }}</p>
     </p>
     <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.lightning.min || calculatedStats.weapon.attackDamage.elemental.lightning.max">
         <span class="text-yellow-300">Lightning</span>
-        <p>
+        <p v-if="calculatedStats.weapon.attackDamage.elemental.lightning.min !== calculatedStats.weapon.attackDamage.elemental.lightning.max">
             <span>{{ calculatedStats.weapon.attackDamage.elemental.lightning.min }}</span>
             <span>-</span>
             <span>{{ calculatedStats.weapon.attackDamage.elemental.lightning.max }}</span>
         </p>
+        <p v-else>+{{ calculatedStats.weapon.attackDamage.elemental.lightning.min }}</p>
     </p>
     <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.cold.min || calculatedStats.weapon.attackDamage.elemental.cold.max">
         <span class="text-blue-300">Cold</span>
-        <p>
+        <p v-if="calculatedStats.weapon.attackDamage.elemental.cold.min !== calculatedStats.weapon.attackDamage.elemental.cold.max">
             <span>{{ calculatedStats.weapon.attackDamage.elemental.cold.min }}</span>
             <span>-</span>
             <span>{{ calculatedStats.weapon.attackDamage.elemental.cold.max }}</span>
         </p>
+        <p v-else>+{{ calculatedStats.weapon.attackDamage.elemental.cold.min }}</p>
     </p>
     <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.poison.min || calculatedStats.weapon.attackDamage.elemental.poison.max">
         <span class="text-green-300">Poison</span>
-        <p>
+        <p v-if="calculatedStats.weapon.attackDamage.elemental.poison.min !== calculatedStats.weapon.attackDamage.elemental.poison.max">
             <span>{{ calculatedStats.weapon.attackDamage.elemental.poison.min }}</span>
             <span>-</span>
             <span>{{ calculatedStats.weapon.attackDamage.elemental.poison.max }}</span>
         </p>
+        <p v-else>+{{ calculatedStats.weapon.attackDamage.elemental.poison.min }}</p>
     </p>
     <p class="flex justify-between" v-if="calculatedStats.weapon.attackDamage.elemental.magic.min || calculatedStats.weapon.attackDamage.elemental.magic.max">
         <span class="text-blue-400">Magic</span>
-        <p>
+        <p v-if="calculatedStats.weapon.attackDamage.elemental.magic.min !== calculatedStats.weapon.attackDamage.elemental.magic.max">
             <span>{{ calculatedStats.weapon.attackDamage.elemental.magic.min }}</span>
             <span>-</span>
             <span>{{ calculatedStats.weapon.attackDamage.elemental.magic.max }}</span>
         </p>
+        <p v-else>+{{ calculatedStats.weapon.attackDamage.elemental.magic.min }}</p>
     </p>
     <p class="flex justify-between">
         <span>Attack Rating</span>

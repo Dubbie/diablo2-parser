@@ -16,6 +16,16 @@ const RESISTANCE_MODIFIERS = {
     curse: ["curse_effectiveness"],
 };
 
+const MAX_RESISTANCE_MODIFIERS = {
+    fire: ["maxfireresist"],
+    cold: ["maxcoldresist"],
+    lightning: ["maxlightresist"],
+    poison: ["maxpoisonresist"],
+};
+
+const BASE_RES = -70;
+const BASE_RES_MAX = 75;
+
 export const useStatCalculationStore = defineStore("statCalculation", {
     state: () => ({
         attributes: {
@@ -25,14 +35,86 @@ export const useStatCalculationStore = defineStore("statCalculation", {
             energy: 0,
         },
         resistances: {
-            fire: 0,
-            cold: 0,
-            lightning: 0,
-            poison: 0,
-            curse: 0,
+            fire: {
+                total: 0,
+                max: BASE_RES_MAX,
+            },
+            cold: {
+                total: 0,
+                max: BASE_RES_MAX,
+            },
+            lightning: {
+                total: 0,
+                max: BASE_RES_MAX,
+            },
+            poison: {
+                total: 0,
+                max: BASE_RES_MAX,
+            },
+            curse: {
+                total: 0,
+                max: BASE_RES_MAX,
+            },
         },
         defense: 0,
     }),
+
+    getters: {
+        // Getter for capped fire resistance
+        fireResistance(state) {
+            return Math.min(
+                state.resistances.fire.total,
+                state.resistances.fire.max
+            );
+        },
+
+        // Getter for capped cold resistance
+        coldResistance(state) {
+            return Math.min(
+                state.resistances.cold.total,
+                state.resistances.cold.max
+            );
+        },
+
+        // Getter for capped lightning resistance
+        lightningResistance(state) {
+            return Math.min(
+                state.resistances.lightning.total,
+                state.resistances.lightning.max
+            );
+        },
+
+        // Getter for capped poison resistance
+        poisonResistance(state) {
+            return Math.min(
+                state.resistances.poison.total,
+                state.resistances.poison.max
+            );
+        },
+
+        // Getter for all resistances (for easier access)
+        cappedResistances(state) {
+            return {
+                fire: Math.min(
+                    state.resistances.fire.total,
+                    state.resistances.fire.max
+                ),
+                cold: Math.min(
+                    state.resistances.cold.total,
+                    state.resistances.cold.max
+                ),
+                lightning: Math.min(
+                    state.resistances.lightning.total,
+                    state.resistances.lightning.max
+                ),
+                poison: Math.min(
+                    state.resistances.poison.total,
+                    state.resistances.poison.max
+                ),
+                curse: state.resistances.curse.total, // Curse has no max resistance modifier
+            };
+        },
+    },
 
     actions: {
         calculateStats() {
@@ -62,23 +144,34 @@ export const useStatCalculationStore = defineStore("statCalculation", {
 
         calculateFinalResistances() {
             const { character } = useCharacterStore();
-            const baseRes = -70; // Configurable based on quests, for now hardcoded
 
-            // Initialize resistances
-            this.resistances = {
-                fire: baseRes,
-                cold: baseRes,
-                lightning: baseRes,
-                poison: baseRes,
-                curse: 0,
-            };
+            // Initialize resistances and max resistances
+            Object.keys(this.resistances).forEach((resistance) => {
+                this.resistances[resistance].total =
+                    resistance === "curse" ? 0 : BASE_RES;
+                this.resistances[resistance].max = BASE_RES_MAX;
+            });
 
-            // Apply resistance modifiers
+            // Apply total resistance modifiers
             this.applyModifiers(
                 character.equippedItems,
                 RESISTANCE_MODIFIERS,
                 this.updateResistances
             );
+
+            // Apply max resistance modifiers
+            this.applyModifiers(
+                character.equippedItems,
+                MAX_RESISTANCE_MODIFIERS,
+                this.updateMaxResistances
+            );
+
+            // Cap max resistances at 95
+            Object.keys(this.resistances).forEach((resistance) => {
+                if (this.resistances[resistance].max > 95) {
+                    this.resistances[resistance].max = 95;
+                }
+            });
         },
 
         calculateFinalDefense() {
@@ -142,7 +235,28 @@ export const useStatCalculationStore = defineStore("statCalculation", {
             Object.entries(RESISTANCE_MODIFIERS).forEach(
                 ([resistance, resModifiers]) => {
                     if (resModifiers.includes(name)) {
-                        this.resistances[resistance] += parseInt(values.value);
+                        this.resistances[resistance].total += parseInt(
+                            values.value
+                        );
+                    }
+                }
+            );
+        },
+
+        updateMaxResistances(modifier) {
+            const { name, values } = modifier;
+
+            Object.entries(MAX_RESISTANCE_MODIFIERS).forEach(
+                ([resistance, maxResModifiers]) => {
+                    if (maxResModifiers.includes(name)) {
+                        console.log("Resistance:");
+                        console.log(resistance);
+                        console.log("ResistanceData:");
+                        console.log(this.resistances[resistance]);
+
+                        this.resistances[resistance].max += parseInt(
+                            values.value
+                        );
                     }
                 }
             );

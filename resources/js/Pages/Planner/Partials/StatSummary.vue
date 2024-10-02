@@ -28,23 +28,23 @@ const calculatedStats = computed(() => statCalculationStore);
     <p class="font-bold mt-3 mb-1">Resistances</p>
     <p class="flex justify-between">
         <span>Fire</span>
-        <span>{{ calculatedStats.resistances.fire }}%</span>
+        <span>{{ calculatedStats.cappedResistances.fire }}%</span>
     </p>
     <p class="flex justify-between">
         <span>Cold</span>
-        <span>{{ calculatedStats.resistances.cold }}%</span>
+        <span>{{ calculatedStats.cappedResistances.cold }}%</span>
     </p>
     <p class="flex justify-between">
         <span>Lightning</span>
-        <span>{{ calculatedStats.resistances.lightning }}%</span>
+        <span>{{ calculatedStats.cappedResistances.lightning }}%</span>
     </p>
     <p class="flex justify-between">
         <span>Poison</span>
-        <span>{{ calculatedStats.resistances.poison }}%</span>
+        <span>{{ calculatedStats.cappedResistances.poison }}%</span>
     </p>
     <p class="flex justify-between">
         <span>Curse</span>
-        <span>{{ calculatedStats.resistances.curse }}%</span>
+        <span>{{ calculatedStats.cappedResistances.curse }}%</span>
     </p>
 
     <p class="font-bold mt-3 mb-1">Defense</p>

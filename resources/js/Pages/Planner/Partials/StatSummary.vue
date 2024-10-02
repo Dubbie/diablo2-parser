@@ -110,4 +110,8 @@ const dexterityBelowRequired = computed(() => {
             <span>{{ calculatedStats.weapon.attackDamage.max }}</span>
         </p>
     </p>
+    <p class="flex justify-between">
+        <span>Attack Rating</span>
+        <span>{{ calculatedStats.weapon.attackRating }}</span>
+    </p>
 </template>

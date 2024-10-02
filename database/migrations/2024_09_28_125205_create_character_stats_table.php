@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedInteger('life_per_vitality');
             $table->unsignedInteger('stat_per_level');
             $table->unsignedInteger('base_block');
+            $table->integer('to_hit_factor');
             $table->timestamps();
         });
     }

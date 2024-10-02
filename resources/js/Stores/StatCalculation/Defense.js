@@ -1,6 +1,6 @@
 import { useStatCalculationStore } from "@/Stores/StatCalculationStore";
 import { useCharacterStore } from "@/Stores/CharacterStore";
-import { applyModifiers, isItemUsable } from "@/Stores/StatCalculation/Utils";
+import { applyModifiers } from "@/Stores/StatCalculation/Utils";
 
 export const calculateFinalDefense = () => {
     const statStore = useStatCalculationStore(); // Access stat calculation store

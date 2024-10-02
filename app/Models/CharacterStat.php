@@ -20,6 +20,7 @@ class CharacterStat extends Model
         'life_per_vitality',
         'stat_per_level',
         'base_block',
+        'to_hit_factor',
     ];
 
     protected $casts = [

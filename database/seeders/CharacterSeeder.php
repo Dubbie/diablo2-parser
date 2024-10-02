@@ -41,6 +41,7 @@ class CharacterSeeder extends FromFileSeeder
                 'life_per_vitality' => $this->getActualValue($line['LifePerVitality']),
                 'stat_per_level' => $this->getActualValue($line['StatPerLevel']),
                 'base_block' => $this->getActualValue($line['BlockFactor']),
+                'to_hit_factor' => $this->getActualValue($line['ToHitFactor']),
             ];
 
             CharacterStat::create($char);

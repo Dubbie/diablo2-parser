@@ -1,13 +1,22 @@
 import { defineStore } from "pinia";
-import { useCharacterStore } from "@/Stores/CharacterStore";
 import { calculateFinalAttributes } from "@/Stores/StatCalculation/Attributes";
 import { calculateFinalResistances } from "@/Stores/StatCalculation/Resistances";
 import { calculateFinalDefense } from "@/Stores/StatCalculation/Defense";
+import { calculateFinalWeapon } from "@/Stores/StatCalculation/Weapon";
 
 const BASE_RES_MAX = 75;
 
 export const useStatCalculationStore = defineStore("statCalculation", {
     state: () => ({
+        weapon: {
+            range: 0,
+            attackRating: 0,
+            attackDamage: {
+                min: 0,
+                max: 0,
+            },
+            attackSpeed: 0,
+        },
         attributes: {
             strength: 0,
             dexterity: 0,
@@ -82,6 +91,7 @@ export const useStatCalculationStore = defineStore("statCalculation", {
             calculateFinalAttributes();
             calculateFinalResistances();
             calculateFinalDefense();
+            calculateFinalWeapon();
         },
     },
 });

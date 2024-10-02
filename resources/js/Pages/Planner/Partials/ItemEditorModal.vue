@@ -34,11 +34,13 @@ const closeModal = () => {
         <div class="p-4">
             <p class="font-semibold mb-3">Item Editor</p>
 
-            <div class="flex items-center space-x-4">
-                <ItemDisplay
-                    :item="selectedItem"
-                    tooltip-position="top-right"
-                />
+            <div class="flex space-x-4">
+                <div>
+                    <ItemDisplay
+                        :item="selectedItem"
+                        tooltip-position="top-right"
+                    />
+                </div>
             </div>
 
             <p

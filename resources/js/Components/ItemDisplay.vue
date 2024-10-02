@@ -33,17 +33,21 @@ const showingTooltip = ref(false);
     <component
         :is="attachLink ? Link : 'div'"
         :href="attachLink ? route('items.show', item.id) : ''"
-        class="relative max-h-full max-w-full"
+        class="relative flex items-center justify-center h-full w-full"
     >
         <div
-            class="inline-flex justify-center items-center"
+            class="max-w-full max-h-full h-full w-full flex justify-center items-center"
             :class="{
                 'bg-black/40': background,
             }"
             @mouseenter="showingTooltip = true"
             @mouseleave="showingTooltip = false"
         >
-            <img :src="`/img/${item.image}.png`" :alt="item.full_name" />
+            <img
+                :src="`/img/${item.image}.png`"
+                class="block max-w-full max-h-full"
+                :alt="item.full_name"
+            />
         </div>
         <transition
             enter-active-class="transition transform ease-out duration-200"

@@ -1,6 +1,6 @@
 import { useStatCalculationStore } from "@/Stores/StatCalculationStore";
 import { useCharacterStore } from "@/Stores/CharacterStore";
-import { applyModifiers } from "@/Stores/StatCalculation/Utils"; // Adjust the path as needed
+import { applyModifiers } from "@/Stores/StatCalculation/Utils";
 
 const RESISTANCE_MODIFIERS = {
     fire: ["fireresist", "all_resist"],

@@ -1,6 +1,6 @@
 import { useStatCalculationStore } from "@/Stores/StatCalculationStore";
 import { useCharacterStore } from "@/Stores/CharacterStore";
-import { applyModifiers, isItemUsable } from "@/Stores/StatCalculation/Utils"; // Adjust the path as needed
+import { applyModifiers, isItemUsable } from "@/Stores/StatCalculation/Utils";
 
 export const calculateFinalDefense = () => {
     const statStore = useStatCalculationStore(); // Access stat calculation store
@@ -18,9 +18,7 @@ export const calculateFinalDefense = () => {
     );
 };
 
-const updateDefense = function (item) {
-    if (!item || isItemUsable(item)) return;
-
+export const updateDefense = function (item) {
     const defenseValue = item.calculated_stats?.defense?.value || 0;
 
     if (defenseValue) {
@@ -34,8 +32,4 @@ const updateDefense = function (item) {
             this.defense += parseInt(values.value);
         }
     });
-};
-
-export default {
-    calculateFinalDefense,
 };

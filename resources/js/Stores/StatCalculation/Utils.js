@@ -2,6 +2,7 @@
 
 import { useStatCalculationStore } from "@/Stores/StatCalculationStore"; // Import the stat calculation store
 import { useCharacterStore } from "@/Stores/CharacterStore"; // Import the character store
+import { updateDefense } from "./Defense";
 
 export function applyModifiers(
     equippedItems,
@@ -11,6 +12,11 @@ export function applyModifiers(
 ) {
     Object.values(equippedItems).forEach((item) => {
         if (!item || !isItemUsable(item)) return; // Check if item is usable
+
+        if (updateFunction === updateDefense) {
+            updateFunction.call(context, item);
+            return;
+        }
 
         item.modifiers.forEach((modifier) => {
             const { name } = modifier;

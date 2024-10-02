@@ -49,10 +49,11 @@ const finalAttributes = computed(() => {
                     </span>
                 </p>
 
-                <div class="bg-black/40 rounded-l-xl">
+                <div class="bg-black/40 rounded-l-lg">
                     <AppButton
                         square
                         size="xs"
+                        :disabled="value.mod === 0"
                         @click="
                             (event) =>
                                 characterStore.adjustAttribute(
@@ -74,7 +75,7 @@ const finalAttributes = computed(() => {
                     </p>
                 </div>
 
-                <div class="bg-black/40 rounded-r-xl">
+                <div class="bg-black/40 rounded-r-lg">
                     <AppButton
                         square
                         size="xs"

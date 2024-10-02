@@ -55,12 +55,14 @@ export const updateWeapon = (characterStore, statStore) => {
     for (const slot in equippedItems) {
         const item = equippedItems[slot];
 
-        // Skip weapon slots for maxdamage_percent
         if (!item || !isItemUsable(item)) continue;
 
         // Check for damage modifiers
         Object.values(item.modifiers).forEach((modifier) => {
-            if (modifier.name === "maxdamage_percent") {
+            if (
+                modifier.name === "maxdamage_percent" &&
+                !WEAPON_SLOTS.includes(slot)
+            ) {
                 const value = parseInt(modifier?.values?.value) / 100 || 0;
                 damageMultiplier += value;
             }

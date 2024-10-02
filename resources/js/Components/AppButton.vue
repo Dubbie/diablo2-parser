@@ -113,7 +113,7 @@ const squareClasses = computed(() => {
     <component
         :is="href ? Link : 'button'"
         :href="href"
-        class="relative flex items-center justify-center space-x-2 font-semibold"
+        class="relative flex items-center justify-center space-x-2 font-medium"
         :class="[
             colorClasses,
             sizeClasses,

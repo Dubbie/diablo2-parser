@@ -30,7 +30,7 @@ const closeModal = () => {
 </script>
 
 <template>
-    <Modal :show="isVisible" @close="closeModal">
+    <Modal :show="isVisible" @close="closeModal" max-width="md">
         <div class="p-4">
             <p class="font-semibold mb-3">Item Editor</p>
 
@@ -44,7 +44,7 @@ const closeModal = () => {
             </div>
 
             <p
-                class="my-3 border-b border-white/10 font-bold"
+                class="my-3 border-b border-white/10 font-semibold"
                 :style="{ color: selectedItem.name_color }"
             >
                 {{ selectedItem.unique ? "Unique" : "Normal" }}
@@ -62,7 +62,7 @@ const closeModal = () => {
                 </div>
             </div>
 
-            <div class="flex space-x-2 justify-end">
+            <div class="flex space-x-2 justify-end mt-3">
                 <AppButton plain @click="closeModal">Cancel</AppButton>
                 <AppButton color="blue" @click="saveItem"
                     >Add to character</AppButton

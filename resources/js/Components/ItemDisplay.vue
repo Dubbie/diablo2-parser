@@ -30,36 +30,34 @@ const showingTooltip = ref(false);
 </script>
 
 <template>
-    <div class="relative flex justify-center items-center">
-        <component
-            :is="attachLink ? Link : 'div'"
-            :href="attachLink ? route('items.show', item.id) : ''"
-            class="inline-block relative"
+    <component
+        :is="attachLink ? Link : 'div'"
+        :href="attachLink ? route('items.show', item.id) : ''"
+        class="relative max-h-full max-w-full"
+    >
+        <div
+            class="inline-flex justify-center items-center"
+            :class="{
+                'bg-black/40': background,
+            }"
+            @mouseenter="showingTooltip = true"
+            @mouseleave="showingTooltip = false"
         >
-            <div
-                class="inline-flex justify-center items-center"
-                :class="{
-                    'bg-black/40': background,
-                }"
-                @mouseenter="showingTooltip = true"
-                @mouseleave="showingTooltip = false"
-            >
-                <img :src="`/img/${item.image}.png`" :alt="item.full_name" />
-            </div>
-            <transition
-                enter-active-class="transition transform ease-out duration-200"
-                enter-from-class="-translate-x-3 opacity-0"
-                enter-to-class="translate-x-0 opacity-100"
-                leave-active-class="transition transform ease-in duration-100"
-                leave-from-class="translate-x-0 opacity-100"
-                leave-to-class="-translate-x-3 opacity-0"
-            >
-                <ItemTooltip
-                    :item="item"
-                    v-show="showingTooltip"
-                    :position="tooltipPosition"
-                />
-            </transition>
-        </component>
-    </div>
+            <img :src="`/img/${item.image}.png`" :alt="item.full_name" />
+        </div>
+        <transition
+            enter-active-class="transition transform ease-out duration-200"
+            enter-from-class="-translate-x-3 opacity-0"
+            enter-to-class="translate-x-0 opacity-100"
+            leave-active-class="transition transform ease-in duration-100"
+            leave-from-class="translate-x-0 opacity-100"
+            leave-to-class="-translate-x-3 opacity-0"
+        >
+            <ItemTooltip
+                :item="item"
+                v-show="showingTooltip"
+                :position="tooltipPosition"
+            />
+        </transition>
+    </component>
 </template>

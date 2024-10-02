@@ -110,7 +110,7 @@ const isActiveSlot = (slot) => {
         <div
             v-for="(position, slot) in slotData"
             :key="slot"
-            class="absolute flex justify-center items-center"
+            class="absolute"
             :style="position"
             :class="{
                 'hover:bg-yellow-300/20': !isActiveSlot(slot),

@@ -87,6 +87,10 @@ const statGroupTitleClass = "font-semibold text-sm text-zinc-500 mb-1";
         <div>
             <p :class="statGroupTitleClass">Defense</p>
             <StatDisplay label="Defense" :value="calculatedStats.defense" />
+            <StatDisplay
+                label="Block Chance"
+                :value="calculatedStats.block + '%'"
+            />
         </div>
 
         <div>

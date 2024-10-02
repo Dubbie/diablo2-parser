@@ -7,6 +7,10 @@ const props = defineProps({
         required: true,
     },
     stat: Object,
+    percent: {
+        type: Boolean,
+        default: false,
+    },
     compare: Number,
 });
 
@@ -15,6 +19,11 @@ const displayValue = computed(() => {
     if (props.stat.value && props.stat.value.min !== undefined) {
         return `${props.stat.value.min} to ${props.stat.value.max}`;
     }
+
+    if (props.percent) {
+        return `${props.stat.value}%`;
+    }
+
     return props.stat.value;
 });
 

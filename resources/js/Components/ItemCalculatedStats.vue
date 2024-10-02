@@ -41,6 +41,11 @@ const getStat = (key) => calculatedStats.value[key];
                 :stat="getStat('damage')?.missile"
             />
             <StatDisplay
+                label="Chance to Block"
+                :stat="getStat('block')"
+                percent
+            />
+            <StatDisplay
                 label="Required Dexterity"
                 :stat="getStat('required_dex')"
                 :compare="attributes.dexterity"

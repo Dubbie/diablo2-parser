@@ -2,7 +2,7 @@
 
 import { useStatCalculationStore } from "@/Stores/StatCalculationStore"; // Import the stat calculation store
 import { useCharacterStore } from "@/Stores/CharacterStore"; // Import the character store
-import { updateDefense } from "./Defense";
+import { updateDefense, updateBlock } from "./Defense";
 
 const WEAPON_SLOTS = ["larm", "rarm"]; // Define weapon slots to skip
 
@@ -15,7 +15,10 @@ export function applyModifiers(
     Object.values(equippedItems).forEach((item) => {
         if (!item || !isItemUsable(item)) return; // Check if item is usable
 
-        if (updateFunction === updateDefense) {
+        if (
+            updateFunction === updateDefense ||
+            updateFunction === updateBlock
+        ) {
             updateFunction.call(context, item);
             return;
         }

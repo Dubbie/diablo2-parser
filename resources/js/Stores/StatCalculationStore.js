@@ -52,6 +52,7 @@ export const useStatCalculationStore = defineStore("statCalculation", {
             },
         },
         defense: 0,
+        block: 0,
     }),
 
     getters: {

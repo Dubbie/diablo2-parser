@@ -4,6 +4,8 @@ import { useStatCalculationStore } from "@/Stores/StatCalculationStore"; // Impo
 import { useCharacterStore } from "@/Stores/CharacterStore"; // Import the character store
 import { updateDefense } from "./Defense";
 
+const WEAPON_SLOTS = ["larm", "rarm"]; // Define weapon slots to skip
+
 export function applyModifiers(
     equippedItems,
     modifierMappings,
@@ -46,3 +48,17 @@ export function isItemUsable(item) {
         characterStore.character.level >= requiredLevel
     );
 }
+
+// Parse a value safely, falling back to a default if parsing fails
+export const parseModifierValue = (modifier, key = "value", fallback = 0) =>
+    parseInt(modifier?.values?.[key]) || fallback;
+
+// Apply modifier if the slot is not a weapon
+export const applyModifierIfNotWeapon = (slot, modifier, effectFn) => {
+    if (!WEAPON_SLOTS.includes(slot)) {
+        effectFn();
+    }
+};
+
+// Constants for elemental types
+export const ELEMENTAL_TYPES = ["fire", "lightning", "cold", "poison", "magic"];

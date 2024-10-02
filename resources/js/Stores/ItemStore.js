@@ -20,7 +20,6 @@ export const useItemStore = defineStore("item", {
 
             // Abort the previous request if it's still ongoing
             if (this.abortController) {
-                console.log("Aborting previous request");
                 this.abortController.abort(); // Abort the previous request
             }
 
@@ -28,7 +27,6 @@ export const useItemStore = defineStore("item", {
             this.abortController = new AbortController();
 
             try {
-                console.log("Fetching items with query:", this.q);
                 const response = await axios.get(route("api.items.fetch"), {
                     params: {
                         slot: this.slot,
@@ -39,7 +37,6 @@ export const useItemStore = defineStore("item", {
                 });
 
                 this.items = response.data; // Assuming the API returns an array of items
-                console.log("Items fetched:", this.items);
             } catch (error) {
                 if (error.name === "AbortError") {
                     console.log("Fetch aborted:", error.message);

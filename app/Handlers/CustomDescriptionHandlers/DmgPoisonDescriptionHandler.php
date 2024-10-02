@@ -19,7 +19,7 @@ class DmgPoisonDescriptionHandler extends BaseDamageHandler
         $statString = $modifierLabel->label;
         $template = $modifierLabel->template;
         $template .= ' Over [duration] Seconds';
-        str_replace('[duration]', $modifier->getValues()['value'], $template);
+        $template = str_replace('[duration]', $modifier->getValues()['value'], $template);
         $statString .= ' Over ' . $modifier->getValues()['value'] . ' Seconds';
         $template = str_replace('Adds ', '+', $template);
         $statString = str_replace('Adds ', '+', $statString);

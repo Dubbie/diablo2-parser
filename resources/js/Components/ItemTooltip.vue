@@ -1,5 +1,6 @@
 <script setup>
 import { computed, inject } from "vue";
+import { useCharacterStore } from "@/Stores/CharacterStore";
 import ItemCalculatedStats from "@/Components/ItemCalculatedStats.vue";
 
 const props = defineProps({
@@ -13,6 +14,9 @@ const props = defineProps({
     },
 });
 
+const characterStore = useCharacterStore();
+const level = computed(() => characterStore.character.level);
+
 const positionClasses = computed(() => {
     return {
         left: "left-0",
@@ -23,6 +27,14 @@ const positionClasses = computed(() => {
 
 const getModifierLabel = (modifier) => {
     let template = modifier.template;
+
+    if (isPerLevelModifier(modifier)) {
+        const perLevel = modifier.values.perLevel; // Get the per level value
+        const newValue = Math.floor(perLevel * level.value);
+
+        // Replace the values inside brackets
+        template = modifier.template.replace(/\[\d+-\d+\]/, `${newValue}`);
+    }
 
     if (modifier.range.value && modifier.values.value) {
         template = template.replace("[value]", modifier.values.value);

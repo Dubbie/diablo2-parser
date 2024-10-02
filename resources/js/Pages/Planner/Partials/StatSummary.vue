@@ -103,6 +103,9 @@ const statGroupTitleClass = "font-semibold text-sm text-zinc-500 mb-1";
                     calculatedStats.totalMaxDamage
                 "
             />
+
+            <hr class="my-2 border-white/10"></hr>
+
             <DamageStatDisplay
                 label="Physical"
                 :min="calculatedStats.weapon.attackDamage.physical.min"
@@ -123,6 +126,8 @@ const statGroupTitleClass = "font-semibold text-sm text-zinc-500 mb-1";
                 "
                 :label-class="damage.class"
             />
+            <hr class="my-2 border-white/10"></hr>
+
             <StatDisplay
                 label="Attack Rating"
                 :value="calculatedStats.weapon.attackRating"

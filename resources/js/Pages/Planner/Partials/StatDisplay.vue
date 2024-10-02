@@ -10,6 +10,6 @@ const props = defineProps({
 <template>
     <p class="flex justify-between text-xs">
         <span :class="labelClass">{{ label }}</span>
-        <span :class="valueClass">{{ value }}</span>
+        <span class="font-medium" :class="valueClass">{{ value }}</span>
     </p>
 </template>

@@ -10,9 +10,9 @@ const props = defineProps({
 <template>
     <p class="flex justify-between text-xs" v-if="min || max">
         <span :class="labelClass">{{ label }}</span>
-        <p v-if="min !== max">
+        <p class="font-medium" v-if="min !== max">
             <span>{{ min }}</span> - <span>{{ max }}</span>
         </p>
-        <p v-else>+{{ min }}</p>
+        <p class="font-medium" v-else>+{{ min }}</p>
     </p>
 </template>

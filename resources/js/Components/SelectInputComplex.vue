@@ -80,8 +80,8 @@ const emit = defineEmits(["update:model-value"]);
                     <div
                         class="px-2 py-1 rounded-lg cursor-pointer text-sm"
                         :class="{
-                            'bg-indigo-600 text-white': active,
-                            'bg-zinc-600 font-medium': selected,
+                            'bg-indigo-600 text-white': selected,
+                            'bg-white/15': active && !selected,
                         }"
                     >
                         <p>{{ option.label }}</p>

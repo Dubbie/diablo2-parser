@@ -8,7 +8,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <p class="flex justify-between" v-if="min || max">
+    <p class="flex justify-between text-xs" v-if="min || max">
         <span :class="labelClass">{{ label }}</span>
         <p v-if="min !== max">
             <span>{{ min }}</span> - <span>{{ max }}</span>

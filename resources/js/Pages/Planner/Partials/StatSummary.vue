@@ -42,7 +42,7 @@ const weaponElementalDamage = [
     { label: "Magic", key: "magic", class: "text-blue-400" },
 ];
 
-const statGroupTitleClass = "font-bold text-sm text-zinc-500 mb-1";
+const statGroupTitleClass = "font-semibold text-sm text-zinc-500 mb-1";
 </script>
 
 <template>

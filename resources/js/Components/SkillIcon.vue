@@ -1,4 +1,5 @@
 <script setup>
+import { useCharacterStore } from "@/Stores/CharacterStore";
 import { computed, ref } from "vue";
 
 const props = defineProps({
@@ -8,6 +9,14 @@ const props = defineProps({
     },
     size: {
         type: Number,
+        required: true,
+    },
+    isAllocatable: {
+        type: Boolean,
+        required: true,
+    },
+    isUsable: {
+        type: Boolean,
         required: true,
     },
 });
@@ -28,38 +37,56 @@ const formattedDescription = computed(() => {
         reversedDescription.slice(1)
     );
 });
+
+const imageSrc = computed(() => {
+    return `/img/skills/${props.skill.description.icon_usable}`;
+});
 </script>
 
 <template>
     <div>
         <div class="relative">
-            <img
-                :src="`/img/skills/${skill.description.icon_usable}`"
-                :alt="skill.description.name"
-                class="block"
-                :style="{
-                    width: `${size}px`,
-                    height: `${size}px`,
+            <div class="bg-black relative group">
+                <img
+                    :src="imageSrc"
+                    :alt="skill.description.name"
+                    class="relative block"
+                    :style="{
+                        width: `${size}px`,
+                        height: `${size}px`,
+                    }"
+                    :class="{
+                        'opacity-50': !isAllocatable && !isUsable,
+                    }"
+                    @mouseenter="showingTooltip = true"
+                    @mouseleave="showingTooltip = false"
+                />
+            </div>
+
+            <p
+                class="select-none absolute inline-flex items-center justify-center top-full left-full -translate-y-2 -translate-x-1 rounded-md text-xs font-semibold bg-black/40 text-center size-5"
+                :class="{
+                    'text-transparent': skill.level === 0,
                 }"
-                @mouseenter="showingTooltip = true"
-                @mouseleave="showingTooltip = false"
-            />
+            >
+                {{ skill.level }}
+            </p>
 
             <div
-                class="absolute top-full left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur z-10 p-2 text-center text-sm whitespace-nowrap"
+                class="absolute top-full left-1/2 translate-y-3 -translate-x-1/2 bg-black/80 backdrop-blur z-10 p-2 text-center text-sm whitespace-nowrap"
                 v-show="showingTooltip"
             >
                 <p class="mb-2 text-lime-400">{{ skill.description.name }}</p>
 
                 <div class="text-xs">
                     <p v-html="formattedDescription"></p>
-
                     <p
-                        v-for="dsc2 in skill.description.lines.filter(
-                            (dsc) => dsc.type === 2
-                        )"
+                        v-if="
+                            skill.required_level_accr >
+                            useCharacterStore().character.level
+                        "
                     >
-                        {{ dsc2.formatted }}
+                        Required Level: {{ skill.required_level_accr }}
                     </p>
                 </div>
             </div>

@@ -50,6 +50,6 @@ class SkillDescription extends Model
     {
         return $this->hasMany(SkillDescriptionLine::class)
             ->orderBy('type', 'asc')
-            ->orderBy('priority', 'asc');
+            ->orderBy('priority', 'desc');
     }
 }

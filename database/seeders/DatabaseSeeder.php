@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call(StatSeeder::class);
         $this->call(CharacterSeeder::class);
         $this->call(SkillSeeder::class);
+        $this->call(SkillDescriptionSeeder::class);
         $this->call(MonsterSeeder::class);
         $this->call(PropertySeeder::class);
         $this->call(WeaponSeeder::class);

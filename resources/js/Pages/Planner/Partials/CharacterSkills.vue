@@ -18,8 +18,6 @@ const skillPages = computed(() => {
             skill.description.skill_column > 0 &&
             skill.description.skill_row > 0
         ) {
-            console.log(`"Adding ${skill.description.name} to Page: ${page}"`);
-
             pages[page].push(skill);
         }
     });
@@ -29,7 +27,7 @@ const skillPages = computed(() => {
 const cols = 3;
 const rows = 6;
 const size = 48;
-const gap = 10; // Add a gap of 10px between icons
+const gap = 20; // Add a gap of 10px between icons
 const padding = 20;
 
 const maxWidth = computed(() => {
@@ -39,6 +37,16 @@ const maxWidth = computed(() => {
 const maxHeight = computed(() => {
     return size * rows + gap * (rows - 1) + padding * 2 + "px";
 });
+
+const handleRightClick = (event, skill) => {
+    event.preventDefault();
+
+    if (event.ctrlKey) {
+        skillStore.removeLevel(skill, skill.level); // Remove all points if shift is pressed
+    } else {
+        skillStore.removeLevel(skill, 1); // Remove 1 point on normal right-click
+    }
+};
 
 watch(
     () => characterStore.character.classData.name,
@@ -67,7 +75,6 @@ watch(
             <SkillIcon
                 v-for="skill in skillPages[pageSkills]"
                 :key="skill.id"
-                :skill="skill"
                 class="absolute"
                 :style="{
                     top: `${
@@ -79,7 +86,15 @@ watch(
                         padding
                     }px`,
                 }"
+                :skill="skill"
                 :size="size"
+                :is-allocatable="skillStore.isAllocatable(skill)"
+                :is-usable="skillStore.isUsable(skill)"
+                @click="skillStore.addLevel(skill, 1)"
+                @click.ctrl="
+                    skillStore.addLevel(skill, skill.max_level - skill.level)
+                "
+                @click.right.prevent="handleRightClick($event, skill)"
             />
         </div>
     </div>

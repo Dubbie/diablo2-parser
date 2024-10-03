@@ -58,12 +58,11 @@ onMounted(() => {
                     <!-- <div class="flex-1">
                         <ItemFinder :filter="filter" />
                     </div> -->
+                    <!-- <div class="min-w-[180px] text-sm">
+                    <StatSummary />
+                </div> -->
 
                     <CharacterSkills v-if="hasClassData" />
-                </div>
-
-                <div class="min-w-[180px] text-sm">
-                    <StatSummary />
                 </div>
             </div>
         </div>

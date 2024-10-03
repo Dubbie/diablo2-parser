@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { useStatCalculationStore } from "./StatCalculationStore";
 import { watch } from "vue";
+import { useSkillStore } from "./SkillStore";
 
 export const useCharacterStore = defineStore("character", {
     state: () => ({

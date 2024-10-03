@@ -51,7 +51,17 @@ const formattedDescription = computed(() => {
             >
                 <p class="mb-2 text-lime-400">{{ skill.description.name }}</p>
 
-                <p class="text-xs" v-html="formattedDescription"></p>
+                <div class="text-xs">
+                    <p v-html="formattedDescription"></p>
+
+                    <p
+                        v-for="dsc2 in skill.description.lines.filter(
+                            (dsc) => dsc.type === 2
+                        )"
+                    >
+                        {{ dsc2.formatted }}
+                    </p>
+                </div>
             </div>
         </div>
     </div>

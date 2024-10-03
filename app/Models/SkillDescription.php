@@ -39,8 +39,17 @@ class SkillDescription extends Model
         'damage',
     ];
 
+    protected $with = ['lines'];
+
     public function skill()
     {
         return $this->belongsTo(Skill::class);
+    }
+
+    public function lines()
+    {
+        return $this->hasMany(SkillDescriptionLine::class)
+            ->orderBy('type', 'asc')
+            ->orderBy('priority', 'asc');
     }
 }

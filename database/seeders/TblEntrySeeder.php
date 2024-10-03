@@ -28,7 +28,7 @@ class TblEntrySeeder extends Seeder
         $patch = $this->getEntriesFromFile('app/translations_patch.csv');
         $exp = $this->getEntriesFromFile('app/translations_exp.csv');
 
-        return array_merge($base, $patch, $exp);
+        return array_merge($base, $exp, $patch);
     }
 
     private function getEntriesFromFile(string $path): array

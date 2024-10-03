@@ -5,9 +5,16 @@ namespace Database\Seeders;
 use App\Models\Skill;
 use App\Models\SkillDescription;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class SkillDescriptionSeeder extends FromFileSeeder
 {
+    private const DESC_LINE_TYPE_MAP = [
+        'desc' => 1,
+        'dsc2' => 2,
+        'dsc3' => 3,
+    ];
+
     private const CLASS_MAP = [
         'ama' => 'AmSkillicon_0_[id].png',
         'ass' => 'AsSkillicon_0_[id].png',
@@ -44,6 +51,8 @@ class SkillDescriptionSeeder extends FromFileSeeder
                 continue;
             }
 
+            DB::beginTransaction();
+
             $translateData = [
                 'name_code' => $this->getActualValue($descData['str name']),
                 'short_code' => $this->getActualValue($descData['str short']),
@@ -79,8 +88,37 @@ class SkillDescriptionSeeder extends FromFileSeeder
                 $mappedData[$key] = $code;
             }
 
-            $skill->description()->create($mappedData);
+            $lines = [];
+
+            // Max 6 Desc lines
+            for ($i = 1; $i <= 6; $i++) {
+                $line = $this->getDescLine($descData, 'desc', $i);
+                if ($line) {
+                    $lines[] = $line;
+                }
+            }
+
+            // Max 4 dsc2 lines
+            for ($i = 1; $i <= 4; $i++) {
+                $line = $this->getDescLine($descData, 'dsc2', $i);
+                if ($line) {
+                    $lines[] = $line;
+                }
+            }
+
+            // Max 7 dsc3 lines
+            for ($i = 1; $i <= 7; $i++) {
+                $line = $this->getDescLine($descData, 'dsc3', $i);
+                if ($line) {
+                    $lines[] = $line;
+                }
+            }
+
+            $desc = $skill->description()->create($mappedData);
+            $desc->lines()->createMany($lines);
             $this->command->info(" - Skill description {$mappedData['name']} created (Page: {$mappedData['page']})");
+
+            DB::commit();
         }
     }
 
@@ -95,5 +133,27 @@ class SkillDescriptionSeeder extends FromFileSeeder
         }
 
         return $template;
+    }
+
+    private function getDescLine(array $entry, string $type, int $priority): ?array
+    {
+        if (!$entry["{$type}line{$priority}"]) {
+            return null;
+        }
+
+        $descRaw = [
+            'function' => $this->getActualValue($entry["{$type}line{$priority}"]),
+            'text_a_code' => $this->getActualValue($entry["{$type}texta{$priority}"]),
+            'text_b_code' => $this->getActualValue($entry["{$type}textb{$priority}"]),
+            'calc_a' => $this->getActualValue($entry["{$type}calca{$priority}"]),
+            'calc_b' => $this->getActualValue($entry["{$type}calcb{$priority}"]),
+            'type' => self::DESC_LINE_TYPE_MAP[$type],
+            'priority' => $priority
+        ];
+
+        $descRaw['text_a'] = $this->getTranslatedValue($descRaw['text_a_code'], false);
+        $descRaw['text_b'] = $this->getTranslatedValue($descRaw['text_b_code'], false);
+
+        return $descRaw;
     }
 }

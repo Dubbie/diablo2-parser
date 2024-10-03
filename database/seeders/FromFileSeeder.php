@@ -50,9 +50,9 @@ abstract class FromFileSeeder extends Seeder
         return $value;
     }
 
-    protected function getTranslatedValue(string $value, bool $strict = true): ?string
+    protected function getTranslatedValue(?string $value, bool $strict = true): ?string
     {
-        if ($value === '') {
+        if ($value === '' || $value === null) {
             return null;
         }
 

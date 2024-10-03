@@ -35,6 +35,12 @@ class Skill extends Model
         'original_name',
         'character_class',
         'required_level',
-        'max_level'
+        'max_level',
+        'description_string',
     ];
+
+    public function description()
+    {
+        return $this->hasOne(SkillDescription::class);
+    }
 }

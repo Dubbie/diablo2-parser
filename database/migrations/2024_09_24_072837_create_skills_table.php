@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('character_class')->nullable();
             $table->string('original_name');
+            $table->string('description_string')->nullable();
             $table->unsignedTinyInteger('required_level');
             $table->unsignedTinyInteger('max_level')->nullable();
         });

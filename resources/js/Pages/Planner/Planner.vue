@@ -6,6 +6,7 @@ import CharacterInputs from "./Partials/CharacterInputs.vue";
 import SideTabs from "./Partials/SideTabs.vue";
 import ItemFinder from "@/Components/ItemFinder.vue";
 import StatSummary from "./Partials/StatSummary.vue";
+import CharacterSkills from "./Partials/CharacterSkills.vue";
 
 const props = defineProps({
     debug: {
@@ -21,6 +22,9 @@ const filter = reactive({
 
 const characterStore = useCharacterStore();
 const isLoading = computed(() => characterStore.loading); // Get loading state
+const hasClassData = computed(
+    () => characterStore.character.classData.name ?? null
+);
 
 onMounted(() => {
     characterStore.fetchCharacterClasses();
@@ -45,16 +49,20 @@ onMounted(() => {
             </div>
 
             <div class="flex space-x-4">
-                <div class="w-[383px]">
+                <div class="w-[320px]">
                     <CharacterInputs />
                     <SideTabs class="mt-2" />
                 </div>
 
-                <div class="flex-1">
-                    <ItemFinder :filter="filter" />
+                <div class="flex-1 flex space-x-6">
+                    <!-- <div class="flex-1">
+                        <ItemFinder :filter="filter" />
+                    </div> -->
+
+                    <CharacterSkills v-if="hasClassData" />
                 </div>
 
-                <div class="min-w-[160px] text-sm">
+                <div class="min-w-[180px] text-sm">
                     <StatSummary />
                 </div>
             </div>

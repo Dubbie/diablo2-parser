@@ -35,6 +35,7 @@ class SkillSeeder extends FromFileSeeder
                 'required_level' => $this->getActualValue($skillData['reqlevel']),
                 'max_level' => $this->getActualValue($skillData['maxlvl']),
                 'original_name' => $originalName,
+                'description_string' => $this->getActualValue($skillData['skilldesc']),
             ];
 
             Skill::create($skillRaw);

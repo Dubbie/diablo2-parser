@@ -34,6 +34,19 @@ return new class extends Migration
             $table->string('client_calc_2')->nullable();
             $table->string('client_calc_3')->nullable();
 
+            $table->string('passive_state')->nullable();
+            $table->string('passive_item_type')->nullable();
+            $table->string('passive_stat_1')->nullable();
+            $table->string('passive_calc_1')->nullable();
+            $table->string('passive_stat_2')->nullable();
+            $table->string('passive_calc_2')->nullable();
+            $table->string('passive_stat_3')->nullable();
+            $table->string('passive_calc_3')->nullable();
+            $table->string('passive_stat_4')->nullable();
+            $table->string('passive_calc_4')->nullable();
+            $table->string('passive_stat_5')->nullable();
+            $table->string('passive_calc_5')->nullable();
+
             $table->string('param_1')->nullable();
             $table->string('param_2')->nullable();
             $table->string('param_3')->nullable();

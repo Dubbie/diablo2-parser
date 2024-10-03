@@ -3,7 +3,7 @@ import { useCharacterStore } from "./CharacterStore";
 
 const TEMPLATES = {
     1: "Manathing",
-    2: "S1 + C1 S2",
+    2: "S1 +C1 S2",
     3: "S1 C1 S2",
     4: "S1+C1",
     5: "S1 C1",
@@ -21,15 +21,19 @@ const TEMPLATES = {
     17: "S2S1C1-C2 per second",
     18: "S1",
     40: "S1",
+    51: "S1",
     63: "S1: +C1% S2",
     73: "C1/C2 S1",
 };
 
-const DEBUG_SKILLS = ["Bash"];
+const DEBUG_SKILLS = ["General Mastery"];
 
 export const useSkillStore = defineStore("skill", {
     state: () => ({
         class: null,
+        madm: 0,
+        macr: 0,
+        math: 0,
         skills: [],
         loading: false,
         skillLookup: {},
@@ -67,6 +71,9 @@ export const useSkillStore = defineStore("skill", {
                 return acc;
             }, {});
 
+            // Calculate
+            this.calculatePassives();
+
             this.skills.forEach((skill) => this.generateDescription(skill));
         },
 
@@ -76,6 +83,9 @@ export const useSkillStore = defineStore("skill", {
                 Math.min(skill.level + amount, skill.max_level)
             );
             skill.level = newLevel;
+
+            // Calculate.
+            this.calculatePassives();
 
             // Regenerate description
             this.generateDescription(skill);
@@ -110,6 +120,46 @@ export const useSkillStore = defineStore("skill", {
             const { level } = characterStore.character;
 
             return level >= skill.required_level && skill.level > 0;
+        },
+
+        calculatePassives() {
+            // Reset masteries
+            let _passives = {};
+
+            this.skills.forEach((skill) => {
+                if (skill.level > 0 && skill.passive_state) {
+                    // Loop through the 5 passivestats, apply calculations
+                    for (let i = 1; i <= 5; i++) {
+                        const statKey = `passive_stat_${i}`;
+                        const calcKey = `passive_calc_${i}`;
+                        const stat = skill[statKey];
+                        const calcString = skill[calcKey];
+
+                        if (!stat || !calcString) {
+                            continue;
+                        }
+
+                        // Apply calculations
+                        const result = this.tryCalculate(
+                            skill,
+                            calcString,
+                            skill.level - 1,
+                            true
+                        );
+
+                        // Set the stat
+                        if (!_passives[stat]) {
+                            _passives[stat] = 0;
+                        }
+
+                        _passives[stat] += result;
+                    }
+                }
+            });
+
+            for (const stat in _passives) {
+                this[stat] = _passives[stat];
+            }
         },
 
         generateDescription(skill) {
@@ -209,17 +259,16 @@ export const useSkillStore = defineStore("skill", {
             template = TEMPLATES[func] || template;
 
             if (func === 1) {
-                // Deal with mana cost here.
-                console.log("Manacost:");
-                const manaCost =
-                    (skill.mana + skill.mana_per_level * blvlOverride) *
-                    (Math.pow(2, skill.mana_shift) / 256);
+                return (
+                    skill.description.mana +
+                    this.calculateManaCost(skill, blvlOverride)
+                );
+            }
 
-                if (Number.isInteger(manaCost)) {
-                    return skill.description.mana + manaCost;
-                }
-
-                return skill.description.mana + Math.floor(manaCost * 10) / 10;
+            if (func === 51) {
+                template = textA;
+                template = template.replace("%d", calcA);
+                return template;
             }
 
             if (func === 40) {
@@ -228,14 +277,15 @@ export const useSkillStore = defineStore("skill", {
 
                 switch (calcA) {
                     case 2:
-                        return (
+                        template =
                             "<span class='text-lime-400'>" +
                             template +
-                            "</span>"
-                        );
+                            "</span>";
                     default:
-                        return template;
+                        break;
                 }
+
+                return template;
             }
 
             // Replace placeholders with actual values
@@ -257,6 +307,11 @@ export const useSkillStore = defineStore("skill", {
             }
 
             const blvl = blvlOverride !== null ? blvlOverride : skill.level;
+
+            // madm, macr, math
+            const macr = this.passive_mastery_melee_crit ?? 0;
+            const madm = this.passive_mastery_melee_dmg ?? 0;
+            const math = this.passive_mastery_melee_th ?? 0;
 
             // Attack rating
             const toht = skill.to_hit + skill.to_hit_per_level * blvl;
@@ -302,8 +357,12 @@ export const useSkillStore = defineStore("skill", {
                 edmn: parseInt(edmn),
                 edmx: parseInt(edmx),
                 toht: parseInt(toht),
+                usmc: this.calculateManaCost(skill, blvlOverride, true),
                 enma: edmn,
                 exma: edmx,
+                math: math,
+                macr: macr,
+                madm: madm,
             };
 
             const calculations = {
@@ -313,11 +372,8 @@ export const useSkillStore = defineStore("skill", {
                 clc4: skill.calc_4,
             };
 
-            return this.evaluateCalculation(
-                field,
-                context,
-                calculations,
-                debug
+            return Math.floor(
+                this.evaluateCalculation(field, context, calculations, debug)
             );
         },
 
@@ -360,8 +416,8 @@ export const useSkillStore = defineStore("skill", {
                         (100 * (context.blvl + 6)) +
                     context.par3,
                 dm56: () =>
-                    (110 * context.blvl * (context.par6 - context.par5)) /
-                        (100 * (context.blvl + 6)) +
+                    (110 * (context.blvl + 1) * (context.par6 - context.par5)) /
+                        (100 * (context.blvl + 1 + 6)) +
                     context.par5,
                 dm78: () =>
                     (110 * context.blvl * (context.par8 - context.par7)) /
@@ -448,6 +504,20 @@ export const useSkillStore = defineStore("skill", {
                 console.error("Error evaluating calculation:", error);
                 return calcString; // or some default value
             }
+        },
+
+        calculateManaCost(skill, blvlOverride = null, usmc = false) {
+            const sLvl = blvlOverride ?? skill.level;
+            let manaCost =
+                ((skill.mana + skill.mana_per_level * sLvl) *
+                    Math.pow(2, skill.mana_shift)) /
+                (usmc ? 1 : 256);
+            return Math.max(
+                skill.min_mana,
+                Number.isInteger(manaCost)
+                    ? manaCost
+                    : Math.floor(manaCost * 10) / 10
+            );
         },
     },
 });

@@ -29,6 +29,11 @@ return new class extends Migration
             $table->string('calc_2')->nullable();
             $table->string('calc_3')->nullable();
             $table->string('calc_4')->nullable();
+
+            $table->string('client_calc_1')->nullable();
+            $table->string('client_calc_2')->nullable();
+            $table->string('client_calc_3')->nullable();
+
             $table->string('param_1')->nullable();
             $table->string('param_2')->nullable();
             $table->string('param_3')->nullable();

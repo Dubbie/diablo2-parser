@@ -88,6 +88,40 @@ const imageSrc = computed(() => {
                     >
                         Required Level: {{ skill.required_level_accr }}
                     </p>
+
+                    <div class="mt-3" v-if="skill.dsc2">
+                        <p
+                            v-for="line in skill.dsc2"
+                            :key="line"
+                            v-html="line"
+                        ></p>
+                    </div>
+
+                    <div class="mt-3 space-y-3" v-if="skill.desc">
+                        <div v-for="(group, index) in skill.desc" :key="group">
+                            <p v-if="index === 0">
+                                {{
+                                    skill.level === 0
+                                        ? "First level"
+                                        : "Current Skill Level " + skill.level
+                                }}
+                            </p>
+                            <p v-if="index > 0">Next level</p>
+                            <p
+                                v-for="line in group"
+                                :key="line"
+                                v-html="line"
+                            ></p>
+                        </div>
+                    </div>
+
+                    <div class="mt-3" v-if="skill.dsc3">
+                        <p
+                            v-for="line in skill.dsc3"
+                            :key="line"
+                            v-html="line"
+                        ></p>
+                    </div>
                 </div>
             </div>
         </div>

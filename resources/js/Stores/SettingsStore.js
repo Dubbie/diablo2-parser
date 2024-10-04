@@ -46,7 +46,7 @@ export const useSettingsStore = defineStore("settings", {
                 const response = await axios.get(route("api.theme.fetch"));
 
                 if (response.status === 200) {
-                    this.theme = response.data.theme;
+                    this.theme = response.data.theme ?? THEMES[0].value;
                 }
             } catch (error) {
                 console.error("Request error", error);

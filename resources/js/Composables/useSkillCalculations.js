@@ -7,10 +7,9 @@ export function useSkillCalculations() {
         if (!calcString) return null;
 
         const masteries = getMasteriesBySkill(skill);
-
         const elementalDamage = getElementalDamage(skill, level);
 
-        const context = {
+        let context = {
             blvl: level,
             lvl: level, // Should be overall level, with soft points
             par1: parseInt(skill.param_1),
@@ -21,13 +20,15 @@ export function useSkillCalculations() {
             par6: parseInt(skill.param_6),
             par7: parseInt(skill.param_7),
             par8: parseInt(skill.param_8),
-            toht: skill.to_hit + skill.to_hit_per_level * (level - 1),
             madm: masteries?.madm ? passives[masteries.madm] : 0,
             math: masteries?.math ? passives[masteries.math] : 0,
             macr: masteries?.macr ? passives[masteries.macr] : 0,
             usmc: calculateManaCost(skill, level - 1, true),
             ...elementalDamage,
         };
+
+        const toHit = getToHit(skill, level, context);
+        context.toht = toHit;
 
         const calculations = {
             clc1: skill.calc_1,
@@ -76,6 +77,19 @@ export function useSkillCalculations() {
             edmn: parseInt(edmn + edmnAdd),
             edmx: parseInt(edmx + edmxAdd),
         };
+    };
+
+    const getToHit = (skill, level, context) => {
+        if (skill.to_hit_calc) {
+            return evaluateCalculation(
+                skill.to_hit_calc,
+                { ...context, blvl: level },
+                {}
+            );
+        }
+
+        // Default
+        return skill.to_hit + skill.to_hit_per_level * (blvl - 1);
     };
 
     const evaluateCalculation = (calcString, context, calculations) => {

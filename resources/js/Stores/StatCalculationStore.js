@@ -58,27 +58,39 @@ export const useStatCalculationStore = defineStore("statCalculation", {
     getters: {
         // Getter for capped resistances
         fireResistance(state) {
-            return Math.min(
-                state.resistances.fire.total,
-                state.resistances.fire.max
+            return Math.max(
+                -100,
+                Math.min(
+                    state.resistances.fire.total,
+                    state.resistances.fire.max
+                )
             );
         },
         coldResistance(state) {
-            return Math.min(
-                state.resistances.cold.total,
-                state.resistances.cold.max
+            return Math.max(
+                -100,
+                Math.min(
+                    state.resistances.cold.total,
+                    state.resistances.cold.max
+                )
             );
         },
         lightningResistance(state) {
-            return Math.min(
-                state.resistances.lightning.total,
-                state.resistances.lightning.max
+            return Math.max(
+                -100,
+                Math.min(
+                    state.resistances.lightning.total,
+                    state.resistances.lightning.max
+                )
             );
         },
         poisonResistance(state) {
-            return Math.min(
-                state.resistances.poison.total,
-                state.resistances.poison.max
+            return Math.max(
+                -100,
+                Math.min(
+                    state.resistances.poison.total,
+                    state.resistances.poison.max
+                )
             );
         },
         cappedResistances(state) {

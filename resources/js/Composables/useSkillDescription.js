@@ -224,10 +224,6 @@ export function useSkillDescription() {
 
     const handleDmgBonus = (skill, level) => {
         const data = calculateDmgBonus(skill, level);
-
-        console.log("DMG Bonus: ");
-        console.log(data);
-
         return `Damage: ${data.min}-${data.max}`;
     };
 

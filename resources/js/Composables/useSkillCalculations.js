@@ -281,9 +281,6 @@ export const calculateManaCost = (skill, level = null, usmc = false) => {
 export const calculateDmgBonus = (skill, level = null) => {
     const sLvl = level ?? skill.level;
 
-    console.log("Calculating DMG Bonus for skill:");
-    console.log(skill);
-
     const minDam = skill.min_dam;
     const maxDam = skill.max_dam;
 
@@ -293,7 +290,7 @@ export const calculateDmgBonus = (skill, level = null) => {
     let currentBreakpoint = 0;
 
     // Loop until we hit the skill's level
-    for (let i = 1; i <= level; i++) {
+    for (let i = 1; i <= sLvl; i++) {
         if (i >= breakpoints[currentBreakpoint]) {
             currentBreakpoint++;
         }

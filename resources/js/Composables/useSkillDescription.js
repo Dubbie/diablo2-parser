@@ -140,6 +140,10 @@ export function useSkillDescription() {
 
         // Handle some exceptions
         switch (func) {
+            case 1:
+                const manaCost = calculateManaCost(skill, level - 1);
+
+                return skill.description.mana + manaCost;
             case 51:
                 template = textA.replace("%d", calcA);
                 break;
@@ -178,6 +182,20 @@ export function useSkillDescription() {
 
     const formatText = (text) => {
         return text ? text.split("\\n").reverse().join("<br />") : null;
+    };
+
+    const calculateManaCost = (skill, level = null, usmc = false) => {
+        const sLvl = level ?? skill.level;
+        let manaCost =
+            ((skill.mana + skill.mana_per_level * sLvl) *
+                Math.pow(2, skill.mana_shift)) /
+            (usmc ? 1 : 256);
+        return Math.max(
+            skill.min_mana,
+            Number.isInteger(manaCost)
+                ? manaCost
+                : Math.floor(manaCost * 10) / 10
+        );
     };
 
     // Exported functions

@@ -4,9 +4,7 @@ import { useCharacterStore } from "@/Stores/CharacterStore";
 import { computed, onMounted, reactive } from "vue";
 import CharacterInputs from "./Partials/CharacterInputs.vue";
 import SideTabs from "./Partials/SideTabs.vue";
-import ItemFinder from "@/Components/ItemFinder.vue";
-import StatSummary from "./Partials/StatSummary.vue";
-import CharacterSkills from "./Partials/CharacterSkills.vue";
+import MainTabs from "./Partials/MainTabs.vue";
 
 const props = defineProps({
     debug: {
@@ -55,14 +53,7 @@ onMounted(() => {
                 </div>
 
                 <div class="flex-1 flex space-x-6">
-                    <!-- <div class="flex-1">
-                        <ItemFinder :filter="filter" />
-                    </div> -->
-                    <!-- <div class="min-w-[180px] text-sm">
-                    <StatSummary />
-                </div> -->
-
-                    <CharacterSkills v-if="hasClassData" />
+                    <MainTabs :filter="filter" :has-class-data="hasClassData" />
                 </div>
             </div>
         </div>

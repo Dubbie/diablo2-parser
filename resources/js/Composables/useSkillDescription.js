@@ -20,6 +20,7 @@ const HANDLED_SKILLS = [
     "Stun",
     "Frenzy",
     "Leap",
+    "Concentrate",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {

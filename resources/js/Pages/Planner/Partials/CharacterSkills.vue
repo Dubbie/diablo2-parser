@@ -28,7 +28,7 @@ const cols = 3;
 const rows = 6;
 const size = 48;
 const gap = 20; // Add a gap of 10px between icons
-const padding = 20;
+const padding = 14;
 
 const maxWidth = computed(() => {
     return size * cols + gap * (cols - 1) + padding * 2 + "px";
@@ -48,6 +48,18 @@ const handleRightClick = (event, skill) => {
     }
 };
 
+const shortClassName = computed(() => {
+    return {
+        Barbarian: "bar",
+        Amazon: "ama",
+        Druid: "dru",
+        Necromancer: "nec",
+        Paladin: "pal",
+        Sorceress: "sor",
+        Assasin: "ass",
+    }[characterStore.character.classData.name];
+});
+
 watch(
     () => characterStore.character.classData.name,
     () => {
@@ -60,7 +72,7 @@ watch(
 </script>
 
 <template>
-    <div class="flex items-start space-x-3">
+    <div class="flex items-start space-x-5">
         <div
             v-for="(pageSkills, pageIndex) in [3, 2, 1]"
             :key="pageIndex"
@@ -70,6 +82,15 @@ watch(
                 height: maxHeight,
             }"
         >
+            <div
+                class="absolute top-0 left-0"
+                :style="{
+                    backgroundImage: `url(/img/pages/${shortClassName}/${pageSkills}.png)`,
+                    width: 228 + 'px',
+                    height: 432 + 'px',
+                }"
+            ></div>
+
             <!-- Loop through skills on each page -->
             <SkillIcon
                 v-for="skill in skillPages[pageSkills]"

@@ -196,7 +196,7 @@ export function useSkillDescription() {
         }
 
         // Avoid displaying both calculations if they are the same
-        if (calcA === calcB && template.includes("C1-C2")) {
+        if (template.includes("C1-C2") && level === 1) {
             template = template.replace("C1-C2", "C1");
         }
 

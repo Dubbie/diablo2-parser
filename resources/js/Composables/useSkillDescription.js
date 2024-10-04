@@ -8,6 +8,7 @@ const HANDLED_SKILLS = [
     "Iron Skin",
     "Deep Wounds",
     "Polearm And Spear Mastery",
+    "Increased Speed",
     "Combat Reflexes",
 ];
 const MAX_PASSIVES = 5;

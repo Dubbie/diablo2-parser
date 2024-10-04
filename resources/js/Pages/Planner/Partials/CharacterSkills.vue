@@ -31,11 +31,11 @@ const gap = 20; // Add a gap of 10px between icons
 const padding = 14;
 
 const maxWidth = computed(() => {
-    return size * cols + gap * (cols - 1) + padding * 2 + "px";
+    return size * cols + gap * (cols - 1) + padding * 3 + "px";
 });
 
 const maxHeight = computed(() => {
-    return size * rows + gap * (rows - 1) + padding * 2 + "px";
+    return size * rows + gap * (rows - 1) + padding * 3 + "px";
 });
 
 const handleRightClick = (event, skill) => {
@@ -56,7 +56,7 @@ const shortClassName = computed(() => {
         Necromancer: "nec",
         Paladin: "pal",
         Sorceress: "sor",
-        Assasin: "ass",
+        Assassin: "ass",
     }[characterStore.character.classData.name];
 });
 
@@ -72,7 +72,7 @@ watch(
 </script>
 
 <template>
-    <div class="flex items-start space-x-5">
+    <div class="flex items-start gap-x-1">
         <div
             v-for="(pageSkills, pageIndex) in [3, 2, 1]"
             :key="pageIndex"
@@ -83,11 +83,9 @@ watch(
             }"
         >
             <div
-                class="absolute top-0 left-0"
+                class="absolute inset-0"
                 :style="{
                     backgroundImage: `url(/img/pages/${shortClassName}/${pageSkills}.png)`,
-                    width: 228 + 'px',
-                    height: 432 + 'px',
                 }"
             ></div>
 

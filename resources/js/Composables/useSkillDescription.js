@@ -7,17 +7,17 @@ import {
 
 const HANDLED_SKILLS = [
     // Tested skills
-    // "General Mastery",
-    // "Natural Resistance",
-    // "Throwing Mastery",
-    // "Iron Skin",
-    // "Deep Wounds",
-    // "Polearm And Spear Mastery",
-    // "Increased Speed",
-    // "Combat Reflexes",
-    // "Bash",
-    // "Double Swing",
-    // "Stun",
+    "General Mastery",
+    "Natural Resistance",
+    "Throwing Mastery",
+    "Iron Skin",
+    "Deep Wounds",
+    "Polearm And Spear Mastery",
+    "Increased Speed",
+    "Combat Reflexes",
+    "Bash",
+    "Double Swing",
+    "Stun",
     "Frenzy",
 ];
 const MAX_PASSIVES = 5;
@@ -182,7 +182,12 @@ export function useSkillDescription() {
             case 9:
                 return handleDmgBonus(skill, level);
             case 12:
-                calcA = Math.round((calcA / 25) * 10) / 10;
+                // Check for type2
+                if (line.type === 2) {
+                    calcA = Math.floor(calcA / 25);
+                } else {
+                    calcA = Math.round((calcA / 25) * 10) / 10;
+                }
                 break;
             case 51:
                 template = textA.replace("%d", calcA);

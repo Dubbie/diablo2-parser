@@ -193,16 +193,31 @@ export function useSkillCalculations() {
     };
 
     const replaceMathFunctions = (calcString) => {
-        return calcString
-            .replace(/rand\((\d+),(\d+)\)/g, (_, min, max) =>
-                Math.floor(Math.random() * (max - min + 1) + min)
-            )
-            .replace(/min\((\d+),(\d+)\)/g, (_, val1, val2) =>
-                Math.min(val1, val2)
-            )
-            .replace(/max\((\d+),(\d+)\)/g, (_, val1, val2) =>
-                Math.max(val1, val2)
-            );
+        // Replace rand, min, and max functions with dynamic number of arguments
+        return (
+            calcString
+                // Replace rand(min, max)
+                .replace(/rand\(([^)]+)\)/g, (_, range) => {
+                    const [min, max] = range
+                        .split(",")
+                        .map((expr) => eval(expr.trim())); // Evaluate expressions for min and max
+                    return Math.floor(Math.random() * (max - min + 1) + min);
+                })
+                // Replace min(...) with dynamic number of arguments
+                .replace(/min\(([^)]+)\)/g, (_, values) => {
+                    const args = values
+                        .split(",")
+                        .map((expr) => eval(expr.trim())); // Evaluate each argument expression
+                    return Math.min(...args); // Apply Math.min to the array of evaluated arguments
+                })
+                // Replace max(...) with dynamic number of arguments
+                .replace(/max\(([^)]+)\)/g, (_, values) => {
+                    const args = values
+                        .split(",")
+                        .map((expr) => eval(expr.trim())); // Evaluate each argument expression
+                    return Math.max(...args); // Apply Math.max to the array of evaluated arguments
+                })
+        );
     };
 
     const evaluateExpression = (calcString, originalCalcString, debug) => {

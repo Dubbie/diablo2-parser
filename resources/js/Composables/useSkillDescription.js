@@ -19,6 +19,7 @@ const HANDLED_SKILLS = [
     "Double Swing",
     "Stun",
     "Frenzy",
+    "Leap",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -36,6 +37,7 @@ const TEMPLATES = {
     9: "S1 S2 Damage: +C2",
     12: "S1 C1 seconds",
     18: "S1",
+    19: "S1 C1 Yards",
     40: "(C1:Color)S2S1",
     51: "S1",
     52: "S1+C1-C2S2",
@@ -188,6 +190,9 @@ export function useSkillDescription() {
                 } else {
                     calcA = Math.round((calcA / 25) * 10) / 10;
                 }
+                break;
+            case 19:
+                calcA = Math.round(((calcA * 2) / 3) * 10) / 10;
                 break;
             case 51:
                 template = textA.replace("%d", calcA);

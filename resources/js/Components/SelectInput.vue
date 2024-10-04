@@ -17,7 +17,14 @@ const props = defineProps({
         type: String,
         default: "Please choose...",
     },
-    options: Array,
+    options: {
+        type: Array,
+        required: true,
+    },
+    dropdownPosition: {
+        type: String,
+        default: "left",
+    },
 });
 
 const selectedOption = computed(() => {
@@ -39,6 +46,13 @@ const handleChange = (newValue) => {
 };
 
 const emit = defineEmits(["update:model-value"]);
+
+const dropdownPositionClasses = computed(() => {
+    return {
+        left: "left-0",
+        right: "right-0",
+    }[props.dropdownPosition];
+});
 </script>
 
 <template>
@@ -50,10 +64,10 @@ const emit = defineEmits(["update:model-value"]);
         v-slot="{ open }"
     >
         <ListboxButton
-            class="py-2 px-3 text-sm border-none bg-white/5 ring-inset text-white w-full"
+            class="py-2 px-3 text-sm border-none bg-transparent rounded-xl ring-1 ring-inset text-white w-full"
             :class="{
                 'ring-2 ring-indigo-500': open,
-                'hover:ring-white/30': !open,
+                'ring-white/10 hover:ring-white/30': !open,
             }"
         >
             <div class="flex justify-between">
@@ -69,7 +83,8 @@ const emit = defineEmits(["update:model-value"]);
             leave-to-class="opacity-100"
         >
             <ListboxOptions
-                class="absolute top-full left-0 z-10 bg-zinc-800 p-1 rounded-xl border border-white/15 mt-1 max-h-64 overflow-y-scroll shadow-lg shadow-black/5"
+                class="absolute top-full z-10 bg-zinc-800 p-1 rounded-xl border border-white/15 mt-1 max-h-64 overflow-y-scroll shadow-lg shadow-black/5"
+                :class="dropdownPositionClasses"
             >
                 <ListboxOption
                     v-for="option in options"

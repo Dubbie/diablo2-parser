@@ -1,11 +1,13 @@
 <script setup>
 import SkillIcon from "@/Components/SkillIcon.vue";
 import { useCharacterStore } from "@/Stores/CharacterStore";
+import { useSettingsStore } from "@/Stores/SettingsStore";
 import { useSkillStore } from "@/Stores/SkillStore";
 import { computed, watch } from "vue";
 
 const skillStore = useSkillStore();
 const characterStore = useCharacterStore();
+const settingsStore = useSettingsStore();
 
 // Group skills by page and ensure valid page numbers
 const skillPages = computed(() => {
@@ -24,6 +26,7 @@ const skillPages = computed(() => {
     return pages;
 });
 
+const theme = computed(() => settingsStore.theme);
 const cols = 3;
 const rows = 6;
 const size = 48;
@@ -69,6 +72,13 @@ watch(
         immediate: true,
     }
 );
+
+const getBgImage = (page) => {
+    return {
+        lod: `url(/img/pages/${shortClassName.value}/${page}.png)`,
+        minimalistic: null,
+    }[theme.value];
+};
 </script>
 
 <template>
@@ -85,7 +95,7 @@ watch(
             <div
                 class="absolute inset-0"
                 :style="{
-                    backgroundImage: `url(/img/pages/${shortClassName}/${pageSkills}.png)`,
+                    backgroundImage: getBgImage(pageSkills),
                 }"
             ></div>
 

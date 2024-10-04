@@ -1,7 +1,7 @@
 <script setup>
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { useCharacterStore } from "@/Stores/CharacterStore";
-import { computed, onMounted, reactive } from "vue";
+import { computed, onMounted } from "vue";
 import CharacterInputs from "./Partials/CharacterInputs.vue";
 import SideTabs from "./Partials/SideTabs.vue";
 import MainTabs from "./Partials/MainTabs.vue";
@@ -11,11 +11,6 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-});
-
-const filter = reactive({
-    slot: null,
-    templates: true,
 });
 
 const characterStore = useCharacterStore();
@@ -53,7 +48,7 @@ onMounted(() => {
                 </div>
 
                 <div class="flex-1 flex space-x-6">
-                    <MainTabs :filter="filter" :has-class-data="hasClassData" />
+                    <MainTabs :has-class-data="hasClassData" />
                 </div>
             </div>
         </div>

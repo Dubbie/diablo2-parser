@@ -10,10 +10,6 @@ const itemStore = useItemStore();
 const slot = computed(() => itemStore.slot);
 
 const props = defineProps({
-    filter: {
-        type: Object,
-        required: true,
-    },
     hasClassData: String,
 });
 
@@ -51,7 +47,7 @@ watch(
         <div class="mt-3">
             <div v-show="activeTab === 'equipment'" class="flex space-x-6">
                 <div class="flex-1">
-                    <ItemFinder :filter="filter" />
+                    <ItemFinder />
                 </div>
                 <div class="min-w-[180px] text-sm">
                     <StatSummary />

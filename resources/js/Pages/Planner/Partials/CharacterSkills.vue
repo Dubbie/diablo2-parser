@@ -61,9 +61,8 @@ watch(
 
 <template>
     <div class="flex items-start space-x-3">
-        <!-- Loop through each skill page (ensure pages 1, 2, 3 are always rendered) -->
         <div
-            v-for="(pageSkills, pageIndex) in [1, 2, 3]"
+            v-for="(pageSkills, pageIndex) in [3, 2, 1]"
             :key="pageIndex"
             class="relative bg-zinc-800 rounded-xl p-5 ring-1 ring-white/15"
             :style="{

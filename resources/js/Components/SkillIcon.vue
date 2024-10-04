@@ -41,6 +41,14 @@ const formattedDescription = computed(() => {
 const imageSrc = computed(() => {
     return `/img/skills/${props.skill.description.icon_usable}`;
 });
+
+const currentLevelLabel = computed(() => {
+    if (props.skill.level === 0) {
+        return "First Level";
+    }
+
+    return `Current Skill Level: ${props.skill.level}`;
+});
 </script>
 
 <template>
@@ -89,38 +97,40 @@ const imageSrc = computed(() => {
                         Required Level: {{ skill.required_level_accr }}
                     </p>
 
-                    <div class="mt-3" v-if="skill.dsc2">
-                        <p
-                            v-for="line in skill.dsc2"
-                            :key="line"
-                            v-html="line"
-                        ></p>
-                    </div>
-
-                    <div class="mt-3 space-y-3" v-if="skill.desc">
-                        <div v-for="(group, index) in skill.desc" :key="group">
-                            <p v-if="index === 0">
-                                {{
-                                    skill.level === 0
-                                        ? "First level"
-                                        : "Current Skill Level " + skill.level
-                                }}
-                            </p>
-                            <p v-if="index > 0">Next level</p>
+                    <div class="space-y-3 mt-3">
+                        <div v-if="skill?.descriptionLines?.details?.length">
                             <p
-                                v-for="line in group"
+                                v-for="line in skill.descriptionLines.details"
                                 :key="line"
                                 v-html="line"
                             ></p>
                         </div>
-                    </div>
 
-                    <div class="mt-3" v-if="skill.dsc3">
-                        <p
-                            v-for="line in skill.dsc3"
-                            :key="line"
-                            v-html="line"
-                        ></p>
+                        <div v-if="skill?.descriptionLines?.current?.length">
+                            <p>{{ currentLevelLabel }}</p>
+                            <p
+                                v-for="line in skill.descriptionLines.current"
+                                :key="line"
+                                v-html="line"
+                            ></p>
+                        </div>
+
+                        <div v-if="skill?.descriptionLines?.next?.length">
+                            <p>Next Level:</p>
+                            <p
+                                v-for="line in skill.descriptionLines.next"
+                                :key="line"
+                                v-html="line"
+                            ></p>
+                        </div>
+
+                        <div v-if="skill?.descriptionLines?.synergies?.length">
+                            <p
+                                v-for="line in skill.descriptionLines.synergies"
+                                :key="line"
+                                v-html="line"
+                            ></p>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -6,18 +6,19 @@ import {
 
 const HANDLED_SKILLS = [
     // Tested skills
-    "General Mastery",
-    "Natural Resistance",
-    "Throwing Mastery",
-    "Iron Skin",
-    "Deep Wounds",
-    "Polearm And Spear Mastery",
-    "Increased Speed",
-    "Combat Reflexes",
-    "Bash",
+    // "General Mastery",
+    // "Natural Resistance",
+    // "Throwing Mastery",
+    // "Iron Skin",
+    // "Deep Wounds",
+    // "Polearm And Spear Mastery",
+    // "Increased Speed",
+    // "Combat Reflexes",
+    // "Bash",
+    // "Double Swing",
 
     // WIP
-    "Double Swing",
+    "Stun",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -32,11 +33,15 @@ const TEMPLATES = {
     5: "S1 C1",
     6: "+C1 S1",
     7: "+C1 S1",
+    9: "S1 S2 Damage: +C2",
+    12: "S1 C1 seconds",
     18: "S1",
     40: "(C1:Color)S2S1",
     51: "S1",
     63: "S1: +C1% S2",
+    73: "C1/C2 S1",
 };
+const DEBUG = true;
 
 export function useSkillDescription() {
     const { skills } = useSkillStore();
@@ -124,12 +129,28 @@ export function useSkillDescription() {
             (line) => line.type === type
         );
 
-        return currentLines.map((line) =>
-            formatDescriptionLine(skill, line, passives, level)
-        );
+        let results = [];
+
+        currentLines.forEach((line) => {
+            if (DEBUG) {
+                results.push(
+                    formatDescriptionLine(skill, line, passives, level, true)
+                );
+            }
+
+            results.push(formatDescriptionLine(skill, line, passives, level));
+        });
+
+        return results;
     };
 
-    const formatDescriptionLine = (skill, line, passives, level = null) => {
+    const formatDescriptionLine = (
+        skill,
+        line,
+        passives,
+        level = null,
+        debug = false
+    ) => {
         const func = line.function;
         const textA = formatText(line.text_a);
         const textB = formatText(line.text_b);
@@ -138,6 +159,15 @@ export function useSkillDescription() {
 
         let template =
             "<span class='text-zinc-400'>Unknown Function (fn: FN, text_a: S1, text_b: S2, calc_a: C1, calc_b: C2)</span>";
+
+        if (debug) {
+            return template
+                .replace("FN", func)
+                .replace("S1", textA)
+                .replace("S2", textB)
+                .replace("C1", calcA)
+                .replace("C2", calcB);
+        }
 
         // Update template
         template = TEMPLATES[func] || template;

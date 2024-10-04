@@ -1,7 +1,7 @@
 import { useSkillStore } from "@/Stores/SkillStore";
 
 export function useSkillCalculations() {
-    const DEBUG = false;
+    const DEBUG = true;
 
     const tryCalculate = (skill, calcString, level, passives = {}) => {
         if (!calcString) return null;
@@ -91,6 +91,9 @@ export function useSkillCalculations() {
         if (DEBUG) console.log("Derived Calculation String: ", safeCalcString);
         safeCalcString = replaceContextVariables(safeCalcString, context);
         if (DEBUG) console.log("Context Calculation String: ", safeCalcString);
+        safeCalcString = replaceMathFunctions(safeCalcString);
+        if (DEBUG)
+            console.log("Math Function Calculation String: ", safeCalcString);
 
         return evaluateExpression(safeCalcString, calcString, DEBUG);
     };
@@ -173,6 +176,19 @@ export function useSkillCalculations() {
             const regex = new RegExp(`\\b${key}\\b`, "g");
             return acc.replace(regex, context[key]);
         }, calcString);
+    };
+
+    const replaceMathFunctions = (calcString) => {
+        return calcString
+            .replace(/rand\((\d+),(\d+)\)/g, (_, min, max) =>
+                Math.floor(Math.random() * (max - min + 1) + min)
+            )
+            .replace(/min\((\d+),(\d+)\)/g, (_, val1, val2) =>
+                Math.min(val1, val2)
+            )
+            .replace(/max\((\d+),(\d+)\)/g, (_, val1, val2) =>
+                Math.max(val1, val2)
+            );
     };
 
     const evaluateExpression = (calcString, originalCalcString, debug) => {

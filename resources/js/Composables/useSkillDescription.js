@@ -2,22 +2,21 @@ import { useSkillStore } from "@/Stores/SkillStore";
 import {
     useSkillCalculations,
     calculateManaCost,
+    calculateDmgBonus,
 } from "@/Composables/useSkillCalculations";
 
 const HANDLED_SKILLS = [
     // Tested skills
-    // "General Mastery",
-    // "Natural Resistance",
-    // "Throwing Mastery",
-    // "Iron Skin",
-    // "Deep Wounds",
-    // "Polearm And Spear Mastery",
-    // "Increased Speed",
-    // "Combat Reflexes",
-    // "Bash",
-    // "Double Swing",
-
-    // WIP
+    "General Mastery",
+    "Natural Resistance",
+    "Throwing Mastery",
+    "Iron Skin",
+    "Deep Wounds",
+    "Polearm And Spear Mastery",
+    "Increased Speed",
+    "Combat Reflexes",
+    "Bash",
+    "Double Swing",
     "Stun",
 ];
 const MAX_PASSIVES = 5;
@@ -41,7 +40,7 @@ const TEMPLATES = {
     63: "S1: +C1% S2",
     73: "C1/C2 S1",
 };
-const DEBUG = true;
+const DEBUG = false;
 
 export function useSkillDescription() {
     const { skills } = useSkillStore();
@@ -178,6 +177,11 @@ export function useSkillDescription() {
                 const manaCost = calculateManaCost(skill, level - 1);
 
                 return skill.description.mana + manaCost;
+            case 9:
+                return handleDmgBonus(skill, level);
+            case 12:
+                calcA = Math.round((calcA / 25) * 10) / 10;
+                break;
             case 51:
                 template = textA.replace("%d", calcA);
                 break;
@@ -216,6 +220,15 @@ export function useSkillDescription() {
 
     const formatText = (text) => {
         return text ? text.split("\\n").reverse().join("<br />") : null;
+    };
+
+    const handleDmgBonus = (skill, level) => {
+        const data = calculateDmgBonus(skill, level);
+
+        console.log("DMG Bonus: ");
+        console.log(data);
+
+        return `Damage: ${data.min}-${data.max}`;
     };
 
     // Exported functions

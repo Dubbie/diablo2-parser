@@ -1,7 +1,7 @@
 import { useSkillStore } from "@/Stores/SkillStore";
 
 export function useSkillCalculations() {
-    const DEBUG = true;
+    const DEBUG = false;
 
     const tryCalculate = (skill, calcString, level, passives = {}) => {
         if (!calcString) return null;
@@ -89,7 +89,7 @@ export function useSkillCalculations() {
         }
 
         // Default
-        return skill.to_hit + skill.to_hit_per_level * (blvl - 1);
+        return skill.to_hit + skill.to_hit_per_level * (level - 1);
     };
 
     const evaluateCalculation = (calcString, context, calculations) => {
@@ -276,4 +276,36 @@ export const calculateManaCost = (skill, level = null, usmc = false) => {
         skill.min_mana,
         Number.isInteger(manaCost) ? manaCost : Math.floor(manaCost * 10) / 10
     );
+};
+
+export const calculateDmgBonus = (skill, level = null) => {
+    const sLvl = level ?? skill.level;
+
+    console.log("Calculating DMG Bonus for skill:");
+    console.log(skill);
+
+    const minDam = skill.min_dam;
+    const maxDam = skill.max_dam;
+
+    let minAdd = 0;
+    let maxAdd = 0;
+    const breakpoints = [2, 9, 17, 23, 28];
+    let currentBreakpoint = 0;
+
+    // Loop until we hit the skill's level
+    for (let i = 1; i <= level; i++) {
+        if (i >= breakpoints[currentBreakpoint]) {
+            currentBreakpoint++;
+        }
+
+        if (currentBreakpoint > 0) {
+            maxAdd += skill[`max_dam_level_${currentBreakpoint}`];
+            minAdd += skill[`min_dam_level_${currentBreakpoint}`];
+        }
+    }
+
+    return {
+        min: minDam + minAdd,
+        max: maxDam + maxAdd,
+    };
 };

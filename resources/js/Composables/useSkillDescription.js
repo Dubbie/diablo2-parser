@@ -87,12 +87,15 @@ export function useSkillDescription() {
                 skill,
                 previewLevel + 1
             );
-            descriptions.next = filterSkillDescriptionLines(
-                skill,
-                DESC_TYPES.DESC,
-                passivesNext,
-                previewLevel + 1
-            );
+
+            if (skill.level < skill.max_level) {
+                descriptions.next = filterSkillDescriptionLines(
+                    skill,
+                    DESC_TYPES.DESC,
+                    passivesNext,
+                    previewLevel + 1
+                );
+            }
         }
 
         // Add synergies

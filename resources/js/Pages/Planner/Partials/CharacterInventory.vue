@@ -101,13 +101,13 @@ const themeClasses = computed(() => {
         lod: {
             inactiveSlot: "bg-black/40 hover:bg-yellow-600/20",
             activeSlot: "bg-yellow-600/20",
-            unusableSlot: "bg-red-400/50",
+            unusableSlot: "bg-red-500/30",
         },
         minimalistic: {
             inactiveSlot:
                 "ring-1 ring-zinc-700 rounded-lg bg-black/40 hover:ring-yellow-400/40 hover:bg-yellow-600/10",
             activeSlot: "rounded-lg ring-1 ring-yellow-400/40 bg-yellow-600/20",
-            unusableSlot: "bg-red-400/50",
+            unusableSlot: "ring-1 ring-red-500 bg-red-500/30",
         },
     }[theme.value];
 });

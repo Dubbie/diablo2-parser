@@ -7,17 +7,18 @@ import {
 
 const HANDLED_SKILLS = [
     // Tested skills
-    "General Mastery",
-    "Natural Resistance",
-    "Throwing Mastery",
-    "Iron Skin",
-    "Deep Wounds",
-    "Polearm And Spear Mastery",
-    "Increased Speed",
-    "Combat Reflexes",
-    "Bash",
-    "Double Swing",
-    "Stun",
+    // "General Mastery",
+    // "Natural Resistance",
+    // "Throwing Mastery",
+    // "Iron Skin",
+    // "Deep Wounds",
+    // "Polearm And Spear Mastery",
+    // "Increased Speed",
+    // "Combat Reflexes",
+    // "Bash",
+    // "Double Swing",
+    // "Stun",
+    "Frenzy",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -37,6 +38,7 @@ const TEMPLATES = {
     18: "S1",
     40: "(C1:Color)S2S1",
     51: "S1",
+    52: "S1+C1-C2S2",
     63: "S1: +C1% S2",
     73: "C1/C2 S1",
 };
@@ -191,6 +193,11 @@ export function useSkillDescription() {
                 break;
             default:
                 break;
+        }
+
+        // Avoid displaying both calculations if they are the same
+        if (calcA === calcB && template.includes("C1-C2")) {
+            template = template.replace("C1-C2", "C1");
         }
 
         const result = template

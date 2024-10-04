@@ -3,6 +3,7 @@ import {
     useSkillCalculations,
     calculateManaCost,
     calculateDmgBonus,
+    calculateArBonus,
 } from "@/Composables/useSkillCalculations";
 
 const HANDLED_SKILLS = [
@@ -21,6 +22,7 @@ const HANDLED_SKILLS = [
     "Frenzy",
     "Leap",
     "Concentrate",
+    "Double Throw",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -35,6 +37,7 @@ const TEMPLATES = {
     5: "S1 C1",
     6: "+C1 S1",
     7: "+C1 S1",
+    8: "Attack Rating Hardcode",
     9: "S1 S2 Damage: +C2",
     12: "S1 C1 seconds",
     18: "S1",
@@ -185,6 +188,11 @@ export function useSkillDescription() {
                 const manaCost = calculateManaCost(skill, level - 1);
 
                 return skill.description.mana + manaCost;
+            case 5:
+                calcA = Math.floor(calcA);
+                break;
+            case 8:
+                return handleArBonus(skill, level);
             case 9:
                 return handleDmgBonus(skill, level);
             case 12:
@@ -246,6 +254,12 @@ export function useSkillDescription() {
     const handleDmgBonus = (skill, level) => {
         const data = calculateDmgBonus(skill, level);
         return `Damage: ${data.min}-${data.max}`;
+    };
+
+    const handleArBonus = (skill, level) => {
+        const data = calculateArBonus(skill, level);
+
+        return `To Attack Rating: +${data}%`;
     };
 
     // Exported functions

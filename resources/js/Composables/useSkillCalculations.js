@@ -321,3 +321,14 @@ export const calculateDmgBonus = (skill, level = null) => {
         max: maxDam + maxAdd,
     };
 };
+
+export const calculateArBonus = (skill, level = null) => {
+    const sLvl = level ?? skill.level;
+
+    if (skill.to_hit_calc) {
+        console.error("to_hit_calc is not supported for out of context yet.");
+    }
+
+    // Default
+    return skill.to_hit + skill.to_hit_per_level * (level - 1);
+};

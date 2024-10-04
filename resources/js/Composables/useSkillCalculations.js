@@ -1,3 +1,5 @@
+import { useSkillStore } from "@/Stores/SkillStore";
+
 export function useSkillCalculations() {
     const DEBUG = false;
 
@@ -19,6 +21,7 @@ export function useSkillCalculations() {
             par6: parseInt(skill.param_6),
             par7: parseInt(skill.param_7),
             par8: parseInt(skill.param_8),
+            toht: skill.to_hit + skill.to_hit_per_level * (level - 1),
             madm: masteries?.madm ? passives[masteries.madm] : 0,
             math: masteries?.math ? passives[masteries.math] : 0,
             macr: masteries?.macr ? passives[masteries.macr] : 0,
@@ -27,6 +30,9 @@ export function useSkillCalculations() {
 
         const calculations = {
             clc1: skill.calc_1,
+            clc2: skill.calc_2,
+            clc3: skill.calc_3,
+            clc4: skill.calc_4,
         };
 
         const calculated = evaluateCalculation(
@@ -35,23 +41,22 @@ export function useSkillCalculations() {
             calculations
         );
 
-        return Math.floor(calculated);
+        return typeof calculated === "number"
+            ? Math.floor(calculated)
+            : calculated;
     };
 
     const getElementalDamage = (skill, blvl) => {
         let edmn = skill.e_min;
         let edmx = skill.e_max;
         let edln = skill.e_len;
-
-        // Adjust elemental damage and length based on breakpoints
         let edmnAdd = 0;
         let edmxAdd = 0;
         let edlnAdd = 0;
-
         const breakpoints = [2, 9, 17, 23, 28];
+        let currentBreakpoint = 0;
 
         // loop until we hit blvl, and add to the appropriate breakpoints
-        let currentBreakpoint = 0;
         for (let i = 1; i <= blvl; i++) {
             if (i >= breakpoints[currentBreakpoint]) {
                 currentBreakpoint++;
@@ -75,12 +80,27 @@ export function useSkillCalculations() {
     const evaluateCalculation = (calcString, context, calculations) => {
         if (DEBUG) console.log("Original Calculation String: ", calcString);
         let safeCalcString = calcString;
-        safeCalcString = replaceDerivedVariables(calcString, context);
+        safeCalcString = replaceCalcVariables(calcString, calculations);
+        if (DEBUG)
+            console.log("Calc Variable Calculation String: ", safeCalcString);
+        safeCalcString = replaceSkillReferences(safeCalcString);
+        if (DEBUG)
+            console.log("Skill Reference Calculation String: ", safeCalcString);
+        safeCalcString = replaceDerivedVariables(safeCalcString, context);
         if (DEBUG) console.log("Derived Calculation String: ", safeCalcString);
         safeCalcString = replaceContextVariables(safeCalcString, context);
         if (DEBUG) console.log("Context Calculation String: ", safeCalcString);
 
         return evaluateExpression(safeCalcString, calcString, DEBUG);
+    };
+
+    const replaceCalcVariables = (calcString, calculations) => {
+        return Object.keys(calculations).reduce((acc, key) => {
+            return acc.replace(
+                new RegExp(`\\b${key}\\b`, "g"),
+                calculations[key]
+            );
+        }, calcString);
     };
 
     const replaceDerivedVariables = (calcString, context) => {
@@ -134,6 +154,17 @@ export function useSkillCalculations() {
     const diminishingFunction = (a, b, level) => {
         // Ensure the level does not go below 1 for diminishing returns
         return (110 * level * (b - a)) / (100 * (level + 6)) + a;
+    };
+
+    const replaceSkillReferences = (calcString) => {
+        return calcString.replace(
+            /skill\('([^']+)'\.blvl\)/g,
+            (match, skillName) => {
+                const skill = skillLookup(skillName);
+                if (!skill) throw new Error(`Skill not found: ${skillName}`);
+                return skill.level || "0";
+            }
+        );
     };
 
     const replaceContextVariables = (calcString, context) => {
@@ -190,6 +221,12 @@ export function useSkillCalculations() {
         });
 
         return masteries;
+    };
+
+    const skillLookup = (skillName) => {
+        // Find the skill inside the skill store
+        const skillStore = useSkillStore();
+        return skillStore.skillLookup[skillName] || null;
     };
 
     return {

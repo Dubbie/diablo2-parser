@@ -7,6 +7,7 @@ export const useSkillStore = defineStore("skill", {
         class: null,
         passives: {},
         skills: [],
+        skillLookup: {},
         loading: false,
         error: null,
     }),
@@ -35,6 +36,12 @@ export const useSkillStore = defineStore("skill", {
                 ...skill,
                 level: 0, // Initialize skill levels to 0
             }));
+
+            // Create a map for quick access to skill levels by name
+            this.skillLookup = this.skills.reduce((acc, skill) => {
+                acc[skill.name] = skill;
+                return acc;
+            }, {});
 
             // Generate descriptions
             const { generateDescriptions } = useSkillDescription();

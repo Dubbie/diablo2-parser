@@ -2,6 +2,7 @@ import { useSkillStore } from "@/Stores/SkillStore";
 import { useSkillCalculations } from "@/Composables/useSkillCalculations";
 
 const HANDLED_SKILLS = [
+    // Tested skills
     "General Mastery",
     "Natural Resistance",
     "Throwing Mastery",
@@ -10,6 +11,9 @@ const HANDLED_SKILLS = [
     "Polearm And Spear Mastery",
     "Increased Speed",
     "Combat Reflexes",
+
+    // WIP
+    "Bash",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {

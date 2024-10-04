@@ -25,6 +25,7 @@ export function useSkillCalculations() {
             madm: masteries?.madm ? passives[masteries.madm] : 0,
             math: masteries?.math ? passives[masteries.math] : 0,
             macr: masteries?.macr ? passives[masteries.macr] : 0,
+            usmc: calculateManaCost(skill, level - 1, true),
             ...elementalDamage,
         };
 
@@ -240,6 +241,7 @@ export const calculateManaCost = (skill, level = null, usmc = false) => {
         ((skill.mana + skill.mana_per_level * sLvl) *
             Math.pow(2, skill.mana_shift)) /
         (usmc ? 1 : 256);
+
     return Math.max(
         skill.min_mana,
         Number.isInteger(manaCost) ? manaCost : Math.floor(manaCost * 10) / 10

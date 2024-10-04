@@ -133,8 +133,8 @@ export function useSkillDescription() {
         const func = line.function;
         const textA = formatText(line.text_a);
         const textB = formatText(line.text_b);
-        const calcA = tryCalculate(skill, line.calc_a, level, passives);
-        const calcB = tryCalculate(skill, line.calc_b, level, passives);
+        let calcA = tryCalculate(skill, line.calc_a, level, passives);
+        let calcB = tryCalculate(skill, line.calc_b, level, passives);
 
         let template =
             "<span class='text-zinc-400'>Unknown Function (fn: FN, text_a: S1, text_b: S2, calc_a: C1, calc_b: C2)</span>";

@@ -1,5 +1,8 @@
 import { useSkillStore } from "@/Stores/SkillStore";
-import { useSkillCalculations } from "@/Composables/useSkillCalculations";
+import {
+    useSkillCalculations,
+    calculateManaCost,
+} from "@/Composables/useSkillCalculations";
 
 const HANDLED_SKILLS = [
     // Tested skills
@@ -11,9 +14,10 @@ const HANDLED_SKILLS = [
     "Polearm And Spear Mastery",
     "Increased Speed",
     "Combat Reflexes",
+    "Bash",
 
     // WIP
-    "Bash",
+    "Double Swing",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -182,20 +186,6 @@ export function useSkillDescription() {
 
     const formatText = (text) => {
         return text ? text.split("\\n").reverse().join("<br />") : null;
-    };
-
-    const calculateManaCost = (skill, level = null, usmc = false) => {
-        const sLvl = level ?? skill.level;
-        let manaCost =
-            ((skill.mana + skill.mana_per_level * sLvl) *
-                Math.pow(2, skill.mana_shift)) /
-            (usmc ? 1 : 256);
-        return Math.max(
-            skill.min_mana,
-            Number.isInteger(manaCost)
-                ? manaCost
-                : Math.floor(manaCost * 10) / 10
-        );
     };
 
     // Exported functions

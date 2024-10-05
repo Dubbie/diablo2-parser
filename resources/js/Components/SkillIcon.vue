@@ -1,6 +1,6 @@
 <script setup>
 import { useCharacterStore } from "@/Stores/CharacterStore";
-import { computed, ref } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 
 const props = defineProps({
     skill: {
@@ -22,6 +22,10 @@ const props = defineProps({
 });
 
 const showingTooltip = ref(false);
+const tooltip = ref(null);
+const icon = ref(null);
+
+const emit = defineEmits(["click"]);
 
 // Computed property to format the skill description
 const formattedDescription = computed(() => {
@@ -49,6 +53,75 @@ const currentLevelLabel = computed(() => {
 
     return `Current Skill Level: ${props.skill.level}`;
 });
+
+// Adjust tooltip position
+const adjustTooltipPosition = () => {
+    if (tooltip.value && icon.value) {
+        // Reset tooltip
+        const tooltipRect = tooltip.value.getBoundingClientRect();
+        const iconRect = icon.value.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const marginBelowIcon = 12;
+
+        // Calculate available space below and above the icon
+        const spaceBelow = viewportHeight - iconRect.bottom;
+
+        // Initialize tooltip position
+        let tooltipTop;
+        let tooltipLeft;
+
+        // Calculate the tooltip top position based on space
+        if (spaceBelow >= tooltipRect.height + marginBelowIcon) {
+            // Case 1: Tooltip fits below the icon
+            tooltipTop = iconRect.height + marginBelowIcon;
+        } else {
+            // Case 3: No space available either above or below
+            const iconPlusTooltipHeight =
+                iconRect.height + marginBelowIcon + tooltipRect.height;
+            const withIconTop = iconRect.top + iconPlusTooltipHeight;
+            const moveUp = withIconTop - viewportHeight;
+            tooltipTop = -1 * moveUp + iconRect.height + marginBelowIcon;
+        }
+
+        // Center the tooltip horizontally relative to the container
+        tooltipLeft = iconRect.width / 2;
+
+        // Adjust the position and set styles
+        tooltip.value.style.top = `${tooltipTop}px`;
+        tooltip.value.style.left = `${tooltipLeft}px`;
+    }
+};
+
+// Trigger tooltip positioning when visible or skill changes
+const updateTooltip = () => {
+    nextTick(() => {
+        adjustTooltipPosition(); // Ensure DOM is ready
+    });
+};
+
+// Update tooltip position when hovering
+const showTooltip = () => {
+    showingTooltip.value = true;
+    updateTooltip();
+};
+
+const hideTooltip = () => {
+    showingTooltip.value = false;
+};
+
+const handleClick = (event) => {
+    emit("click", event);
+    updateTooltip();
+};
+
+watch(
+    () => props.skill,
+    () => {
+        if (showingTooltip.value) {
+            updateTooltip();
+        }
+    }
+);
 </script>
 
 <template>
@@ -56,6 +129,7 @@ const currentLevelLabel = computed(() => {
         <div class="relative">
             <div class="bg-black relative group">
                 <img
+                    ref="icon"
                     :src="imageSrc"
                     :alt="skill.description.name"
                     class="relative block"
@@ -66,8 +140,9 @@ const currentLevelLabel = computed(() => {
                     :class="{
                         'opacity-50': !isAllocatable && !isUsable,
                     }"
-                    @mouseenter="showingTooltip = true"
-                    @mouseleave="showingTooltip = false"
+                    @mouseenter="showTooltip"
+                    @mouseleave="hideTooltip"
+                    @click="handleClick"
                 />
             </div>
 
@@ -81,7 +156,8 @@ const currentLevelLabel = computed(() => {
             </p>
 
             <div
-                class="absolute top-full left-1/2 translate-y-3 -translate-x-1/2 bg-black/80 backdrop-blur z-10 p-2 text-center text-sm whitespace-nowrap"
+                ref="tooltip"
+                class="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur z-10 p-2 text-center text-sm whitespace-nowrap"
                 v-show="showingTooltip"
             >
                 <p class="mb-2 text-lime-400">{{ skill.description.name }}</p>

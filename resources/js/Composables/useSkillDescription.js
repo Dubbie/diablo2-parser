@@ -23,6 +23,9 @@ const HANDLED_SKILLS = [
     "Leap",
     "Concentrate",
     "Double Throw",
+    "Leap Attack",
+    "Berserk",
+    "Whirlwind",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -56,11 +59,9 @@ export function useSkillDescription() {
 
     const generateDescriptions = () => {
         skills.forEach((skill) => {
-            // if (HANDLED_SKILLS.includes(skill.description.name)) {
-            //  skill.descriptionLines = generateDescription(skill); Add it back for debugging
-            // }
-
-            skill.descriptionLines = generateDescription(skill);
+            if (HANDLED_SKILLS.includes(skill.description.name)) {
+                skill.descriptionLines = generateDescription(skill);
+            }
         });
     };
 
@@ -153,6 +154,11 @@ export function useSkillDescription() {
             results.push(formatDescriptionLine(skill, line, passives, level));
         });
 
+        // Filter out nulls
+        results = results.filter((line) => {
+            return line !== null;
+        });
+
         return results;
     };
 
@@ -190,6 +196,16 @@ export function useSkillDescription() {
                 const manaCost = calculateManaCost(skill, level - 1);
 
                 return skill.description.mana + manaCost;
+            case 2:
+                // Only display if value is higher than 0
+                if (
+                    calcA === 0 ||
+                    calcA === "0" ||
+                    calcB === 0 ||
+                    calcB === "0"
+                ) {
+                    return null;
+                }
             case 5:
                 calcA = Math.floor(calcA);
                 break;
@@ -198,12 +214,13 @@ export function useSkillDescription() {
             case 9:
                 return handleDmgBonus(skill, level);
             case 12:
-                // Check for type2
-                if (line.type === 2) {
+                // Floor frenzy, as it shows only integers
+                if (skill.description.name === "Frenzy") {
                     calcA = Math.floor(calcA / 25);
                 } else {
                     calcA = Math.round((calcA / 25) * 10) / 10;
                 }
+
                 break;
             case 19:
                 calcA = Math.round(((calcA * 2) / 3) * 10) / 10;

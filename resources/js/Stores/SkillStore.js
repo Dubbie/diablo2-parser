@@ -1,27 +1,26 @@
 import { defineStore } from "pinia";
-import { useCharacterStore } from "./CharacterStore";
 import { useSkillDescription } from "@/Composables/useSkillDescription";
+import { useCharacterStore } from "./CharacterStore"; // Ensure you import CharacterStore to access character-related data
+import axios from "axios";
 
 export const useSkillStore = defineStore("skill", {
     state: () => ({
         class: null,
-        passives: {},
-        skills: [],
-        skillLookup: {},
+        skills: [], // Array of skills loaded from the backend
+        skillLookup: {}, // Quick access to skills by name
+        passives: {}, // Passives derived from skills
         loading: false,
         error: null,
     }),
 
     actions: {
         async fetchSkills() {
-            const characterStore = useCharacterStore();
             this.loading = true;
-
+            const characterStore = useCharacterStore();
             try {
                 const { data } = await axios.get(route("api.skills.fetch"), {
                     params: { class: characterStore.character.classData.name },
                 });
-
                 this.prepareSkillData(data);
             } catch (error) {
                 console.error("Failed to fetch skills:", error);
@@ -32,65 +31,222 @@ export const useSkillStore = defineStore("skill", {
         },
 
         prepareSkillData(data) {
-            this.skills = data.map((skill) => ({
-                ...skill,
-                level: 0, // Initialize skill levels to 0
-            }));
+            this.skills = data.map((skill) => {
+                // Initialize base_level first
+                const base_level = 0; // Adjust this as needed, e.g., based on current assignments
 
-            // Create a map for quick access to skill levels by name
+                // Now pass the skill with the base_level included
+                const skillWithBaseLevel = {
+                    ...skill,
+                    base_level, // Add base_level here
+                };
+
+                // Now initialize context with the updated skill
+                const context = this.initializeSkillContext(skillWithBaseLevel);
+
+                return {
+                    ...skillWithBaseLevel,
+                    context, // Store the initialized context
+                };
+            });
+
+            // Create a map for quick access to skills by name
             this.skillLookup = this.skills.reduce((acc, skill) => {
                 acc[skill.name] = skill;
                 return acc;
             }, {});
 
-            // Generate descriptions
-            const { generateDescriptions } = useSkillDescription();
-
-            generateDescriptions(this.skills);
-        },
-
-        modifyLevel(skill, amount) {
-            const newLevel = Math.max(
-                0,
-                Math.min(skill.level + amount, skill.max_level)
-            );
-            skill.level = newLevel;
+            // Initialize passives based on skills
+            this.initializePassives();
 
             // Generate descriptions
-            const { generateDescriptions } = useSkillDescription();
-
-            generateDescriptions(this.skills);
+            this.updateDescriptions();
         },
 
-        addLevel(skill, amount = 1) {
+        initializeSkillContext(skill) {
+            /// Calculate effective level (lvl) based on baseLevel and any item bonuses
+            const effectiveLevel =
+                skill.base_level + this.calculateItemBonus(skill.name);
+
+            const context = {
+                blvl: skill.base_level, // Base level (hard points assigned)
+                lvl: effectiveLevel, // Effective level (base level + bonuses)
+                tempLevel: 0, // Temporary level for displaying stuff
+                par1: skill.param_1 ? parseInt(skill.param_1) : 0,
+                par2: skill.param_2 ? parseInt(skill.param_2) : 0,
+                par3: skill.param_3 ? parseInt(skill.param_3) : 0,
+                par4: skill.param_4 ? parseInt(skill.param_4) : 0,
+                par5: skill.param_5 ? parseInt(skill.param_5) : 0,
+                par6: skill.param_6 ? parseInt(skill.param_6) : 0,
+                par7: skill.param_7 ? parseInt(skill.param_7) : 0,
+                par8: skill.param_8 ? parseInt(skill.param_8) : 0,
+                ln12: function () {
+                    if (this.tempLevel > 0) {
+                        return this.par1 + (this.tempLevel - 1) * this.par2;
+                    }
+
+                    return effectiveLevel > 0
+                        ? this.par1 + (this.lvl - 1) * this.par2
+                        : 0;
+                },
+                ln34: function () {
+                    console.log("Temp level is ", this.tempLevel);
+
+                    if (this.tempLevel > 0) {
+                        return this.par3 + (this.tempLevel - 1) * this.par4;
+                    }
+
+                    return effectiveLevel > 0
+                        ? this.par3 + (this.lvl - 1) * this.par4
+                        : 0;
+                },
+                ln56: function () {
+                    if (this.tempLevel > 0) {
+                        return this.par5 + (this.tempLevel - 1) * this.par6;
+                    }
+
+                    return effectiveLevel > 0
+                        ? this.par5 + (this.lvl - 1) * this.par6
+                        : 0;
+                },
+                ln78: function () {
+                    if (this.tempLevel > 0) {
+                        return this.par7 + (this.tempLevel - 1) * this.par8;
+                    }
+
+                    return effectiveLevel > 0
+                        ? this.par7 + (this.lvl - 1) * this.par8
+                        : 0;
+                },
+                setPreview: function () {
+                    this.tempLevel = this.lvl + 1;
+                },
+                resetPreview: function () {
+                    this.tempLevel = 0;
+                },
+            };
+
+            // To ensure `this` points to the context object,
+            // bind the functions to the context
+            Object.keys(context).forEach((key) => {
+                if (typeof context[key] === "function") {
+                    context[key] = context[key].bind(context);
+                }
+            });
+
+            return context;
+        },
+
+        calculateItemBonus(skillName) {
+            // const characterStore = useCharacterStore();
+            // let bonus = 0;
+            // characterStore.equippedItems.forEach((item) => {
+            //     if (item.bonusSkills && item.bonusSkills[skillName]) {
+            //         bonus += item.bonusSkills[skillName];
+            //     }
+            // });
+            // return bonus;
+            return 0;
+        },
+
+        initializePassives() {
+            // Initialize passives based on skills with relevant data
+            this.passives = this.skills.reduce((acc, skill) => {
+                if (skill.passiveEffect) {
+                    acc[skill.name] = skill.passiveEffect;
+                }
+                return acc;
+            }, {});
+        },
+
+        addLevel(skill, amount) {
             if (this.isAllocatable(skill)) {
-                this.modifyLevel(skill, amount);
+                this.modifyBaseLevel(skill, amount);
             }
         },
 
-        removeLevel(skill, amount = 1) {
-            this.modifyLevel(skill, -amount);
+        removeLevel(skill, amount) {
+            this.modifyBaseLevel(skill, -amount);
+        },
+
+        modifyBaseLevel(skill, amount) {
+            const newBaseLevel = Math.max(
+                0,
+                Math.min(skill.base_level + amount, skill.max_level)
+            );
+            skill.base_level = newBaseLevel;
+
+            // Update the context when the base level changes
+            skill.context = this.initializeSkillContext(skill);
+
+            // Update passives when the base level changes
+            this.updatePassives();
+
+            // Generate descriptions
+            this.updateDescriptions();
+        },
+
+        updatePassives() {
+            // Re-initialize passives based on current skills and their effective levels
+            this.passives = this.skills.reduce((acc, skill) => {
+                if (skill.passiveEffect) {
+                    acc[skill.name] = this.calculatePassiveEffect(skill);
+                }
+                return acc;
+            }, {});
+        },
+
+        calculatePassiveEffect(skill) {
+            // Logic to calculate the effect of the passive based on the skill's context
+            const effectiveLevel = skill.context.lvl; // Get the effective level
+            return effectiveLevel * skill.passiveMultiplier; // Example logic for passive calculation
+        },
+
+        updateDescriptions() {
+            const { generateDescriptions } = useSkillDescription();
+            generateDescriptions(this.skills);
         },
 
         isAllocatable(skill) {
+            // Check if the skill can be allocated based on prerequisites and level requirement
             const characterStore = useCharacterStore();
-            const { level } = characterStore.character;
-            const meetsLevelRequirement = level >= skill.required_level;
-
-            const prerequisitesFulfilled = skill.skill_prerequisites.every(
-                (pSkill) =>
-                    this.skills.find((s) => s.id === pSkill.prerequisite_id)
-                        ?.level > 0
+            const prerequisitesMet = skill.skill_prerequisites.every(
+                (pSkill) => {
+                    const prereqId = pSkill.prerequisite_id;
+                    const prerequisiteSkill = this.skills.find(
+                        (s) => s.id === prereqId
+                    );
+                    return (
+                        prerequisiteSkill && prerequisiteSkill.base_level > 0
+                    );
+                }
             );
 
-            return meetsLevelRequirement && prerequisitesFulfilled;
+            const sufficientLevel =
+                characterStore.character.level >= skill.required_level; // Check character level
+
+            return prerequisitesMet && sufficientLevel;
         },
 
         isUsable(skill) {
-            const characterStore = useCharacterStore();
-            const { level } = characterStore.character;
-
-            return level >= skill.required_level && skill.level > 0;
+            // Check if the effective level of the skill is greater than 0
+            return skill.context.lvl > 0;
         },
+    },
+
+    getters: {
+        getSkillContext:
+            (state) =>
+            (skillName, strict = false) => {
+                const skillContext = state.skillLookup[skillName]?.context;
+                if (!skillContext) {
+                    console.warn(`Context for skill "${skillName}" not found.`);
+                    return null;
+                }
+
+                // TODO: Implement strict. Idk what it means yet.
+
+                return skillContext;
+            },
     },
 });

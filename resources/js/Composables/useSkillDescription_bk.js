@@ -1,11 +1,35 @@
 import { useSkillStore } from "@/Stores/SkillStore";
-import { useSkillCalculations } from "@/Composables/useSkillCalculations";
+import {
+    useSkillCalculations,
+    calculateManaCost,
+    calculateDmgBonus,
+    calculateArBonus,
+    calculateElemBonus,
+} from "@/Composables/useSkillCalculations_bk";
 
 const HANDLED_SKILLS = [
     // Tested skills
-    "Werebear",
-    "Werewolf",
-    "Lycanthropy",
+    "General Mastery",
+    "Natural Resistance",
+    "Throwing Mastery",
+    "Iron Skin",
+    "Deep Wounds",
+    "Polearm And Spear Mastery",
+    "Increased Speed",
+    "Combat Reflexes",
+    "Bash",
+    "Double Swing",
+    "Stun",
+    "Frenzy",
+    "Leap",
+    "Concentrate",
+    "Double Throw",
+    "Leap Attack",
+    "Berserk",
+    "Whirlwind",
+    "Howl",
+    "Find Potion",
+    "Shout",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -47,8 +71,8 @@ export function useSkillDescription() {
     };
 
     const generateDescription = (skill) => {
-        const preview = skill.context.blvl === 0;
-        const passivesCurrent = calculatePassivesForSkill(skill, preview);
+        const previewLevel = skill.level === 0 ? 1 : skill.level;
+        const passivesCurrent = calculatePassivesForSkill(skill, previewLevel);
 
         let descriptions = {};
 
@@ -56,7 +80,8 @@ export function useSkillDescription() {
         descriptions.details = filterSkillDescriptionLines(
             skill,
             DESC_TYPES.DSC2,
-            passivesCurrent
+            passivesCurrent,
+            skill.level
         );
 
         // Add the current
@@ -64,19 +89,22 @@ export function useSkillDescription() {
             skill,
             DESC_TYPES.DESC,
             passivesCurrent,
-            preview
+            previewLevel
         );
 
         // Add the next
-        if (skill.context.blvl > 0) {
-            const passivesNext = calculatePassivesForSkill(skill, true);
+        if (skill.level > 0) {
+            const passivesNext = calculatePassivesForSkill(
+                skill,
+                previewLevel + 1
+            );
 
-            if (skill.context.blvl < skill.max_level) {
+            if (skill.level < skill.max_level) {
                 descriptions.next = filterSkillDescriptionLines(
                     skill,
                     DESC_TYPES.DESC,
                     passivesNext,
-                    true
+                    previewLevel + 1
                 );
             }
         }
@@ -85,7 +113,8 @@ export function useSkillDescription() {
         descriptions.synergies = filterSkillDescriptionLines(
             skill,
             DESC_TYPES.DSC3,
-            passivesCurrent
+            passivesCurrent,
+            previewLevel
         );
         // Synergies are reversed
         descriptions.synergies.reverse();
@@ -93,23 +122,27 @@ export function useSkillDescription() {
         return descriptions;
     };
 
-    const calculatePassivesForSkill = (skill, isPreview) => {
-        // TODO: Fix
-        // const values = {};
-        // for (let i = 1; i <= MAX_PASSIVES; i++) {
-        //     const statKey = `passive_stat_${i}`;
-        //     const calcKey = `passive_calc_${i}`;
-        //     const stat = skill[statKey];
-        //     const calcString = skill[calcKey];
-        //     if (!stat || !calcString) continue; // Early return for empty passives
-        //     values[stat] = values[stat] || 0; // Initialize stat if it doesn't exist
-        //     // Apply calculations
-        //     values[stat] += tryCalculate(skill, calcString, level);
-        // }
-        // return values;
+    const calculatePassivesForSkill = (skill, level) => {
+        const values = {};
+
+        for (let i = 1; i <= MAX_PASSIVES; i++) {
+            const statKey = `passive_stat_${i}`;
+            const calcKey = `passive_calc_${i}`;
+            const stat = skill[statKey];
+            const calcString = skill[calcKey];
+
+            if (!stat || !calcString) continue; // Early return for empty passives
+
+            values[stat] = values[stat] || 0; // Initialize stat if it doesn't exist
+
+            // Apply calculations
+            values[stat] += tryCalculate(skill, calcString, level);
+        }
+
+        return values;
     };
 
-    const filterSkillDescriptionLines = (skill, type, passives, isPreview) => {
+    const filterSkillDescriptionLines = (skill, type, passives, level) => {
         const currentLines = skill.description.lines.filter(
             (line) => line.type === type
         );
@@ -119,19 +152,11 @@ export function useSkillDescription() {
         currentLines.forEach((line) => {
             if (DEBUG) {
                 results.push(
-                    formatDescriptionLine(
-                        skill,
-                        line,
-                        passives,
-                        isPreview,
-                        true
-                    )
+                    formatDescriptionLine(skill, line, passives, level, true)
                 );
             }
 
-            results.push(
-                formatDescriptionLine(skill, line, passives, isPreview)
-            );
+            results.push(formatDescriptionLine(skill, line, passives, level));
         });
 
         // Filter out nulls
@@ -146,27 +171,25 @@ export function useSkillDescription() {
         skill,
         line,
         passives,
-        isPreview,
+        level = null,
         debug = false
     ) => {
         const func = line.function;
         const textA = formatText(line.text_a);
         const textB = formatText(line.text_b);
-        let calcA = tryCalculate(skill, line.calc_a, passives, isPreview);
-        let calcB = tryCalculate(skill, line.calc_b, passives, isPreview);
+        let calcA = tryCalculate(skill, line.calc_a, level, passives);
+        let calcB = tryCalculate(skill, line.calc_b, level, passives);
 
         let template =
             "<span class='text-zinc-400'>Unknown Function (fn: FN, text_a: S1, text_b: S2, calc_a: C1, calc_b: C2)</span>";
 
         if (debug) {
-            const calcAWithOriginal = calcA + " (" + line.calc_a + ")";
-            const calcBWithOriginal = calcB + " (" + line.calc_b + ")";
             return template
                 .replace("FN", func)
                 .replace("S1", textA)
                 .replace("S2", textB)
-                .replace("C1", calcAWithOriginal)
-                .replace("C2", calcBWithOriginal);
+                .replace("C1", calcA)
+                .replace("C2", calcB);
         }
 
         // Update template
@@ -175,8 +198,7 @@ export function useSkillDescription() {
         // Handle some exceptions
         switch (func) {
             case 1:
-                // const manaCost = calculateManaCost(skill, level - 1);
-                const manaCost = 1;
+                const manaCost = calculateManaCost(skill, level - 1);
 
                 return skill.description.mana + manaCost;
             case 2:
@@ -189,7 +211,6 @@ export function useSkillDescription() {
                 ) {
                     return null;
                 }
-            case 4:
             case 5:
                 calcA = Math.floor(calcA);
                 break;
@@ -254,6 +275,27 @@ export function useSkillDescription() {
 
     const formatText = (text) => {
         return text ? text.split("\\n").reverse().join("<br />") : null;
+    };
+
+    const handleDmgBonus = (skill, level) => {
+        const data = calculateDmgBonus(skill, level);
+        return `Damage: ${data.min}-${data.max}`;
+    };
+
+    const handleArBonus = (skill, level) => {
+        const data = calculateArBonus(skill, level);
+
+        return `To Attack Rating: +${data}%`;
+    };
+
+    const handleElemBonus = (skill, level) => {
+        const data = calculateElemBonus(skill, level);
+
+        if (data.min > 0 && data.max > 0) {
+            return `Ele Damage: ${data.min}-${data.max}`;
+        }
+
+        return null;
     };
 
     // Exported functions

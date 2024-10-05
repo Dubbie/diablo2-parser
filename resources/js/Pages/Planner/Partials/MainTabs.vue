@@ -24,7 +24,7 @@ const mainTabs = [
     },
 ];
 
-const activeTab = ref(mainTabs[0].name);
+const activeTab = ref(mainTabs[1].name);
 
 watch(
     () => slot.value,

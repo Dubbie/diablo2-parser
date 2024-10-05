@@ -1,5 +1,6 @@
 <script setup>
 import { useCharacterStore } from "@/Stores/CharacterStore";
+import { useSkillStore } from "@/Stores/SkillStore";
 import { computed, nextTick, ref, watch } from "vue";
 
 const props = defineProps({
@@ -21,9 +22,13 @@ const props = defineProps({
     },
 });
 
+const skillStore = useSkillStore();
 const showingTooltip = ref(false);
 const tooltip = ref(null);
 const icon = ref(null);
+const skillContext = computed(() =>
+    skillStore.getSkillContext(props.skill.name)
+);
 
 const emit = defineEmits(["click"]);
 
@@ -47,11 +52,11 @@ const imageSrc = computed(() => {
 });
 
 const currentLevelLabel = computed(() => {
-    if (props.skill.level === 0) {
+    if (skillContext.value.lvl === 0) {
         return "First Level";
     }
 
-    return `Current Skill Level: ${props.skill.level}`;
+    return `Current Skill Level: ${skillContext.value.lvl}`;
 });
 
 // Adjust tooltip position
@@ -149,10 +154,10 @@ watch(
             <p
                 class="select-none absolute inline-flex items-center justify-center top-full left-full -translate-y-2 -translate-x-1 rounded-md text-xs font-semibold bg-black/40 text-center size-5"
                 :class="{
-                    'text-transparent': skill.level === 0,
+                    'text-transparent': skillContext.lvl === 0,
                 }"
             >
-                {{ skill.level }}
+                {{ skillContext.lvl }}
             </p>
 
             <div

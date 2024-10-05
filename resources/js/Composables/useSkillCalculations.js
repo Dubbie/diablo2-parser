@@ -1,7 +1,7 @@
 import { useSkillStore } from "@/Stores/SkillStore";
 
 export function useSkillCalculations() {
-    const DEBUG = false;
+    const DEBUG = true;
 
     const tryCalculate = (skill, calcString, level, passives = {}) => {
         if (!calcString) return null;
@@ -12,14 +12,15 @@ export function useSkillCalculations() {
         let context = {
             blvl: level,
             lvl: level, // Should be overall level, with soft points
-            par1: parseInt(skill.param_1),
-            par2: parseInt(skill.param_2),
-            par3: parseInt(skill.param_3),
-            par4: parseInt(skill.param_4),
-            par5: parseInt(skill.param_5),
-            par6: parseInt(skill.param_6),
-            par7: parseInt(skill.param_7),
-            par8: parseInt(skill.param_8),
+            len: skill.aura_len_calc,
+            par1: skill.param_1 ? parseInt(skill.param_1) : 0,
+            par2: skill.param_2 ? parseInt(skill.param_2) : 0,
+            par3: skill.param_3 ? parseInt(skill.param_3) : 0,
+            par4: skill.param_4 ? parseInt(skill.param_4) : 0,
+            par5: skill.param_5 ? parseInt(skill.param_5) : 0,
+            par6: skill.param_6 ? parseInt(skill.param_6) : 0,
+            par7: skill.param_7 ? parseInt(skill.param_7) : 0,
+            par8: skill.param_8 ? parseInt(skill.param_8) : 0,
             madm: masteries?.madm ? passives[masteries.madm] : 0,
             math: masteries?.math ? passives[masteries.math] : 0,
             macr: masteries?.macr ? passives[masteries.macr] : 0,
@@ -331,4 +332,35 @@ export const calculateArBonus = (skill, level = null) => {
 
     // Default
     return skill.to_hit + skill.to_hit_per_level * (level - 1);
+};
+
+export const calculateElemBonus = (skill, level = null) => {
+    let sLvl = level ?? skill.level;
+    let edmn = skill.e_min;
+    let edmx = skill.e_max;
+    let edln = skill.e_len;
+    let edmnAdd = 0;
+    let edmxAdd = 0;
+    let edlnAdd = 0;
+    const breakpoints = [2, 9, 17, 23, 28];
+    let currentBreakpoint = 0;
+
+    // loop until we hit blvl, and add to the appropriate breakpoints
+    for (let i = 1; i <= sLvl; i++) {
+        if (i >= breakpoints[currentBreakpoint]) {
+            currentBreakpoint++;
+        }
+
+        if (currentBreakpoint > 0) {
+            edmxAdd += skill[`e_max_level_${currentBreakpoint}`];
+            edmnAdd += skill[`e_min_level_${currentBreakpoint}`];
+            edlnAdd += skill[`e_len_level_${Math.min(currentBreakpoint, 3)}`];
+        }
+    }
+
+    return {
+        len: parseInt(edln + edlnAdd),
+        min: parseInt(edmn + edmnAdd),
+        max: parseInt(edmx + edmxAdd),
+    };
 };

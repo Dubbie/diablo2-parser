@@ -4,6 +4,7 @@ import {
     calculateManaCost,
     calculateDmgBonus,
     calculateArBonus,
+    calculateElemBonus,
 } from "@/Composables/useSkillCalculations";
 
 const HANDLED_SKILLS = [
@@ -26,6 +27,9 @@ const HANDLED_SKILLS = [
     "Leap Attack",
     "Berserk",
     "Whirlwind",
+    "Howl",
+    "Find Potion",
+    "Shout",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -42,6 +46,7 @@ const TEMPLATES = {
     7: "+C1 S1",
     8: "Attack Rating Hardcode",
     9: "S1 S2 Damage: +C2",
+    10: "(Elem) Damage: X-Y",
     12: "S1 C1 seconds",
     18: "S1",
     19: "S1 C1 Yards",
@@ -213,6 +218,8 @@ export function useSkillDescription() {
                 return handleArBonus(skill, level);
             case 9:
                 return handleDmgBonus(skill, level);
+            case 10:
+                return handleElemBonus(skill, level);
             case 12:
                 // Floor frenzy, as it shows only integers
                 if (skill.description.name === "Frenzy") {
@@ -279,6 +286,16 @@ export function useSkillDescription() {
         const data = calculateArBonus(skill, level);
 
         return `To Attack Rating: +${data}%`;
+    };
+
+    const handleElemBonus = (skill, level) => {
+        const data = calculateElemBonus(skill, level);
+
+        if (data.min > 0 && data.max > 0) {
+            return `Ele Damage: ${data.min}-${data.max}`;
+        }
+
+        return null;
     };
 
     // Exported functions

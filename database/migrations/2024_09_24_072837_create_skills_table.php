@@ -34,6 +34,24 @@ return new class extends Migration
             $table->string('client_calc_2')->nullable();
             $table->string('client_calc_3')->nullable();
 
+            $table->string('aura_filter')->nullable();
+            $table->string('aura_state')->nullable();
+            $table->string('aura_target_state')->nullable();
+            $table->string('aura_len_calc')->nullable();
+            $table->string('aura_range_calc')->nullable();
+            $table->string('aura_stat_1')->nullable();
+            $table->string('aura_stat_2')->nullable();
+            $table->string('aura_stat_3')->nullable();
+            $table->string('aura_stat_4')->nullable();
+            $table->string('aura_stat_5')->nullable();
+            $table->string('aura_stat_6')->nullable();
+            $table->string('aura_calc_1')->nullable();
+            $table->string('aura_calc_2')->nullable();
+            $table->string('aura_calc_3')->nullable();
+            $table->string('aura_calc_4')->nullable();
+            $table->string('aura_calc_5')->nullable();
+            $table->string('aura_calc_6')->nullable();
+
             $table->string('passive_state')->nullable();
             $table->string('passive_item_type')->nullable();
             $table->string('passive_stat_1')->nullable();

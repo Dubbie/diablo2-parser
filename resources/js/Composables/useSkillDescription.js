@@ -9,20 +9,26 @@ import {
 
 const HANDLED_SKILLS = [
     // Tested skills
-    // "Werebear",
-    // "Werewolf",
-    // "Lycanthropy",
-    // "Hunger",
-    // "Maul",
-    // "Feral Rage",
-    // "Rabies",
-    // "Shock Wave",
-    // "Fire Claws",
-    // "Fury",
-    // "Raven",
-    // "Poison Creeper",
-    // "Carrion Vine",
+    "Werebear",
+    "Werewolf",
+    "Lycanthropy",
+    "Hunger",
+    "Maul",
+    "Feral Rage",
+    "Rabies",
+    "Shock Wave",
+    "Fire Claws",
+    "Fury",
+    "Raven",
+    "Poison Creeper",
+    "Carrion Vine",
     "Summon Spirit Wolf",
+    "Heart of Wolverine",
+    "Spirit of Barbs",
+    "Summon Dire Wolf",
+    "Solar Creeper",
+    "Oak Sage",
+    "Summon Grizzly",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -48,6 +54,7 @@ const TEMPLATES = {
     27: "Average Fire Damage: X-Y Per Second",
     38: "S1C1-C2S2",
     40: "(C1:Color)S2S1",
+    42: "S1: +C1.C2 S2",
     47: "S1C1-C2",
     51: "S1",
     52: "S1+C1-C2S2",
@@ -219,7 +226,8 @@ export function useSkillDescription() {
             case 8:
                 break;
             case 9:
-                return handleDmgBonus(skill, isPreview);
+                const bonus = calcA;
+                return handleDmgBonus(skill, isPreview, bonus);
             case 10:
                 return handleElemBonus(skill, isPreview);
             case 14:
@@ -286,8 +294,8 @@ export function useSkillDescription() {
         return `Poison Damage: ${dmg.min}-${dmg.max}<br />Over ${dmg.len} Seconds`;
     };
 
-    const handleDmgBonus = (skill, isPreview = false) => {
-        const dmg = calculateDamage(skill, isPreview);
+    const handleDmgBonus = (skill, isPreview = false, bonus = 0) => {
+        const dmg = calculateDamage(skill, isPreview, bonus);
 
         if (dmg.min > 0 && dmg.max > 0) {
             return `Damage: ${dmg.min}-${dmg.max}`;

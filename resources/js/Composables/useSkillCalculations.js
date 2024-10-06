@@ -1,7 +1,7 @@
 import { useSkillStore } from "@/Stores/SkillStore";
 
 export function useSkillCalculations() {
-    const DEBUG = true;
+    const DEBUG = false;
     const skillStore = useSkillStore();
 
     const tryCalculate = (skill, calcString, passives, isPreview) => {
@@ -216,13 +216,16 @@ export const calculateElementalDamage = (
     };
 };
 
-export function calculateDamage(skill, isPreview = false) {
-    let sLvl = isPreview ? skill.context.lvl() + 1 : skill.context.lvl();
+export function calculateDamage(skill, isPreview = false, bonus) {
+    const skillStore = useSkillStore();
+    const context = skillStore.getSkillContext(skill.name);
+    let sLvl = isPreview ? context.lvl() + 1 : context.lvl();
     let min = skill.min_dam;
     let max = skill.max_dam;
     let minAdd = 0;
     let maxAdd = 0;
     let multiplier = 1;
+
     const breakpoints = [2, 9, 17, 23, 28];
     let currentBreakpoint = 0;
 
@@ -233,8 +236,16 @@ export function calculateDamage(skill, isPreview = false) {
         }
 
         if (currentBreakpoint > 0) {
-            maxAdd += skill[`max_dam_level_${currentBreakpoint}`];
-            minAdd += skill[`min_dam_level_${currentBreakpoint}`];
+            let _minAdd = skill[`min_dam_level_${currentBreakpoint}`];
+            let _maxAdd = skill[`max_dam_level_${currentBreakpoint}`];
+
+            // if (bonus > 0) {
+            //     _minAdd = Math.floor(_minAdd * (bonus / 100 + 1));
+            //     _maxAdd = Math.floor(_maxAdd * (bonus / 100 + 1));
+            // }
+
+            maxAdd += _maxAdd;
+            minAdd += _minAdd;
         }
     }
 
@@ -251,12 +262,15 @@ export function calculateDamage(skill, isPreview = false) {
         }
     }
 
-    min =
-        Math.floor((min + minAdd) * multiplier) /
-        (256 / Math.pow(2, skill.hit_shift));
-    max =
-        Math.floor((max + maxAdd) * multiplier) /
-        (256 / Math.pow(2, skill.hit_shift));
+    const bonusMulti = bonus > 0 ? bonus / 100 + 1 : 1;
+    min = Math.floor(
+        Math.floor(Math.floor((min + minAdd) * multiplier) * bonusMulti) /
+            (256 / Math.pow(2, skill.hit_shift))
+    );
+    max = Math.floor(
+        Math.floor(Math.floor((max + maxAdd) * multiplier) * bonusMulti) /
+            (256 / Math.pow(2, skill.hit_shift))
+    );
 
     return {
         min,

@@ -1,7 +1,7 @@
 import { useSkillStore } from "@/Stores/SkillStore";
 
 export function useSkillCalculations() {
-    const DEBUG = false;
+    const DEBUG = true;
     const skillStore = useSkillStore();
 
     const tryCalculate = (skill, calcString, passives, isPreview) => {
@@ -144,6 +144,17 @@ export function calculatePoisonDamage(skill, isPreview = false) {
     const { min, max, len } = calculateElementalDamage(skill, isPreview, false);
     const hitShift = Math.pow(2, skill.hit_shift);
 
+    console.log(
+        "min: ",
+        min,
+        "max: ",
+        max,
+        "len: ",
+        len,
+        "hitShift: ",
+        hitShift
+    );
+
     const x = Math.floor((min * len) / (256 / hitShift));
     const y = Math.floor((max * len) / (256 / hitShift));
     const z = Math.floor(len / 25);
@@ -202,8 +213,8 @@ export const calculateElementalDamage = (
         }
     }
 
-    let min = Math.floor((edmn + edmnAdd) * multiplier);
-    let max = Math.floor((edmx + edmxAdd) * multiplier);
+    let min = (edmn + edmnAdd) * multiplier;
+    let max = (edmx + edmxAdd) * multiplier;
 
     if (doHitShift) {
         min = Math.floor(min / (256 / Math.pow(2, skill.hit_shift)));

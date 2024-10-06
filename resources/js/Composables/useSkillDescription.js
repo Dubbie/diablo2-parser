@@ -9,26 +9,26 @@ import {
 
 const HANDLED_SKILLS = [
     // Tested skills
-    "Werebear",
-    "Werewolf",
-    "Lycanthropy",
-    "Hunger",
-    "Maul",
-    "Feral Rage",
+    // "Werebear",
+    // "Werewolf",
+    // "Lycanthropy",
+    // "Hunger",
+    // "Maul",
+    // "Feral Rage",
     "Rabies",
-    "Shock Wave",
-    "Fire Claws",
-    "Fury",
-    "Raven",
-    "Poison Creeper",
-    "Carrion Vine",
-    "Summon Spirit Wolf",
-    "Heart of Wolverine",
-    "Spirit of Barbs",
-    "Summon Dire Wolf",
-    "Solar Creeper",
-    "Oak Sage",
-    "Summon Grizzly",
+    // "Shock Wave",
+    // "Fire Claws",
+    // "Fury",
+    // "Raven",
+    // "Poison Creeper",
+    // "Carrion Vine",
+    // "Summon Spirit Wolf",
+    // "Heart of Wolverine",
+    // "Spirit of Barbs",
+    // "Summon Dire Wolf",
+    // "Solar Creeper",
+    // "Oak Sage",
+    // "Summon Grizzly",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -61,7 +61,7 @@ const TEMPLATES = {
     63: "S1: +C1% S2",
     73: "C1/C2 S1",
 };
-const DEBUG = false;
+const DEBUG = true;
 
 export function useSkillDescription() {
     const { skills } = useSkillStore();

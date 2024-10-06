@@ -20,8 +20,9 @@ const HANDLED_SKILLS = [
     // "Fire Claws",
     // "Fury",
     // "Raven",
-    "Poison Creeper",
-    "Carrion Vine",
+    // "Poison Creeper",
+    // "Carrion Vine",
+    "Summon Spirit Wolf",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {

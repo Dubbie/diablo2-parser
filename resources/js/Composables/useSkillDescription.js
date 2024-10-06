@@ -69,9 +69,10 @@ export function useSkillDescription() {
 
     const generateDescriptions = () => {
         skills.forEach((skill) => {
-            if (HANDLED_SKILLS.includes(skill.description.name)) {
-                skill.descriptionLines = generateDescription(skill);
-            }
+            // if (HANDLED_SKILLS.includes(skill.description.name)) {
+            //     skill.descriptionLines = generateDescription(skill);
+            // }
+            skill.descriptionLines = generateDescription(skill);
         });
     };
 

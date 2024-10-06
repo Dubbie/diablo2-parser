@@ -290,7 +290,7 @@ export const useSkillStore = defineStore("skill", {
             return skill.context.lvl > 0;
         },
 
-        initEquipmentWatcher() {
+        initWatchers() {
             const characterStore = useCharacterStore();
             watch(
                 () => [
@@ -309,18 +309,14 @@ export const useSkillStore = defineStore("skill", {
     },
 
     getters: {
-        getSkillContext:
-            (state) =>
-            (skillName, strict = false) => {
-                const skillContext = state.skillLookup[skillName]?.context;
-                if (!skillContext) {
-                    console.warn(`Context for skill "${skillName}" not found.`);
-                    return null;
-                }
+        getSkillContext: (state) => (skillName) => {
+            const skillContext = state.skillLookup[skillName]?.context;
+            if (!skillContext) {
+                console.warn(`Context for skill "${skillName}" not found.`);
+                return null;
+            }
 
-                // TODO: Implement strict. Idk what it means yet.
-
-                return skillContext;
-            },
+            return skillContext;
+        },
     },
 });

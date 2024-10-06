@@ -23,12 +23,6 @@ const hasClassData = computed(
     () => characterStore.character.classData.name ?? null
 );
 
-onMounted(() => {
-    characterStore.fetchCharacterClasses();
-    characterStore.initStatWatcher();
-    skillStore.initEquipmentWatcher();
-});
-
 const skill = ref("Attack");
 const skillOptions = [
     {
@@ -36,6 +30,12 @@ const skillOptions = [
         value: "Attack",
     },
 ];
+
+onMounted(() => {
+    characterStore.fetchCharacterClasses();
+    characterStore.initStatWatcher();
+    skillStore.initWatchers();
+});
 </script>
 
 <template>

@@ -119,7 +119,7 @@ export function useSkillCalculations() {
 }
 
 export function calculatePoisonDamage(skill, isPreview = false) {
-    const { min, max, len } = calculateElemBonus(skill, isPreview);
+    const { min, max, len } = calculateElementalDamage(skill, isPreview);
     const hitShift = Math.pow(2, skill.hit_shift);
 
     const x = Math.floor((min * len) / (256 / hitShift));
@@ -133,7 +133,7 @@ export function calculatePoisonDamage(skill, isPreview = false) {
     };
 }
 
-export const calculateElemBonus = (skill, isPreview = false) => {
+export const calculateElementalDamage = (skill, isPreview = false) => {
     let sLvl = isPreview ? skill.context.lvl() + 1 : skill.context.lvl();
     console.log("slvl : ", sLvl);
 
@@ -188,3 +188,54 @@ export const calculateElemBonus = (skill, isPreview = false) => {
         max: (edmx + edmxAdd) * multiplier,
     };
 };
+
+export function calculateDamage(skill, isPreview = false) {
+    let sLvl = isPreview ? skill.context.lvl() + 1 : skill.context.lvl();
+    console.log("slvl : ", sLvl);
+
+    let min = skill.min_dam;
+    let max = skill.max_dam;
+    let minAdd = 0;
+    let maxAdd = 0;
+    let multiplier = 1;
+    const breakpoints = [2, 9, 17, 23, 28];
+    let currentBreakpoint = 0;
+
+    // Loop until we hit blvl, and add to the appropriate breakpoints
+    for (let i = 1; i <= sLvl; i++) {
+        if (i >= breakpoints[currentBreakpoint]) {
+            currentBreakpoint++;
+        }
+
+        if (currentBreakpoint > 0) {
+            maxAdd += skill[`max_dam_level_${currentBreakpoint}`];
+            minAdd += skill[`min_dam_level_${currentBreakpoint}`];
+        }
+    }
+
+    // Calculate synergy here as well
+    const synergyCalc = skill.dmg_sym_per_calc;
+    if (synergyCalc) {
+        // Use the useSkillCalculations to get access to tryCalculate
+        const skillCalc = useSkillCalculations();
+
+        // Call tryCalculate from the skillCalc
+        const synergyResult = skillCalc.tryCalculate(skill, synergyCalc, sLvl); // percent increase
+        console.log(" - Synergy Calc: ", synergyResult); // Output the result
+        if (synergyResult) {
+            multiplier += synergyResult / 100;
+        }
+    }
+
+    console.log("Calculated min: ");
+    console.log(parseFloat((min + minAdd) * multiplier));
+
+    console.log("Calculated max: ", parseFloat((max + maxAdd) * multiplier));
+
+    console.log("Multiplied by: ", multiplier);
+
+    return {
+        min: Math.floor((min + minAdd) * multiplier),
+        max: Math.floor((max + maxAdd) * multiplier),
+    };
+}

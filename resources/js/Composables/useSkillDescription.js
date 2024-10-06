@@ -2,6 +2,8 @@ import { useSkillStore } from "@/Stores/SkillStore";
 import {
     useSkillCalculations,
     calculatePoisonDamage,
+    calculateDamage,
+    calculateElementalDamage,
 } from "@/Composables/useSkillCalculations";
 
 const HANDLED_SKILLS = [
@@ -12,7 +14,8 @@ const HANDLED_SKILLS = [
     // "Hunger",
     // "Maul",
     // "Feral Rage",
-    "Rabies",
+    // "Rabies",
+    "Shock Wave",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -202,11 +205,11 @@ export function useSkillDescription() {
                 calcA = Math.floor(calcA);
                 break;
             case 8:
-                return handleArBonus(skill, level);
+                break;
             case 9:
-                return handleDmgBonus(skill, level);
+                return handleDmgBonus(skill, isPreview);
             case 10:
-                return handleElemBonus(skill, level);
+                return handleElemBonus(skill, isPreview);
             case 14:
                 return handlePoison(skill, isPreview);
             case 12:
@@ -264,6 +267,22 @@ export function useSkillDescription() {
     const handlePoison = (skill, isPreview = false) => {
         const dmg = calculatePoisonDamage(skill, isPreview);
         return `Poison Damage: ${dmg.min}-${dmg.max}<br />Over ${dmg.len} Seconds`;
+    };
+
+    const handleDmgBonus = (skill, isPreview = false) => {
+        const dmg = calculateDamage(skill, isPreview);
+
+        return `Damage: ${dmg.min}-${dmg.max}`;
+    };
+
+    const handleElemBonus = (skill, isPreview = false) => {
+        const dmg = calculateElementalDamage(skill, isPreview);
+
+        if (dmg.min > 0 && dmg.max > 0) {
+            return `Ele Damage: ${dmg.min}-${dmg.max}`;
+        }
+
+        return null;
     };
 
     // Exported functions

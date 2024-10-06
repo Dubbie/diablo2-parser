@@ -4,6 +4,7 @@ import {
     calculatePoisonDamage,
     calculateDamage,
     calculateElementalDamage,
+    calculateAvgFireDmgPerSec,
 } from "@/Composables/useSkillCalculations";
 
 const HANDLED_SKILLS = [
@@ -15,7 +16,8 @@ const HANDLED_SKILLS = [
     // "Maul",
     // "Feral Rage",
     // "Rabies",
-    "Shock Wave",
+    // "Shock Wave",
+    "Fire Claws",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -37,6 +39,7 @@ const TEMPLATES = {
     14: "Poison Damage: X-Y Over Z Seconds",
     18: "S1",
     19: "S1 C1 Yards",
+    27: "Average Fire Damage: X-Y Per Second",
     40: "(C1:Color)S2S1",
     51: "S1",
     52: "S1+C1-C2S2",
@@ -224,6 +227,8 @@ export function useSkillDescription() {
             case 19:
                 calcA = Math.round(((calcA * 2) / 3) * 10) / 10;
                 break;
+            case 27:
+                return handleAvgFireDamage(skill, isPreview);
             case 51:
                 template = textA.replace("%d", calcA);
                 break;
@@ -272,7 +277,11 @@ export function useSkillDescription() {
     const handleDmgBonus = (skill, isPreview = false) => {
         const dmg = calculateDamage(skill, isPreview);
 
-        return `Damage: ${dmg.min}-${dmg.max}`;
+        if (dmg.min > 0 && dmg.max > 0) {
+            return `Damage: ${dmg.min}-${dmg.max}`;
+        }
+
+        return null;
     };
 
     const handleElemBonus = (skill, isPreview = false) => {
@@ -283,6 +292,11 @@ export function useSkillDescription() {
         }
 
         return null;
+    };
+
+    const handleAvgFireDamage = (skill, isPreview = false) => {
+        const dmg = calculateAvgFireDmgPerSec(skill, isPreview);
+        return `Average Fire Damage: ${dmg.min}-${dmg.max} Per Second`;
     };
 
     // Exported functions

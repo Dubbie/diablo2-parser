@@ -135,8 +135,6 @@ export function calculatePoisonDamage(skill, isPreview = false) {
 
 export const calculateElementalDamage = (skill, isPreview = false) => {
     let sLvl = isPreview ? skill.context.lvl() + 1 : skill.context.lvl();
-    console.log("slvl : ", sLvl);
-
     let edmn = skill.e_min;
     let edmx = skill.e_max;
     let edln = skill.e_len;
@@ -168,19 +166,10 @@ export const calculateElementalDamage = (skill, isPreview = false) => {
 
         // Call tryCalculate from the skillCalc
         const synergyResult = skillCalc.tryCalculate(skill, synergyCalc, sLvl); // percent increase
-        console.log(" - Synergy Calc: ", synergyResult); // Output the result
         if (synergyResult) {
             multiplier += synergyResult / 100;
         }
     }
-
-    console.log("Calculated min: ");
-    console.log(parseFloat((edmn + edmnAdd) * multiplier));
-
-    console.log("Calculated max: ", parseFloat((edmx + edmxAdd) * multiplier));
-    console.log("Calculated len: ", edln + edlnAdd);
-
-    console.log("Multiplied by: ", multiplier);
 
     return {
         len: edln + edlnAdd,
@@ -191,8 +180,6 @@ export const calculateElementalDamage = (skill, isPreview = false) => {
 
 export function calculateDamage(skill, isPreview = false) {
     let sLvl = isPreview ? skill.context.lvl() + 1 : skill.context.lvl();
-    console.log("slvl : ", sLvl);
-
     let min = skill.min_dam;
     let max = skill.max_dam;
     let minAdd = 0;
@@ -221,21 +208,23 @@ export function calculateDamage(skill, isPreview = false) {
 
         // Call tryCalculate from the skillCalc
         const synergyResult = skillCalc.tryCalculate(skill, synergyCalc, sLvl); // percent increase
-        console.log(" - Synergy Calc: ", synergyResult); // Output the result
         if (synergyResult) {
             multiplier += synergyResult / 100;
         }
     }
-
-    console.log("Calculated min: ");
-    console.log(parseFloat((min + minAdd) * multiplier));
-
-    console.log("Calculated max: ", parseFloat((max + maxAdd) * multiplier));
-
-    console.log("Multiplied by: ", multiplier);
 
     return {
         min: Math.floor((min + minAdd) * multiplier),
         max: Math.floor((max + maxAdd) * multiplier),
     };
 }
+
+export const calculateAvgFireDmgPerSec = (skill, isPreview = false) => {
+    const dmg = calculateElementalDamage(skill, isPreview);
+    const x = (dmg.min * 14) / 3 / Math.pow(2, skill.hit_shift);
+    const y = (dmg.max * 14) / 3 / Math.pow(2, skill.hit_shift);
+    return {
+        min: Math.floor(x),
+        max: Math.floor(y),
+    };
+};

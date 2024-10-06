@@ -7,6 +7,7 @@ const HANDLED_SKILLS = [
     "Werewolf",
     "Lycanthropy",
     "Hunger",
+    "Maul",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -33,7 +34,7 @@ const TEMPLATES = {
     63: "S1: +C1% S2",
     73: "C1/C2 S1",
 };
-const DEBUG = false;
+const DEBUG = true;
 
 export function useSkillDescription() {
     const { skills } = useSkillStore();
@@ -48,7 +49,7 @@ export function useSkillDescription() {
     };
 
     const generateDescription = (skill) => {
-        const preview = skill.context.blvl === 0;
+        const preview = skill.context.blvl() === 0;
         const passivesCurrent = calculatePassivesForSkill(skill, preview);
 
         let descriptions = {};
@@ -69,10 +70,10 @@ export function useSkillDescription() {
         );
 
         // Add the next
-        if (skill.context.blvl > 0) {
+        if (skill.context.lvl() > 0) {
             const passivesNext = calculatePassivesForSkill(skill, true);
 
-            if (skill.context.blvl < skill.max_level) {
+            if (skill.context.lvl() < skill.max_level) {
                 descriptions.next = filterSkillDescriptionLines(
                     skill,
                     DESC_TYPES.DESC,
@@ -221,11 +222,6 @@ export function useSkillDescription() {
                 break;
             default:
                 break;
-        }
-
-        // Avoid displaying both calculations if they are the same
-        if (template.includes("C1-C2") && level === 1) {
-            template = template.replace("C1-C2", "C1");
         }
 
         const result = template

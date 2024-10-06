@@ -64,14 +64,20 @@ export const useSkillStore = defineStore("skill", {
         },
 
         initializeSkillContext(skill) {
-            /// Calculate effective level (lvl) based on baseLevel and any item bonuses
-            const effectiveLevel =
-                skill.base_level + this.calculateItemBonus(skill.name);
-
             const context = {
-                blvl: skill.base_level, // Base level (hard points assigned)
-                lvl: effectiveLevel, // Effective level (base level + bonuses)
+                calculateItemBonus: function (skillName) {
+                    return 0;
+                },
+
                 tempLevel: 0, // Temporary level for displaying stuff
+                blvl: function () {
+                    return this.tempLevel > 0
+                        ? this.tempLevel
+                        : skill.base_level;
+                }, // Base level (hard points assigned)
+                lvl: function () {
+                    return this.blvl() + this.calculateItemBonus(skill.name);
+                },
                 par1: skill.param_1 ? parseInt(skill.param_1) : 0,
                 par2: skill.param_2 ? parseInt(skill.param_2) : 0,
                 par3: skill.param_3 ? parseInt(skill.param_3) : 0,
@@ -83,13 +89,11 @@ export const useSkillStore = defineStore("skill", {
 
                 // Helper function for calculations
                 calculateLinear: function (param1, param2) {
-                    const level =
-                        this.tempLevel > 0 ? this.tempLevel : this.lvl;
+                    const level = this.lvl();
                     return level > 0 ? param1 + (level - 1) * param2 : 0;
                 },
                 calculateDiminishing: function (param1, param2) {
-                    const level =
-                        this.tempLevel > 0 ? this.tempLevel : this.lvl;
+                    const level = this.lvl();
 
                     return Math.floor(
                         (Math.floor((110 * level) / (level + 6)) *
@@ -97,6 +101,13 @@ export const useSkillStore = defineStore("skill", {
                             100 +
                             param1
                     );
+                },
+                calculateToHit() {
+                    // For now, only handle the basics.
+                    const baseToHit = skill.to_hit;
+                    const toHitPerLev = skill.to_hit_per_level;
+                    const level = this.lvl() - 1;
+                    return baseToHit + toHitPerLev * level;
                 },
 
                 ln12: function () {
@@ -123,8 +134,12 @@ export const useSkillStore = defineStore("skill", {
                 dm78: function () {
                     return this.calculateDiminishing(this.par7, this.par8);
                 },
+                toht: function () {
+                    return this.calculateToHit();
+                },
                 setPreview: function () {
-                    this.tempLevel = this.lvl + 1;
+                    const currentLevel = this.blvl();
+                    this.tempLevel = currentLevel + 1;
                 },
                 resetPreview: function () {
                     this.tempLevel = 0;

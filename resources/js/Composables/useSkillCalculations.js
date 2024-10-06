@@ -33,6 +33,9 @@ export function useSkillCalculations() {
             ctx.resetPreview();
         }
 
+        // Apply integer math (specifically for division)
+        transformedCalcString = applyIntegerMath(transformedCalcString);
+
         return evaluateExpression(transformedCalcString, calcString);
     };
 
@@ -40,7 +43,6 @@ export function useSkillCalculations() {
     const replaceSkillReferences = (calculation) => {
         // Replace skill calls with their evaluated values
         const skillPattern = /skill\('([^']+)'\.(\w+)\)/g;
-        // const statPattern = /stat\('([^']+)'\.(\w+)/g;
 
         // Replace skill calls with their evaluated values
         const replacedCalcString = calculation.replace(
@@ -78,6 +80,15 @@ export function useSkillCalculations() {
         });
 
         return calculation;
+    };
+
+    // This function modifies the calculation string to apply integer math
+    const applyIntegerMath = (calculation) => {
+        // Replace division (/) with Math.floor(a / b) to apply integer division
+        return calculation.replace(
+            /(\d+)\s*\/\s*(\d+)/g,
+            "Math.floor($1 / $2)"
+        );
     };
 
     const evaluateExpression = (calcString, originalCalcString) => {

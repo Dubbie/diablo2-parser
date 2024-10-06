@@ -33,7 +33,7 @@ const finalAttributes = computed(() => {
 </script>
 
 <template>
-    <div class="bg-white/5 border border-white/10 rounded-xl p-5">
+    <div class="bg-zinc-800 rounded-xl p-5">
         <div class="space-y-2">
             <div
                 v-for="(value, key) in finalAttributes"

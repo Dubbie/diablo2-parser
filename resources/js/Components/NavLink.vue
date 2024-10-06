@@ -16,7 +16,7 @@ const props = defineProps({
 <template>
     <Link
         :href="href"
-        class="inline-flex font-semibold px-2 py-1"
+        class="inline-flex font-medium text-sm/6 px-2 py-1"
         :class="{
             'text-zinc-400 hover:text-white': !active,
             'text-white': active,

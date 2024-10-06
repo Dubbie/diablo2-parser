@@ -1,8 +1,10 @@
 import { defineStore } from "pinia";
 import { useSkillDescription } from "@/Composables/useSkillDescription";
-import { useCharacterStore } from "./CharacterStore"; // Ensure you import CharacterStore to access character-related data
+import { useCharacterStore } from "@/Stores/CharacterStore";
 import { calculateElementalDamage } from "@/Composables/useSkillCalculations";
+import { isItemUsable } from "@/Stores/StatCalculation/Utils";
 import axios from "axios";
+import { watch } from "vue";
 
 export const useSkillStore = defineStore("skill", {
     state: () => ({
@@ -10,6 +12,9 @@ export const useSkillStore = defineStore("skill", {
         skills: [], // Array of skills loaded from the backend
         skillLookup: {}, // Quick access to skills by name
         passives: {}, // Passives derived from skills
+        bonuses: {
+            allSkills: 0,
+        },
         loading: false,
         error: null,
     }),
@@ -43,7 +48,10 @@ export const useSkillStore = defineStore("skill", {
                 };
 
                 // Now initialize context with the updated skill
-                const context = this.initializeSkillContext(skillWithBaseLevel);
+                const context = this.initializeSkillContext(
+                    skillWithBaseLevel,
+                    this
+                );
 
                 return {
                     ...skillWithBaseLevel,
@@ -64,12 +72,8 @@ export const useSkillStore = defineStore("skill", {
             this.updateDescriptions();
         },
 
-        initializeSkillContext(skill) {
+        initializeSkillContext(skill, state) {
             const context = {
-                calculateItemBonus: function (skillName) {
-                    return 0;
-                },
-
                 tempLevel: 0, // Temporary level for displaying stuff
                 blvl: function () {
                     return this.tempLevel > 0
@@ -77,7 +81,14 @@ export const useSkillStore = defineStore("skill", {
                         : skill.base_level;
                 }, // Base level (hard points assigned)
                 lvl: function () {
-                    return this.blvl() + this.calculateItemBonus(skill.name);
+                    let slvl = this.blvl();
+
+                    // Check if hard points are assigned, if so, gain bonuses!
+                    if (skill.base_level > 0) {
+                        slvl += state.bonuses.allSkills;
+                    }
+
+                    return slvl;
                 },
                 par1: skill.param_1 ? parseInt(skill.param_1) : 0,
                 par2: skill.param_2 ? parseInt(skill.param_2) : 0,
@@ -174,16 +185,25 @@ export const useSkillStore = defineStore("skill", {
             return context;
         },
 
-        calculateItemBonus(skillName) {
-            // const characterStore = useCharacterStore();
-            // let bonus = 0;
-            // characterStore.equippedItems.forEach((item) => {
-            //     if (item.bonusSkills && item.bonusSkills[skillName]) {
-            //         bonus += item.bonusSkills[skillName];
-            //     }
-            // });
-            // return bonus;
-            return 0;
+        calculateItemBonuses() {
+            const characterStore = useCharacterStore();
+            const { equippedItems: itemSlots } = characterStore.character;
+
+            this.bonuses.allSkills = 0;
+
+            Object.entries(itemSlots).forEach(([slot, item]) => {
+                if (item && isItemUsable(item)) {
+                    // Go through modifiers, check for all skill
+                    item.modifiers.forEach((modifier) => {
+                        const { name } = modifier;
+                        if (name === "item_allskills") {
+                            this.bonuses.allSkills += parseInt(
+                                modifier.values.value
+                            );
+                        }
+                    });
+                }
+            });
         },
 
         initializePassives() {
@@ -214,7 +234,7 @@ export const useSkillStore = defineStore("skill", {
             skill.base_level = newBaseLevel;
 
             // Update the context when the base level changes
-            skill.context = this.initializeSkillContext(skill);
+            skill.context = this.initializeSkillContext(skill, this);
 
             // Update passives when the base level changes
             this.updatePassives();
@@ -268,6 +288,23 @@ export const useSkillStore = defineStore("skill", {
         isUsable(skill) {
             // Check if the effective level of the skill is greater than 0
             return skill.context.lvl > 0;
+        },
+
+        initEquipmentWatcher() {
+            const characterStore = useCharacterStore();
+            watch(
+                () => [
+                    characterStore.character.equippedItems,
+                    characterStore.character.level,
+                    characterStore.character.modified_attributes,
+                ],
+                () => {
+                    this.calculateItemBonuses();
+                },
+                {
+                    deep: true,
+                }
+            );
         },
     },
 

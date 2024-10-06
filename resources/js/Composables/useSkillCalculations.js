@@ -217,11 +217,14 @@ export const calculateElementalDamage = (
 export function calculateDamage(skill, isPreview = false, bonus) {
     const skillStore = useSkillStore();
     const context = skillStore.getSkillContext(skill.name);
+    console.log("Skill", skill);
+
     let sLvl = isPreview ? context.lvl() + 1 : context.lvl();
     let min = skill.min_dam;
     let max = skill.max_dam;
     let minAdd = 0;
     let maxAdd = 0;
+    console.log("Min", min, "Max", max, "MinAdd", minAdd, "MaxAdd", maxAdd);
     let multiplier = 1;
 
     const breakpoints = [2, 9, 17, 23, 28];
@@ -253,6 +256,7 @@ export function calculateDamage(skill, isPreview = false, bonus) {
     }
 
     const bonusMulti = bonus > 0 ? bonus / 100 + 1 : 1;
+
     min = Math.floor(
         Math.floor(Math.floor((min + minAdd) * multiplier) * bonusMulti) /
             (256 / Math.pow(2, skill.hit_shift))

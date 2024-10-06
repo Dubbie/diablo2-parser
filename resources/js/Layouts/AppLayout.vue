@@ -15,10 +15,10 @@ const props = defineProps({
     <Head :title="title" />
     <div class="bg-zinc-900 text-white min-h-screen py-10">
         <div
-            class="mx-auto sm:px-6 lg:px-8"
+            class="mx-auto w-full sm:px-6 lg:px-8"
             :class="{
                 'max-w-4xl': !wide,
-                'max-w-7xl': wide,
+                'max-w-8xl': wide,
             }"
         >
             <AppHeader class="mb-6" />

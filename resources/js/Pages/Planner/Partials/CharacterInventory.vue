@@ -118,11 +118,11 @@ const themeClasses = computed(() => {
         <img
             src="/img/inventory.png"
             alt="Inventory"
-            class="w-full"
+            class="w-[320px] h-[501px]"
             v-if="theme === 'lod'"
         />
         <div
-            class="w-[320px] h-[501px] bg-zinc-800 rounded-xl ring-1 ring-white/15"
+            class="w-[320px] h-[501px] bg-zinc-800 rounded-xl"
             v-if="theme === 'minimalistic'"
         ></div>
 

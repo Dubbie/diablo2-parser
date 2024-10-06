@@ -44,7 +44,7 @@ watch(
             <div v-if="loading">
                 <p>Loading items...</p>
             </div>
-            <div v-else>
+            <div v-else class="mt-4">
                 <ItemLineDisplay
                     v-for="item in items"
                     :key="item.id"

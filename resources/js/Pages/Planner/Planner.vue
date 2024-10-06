@@ -1,10 +1,13 @@
 <script setup>
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { useCharacterStore } from "@/Stores/CharacterStore";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import CharacterInputs from "./Partials/CharacterInputs.vue";
 import SideTabs from "./Partials/SideTabs.vue";
 import MainTabs from "./Partials/MainTabs.vue";
+import { useSkillStore } from "@/Stores/SkillStore";
+import SelectInput from "@/Components/SelectInput.vue";
+import StatSummary from "./Partials/StatSummary.vue";
 
 const props = defineProps({
     debug: {
@@ -13,6 +16,7 @@ const props = defineProps({
     },
 });
 
+const skillStore = useSkillStore();
 const characterStore = useCharacterStore();
 const isLoading = computed(() => characterStore.loading); // Get loading state
 const hasClassData = computed(
@@ -22,16 +26,20 @@ const hasClassData = computed(
 onMounted(() => {
     characterStore.fetchCharacterClasses();
     characterStore.initStatWatcher();
+    skillStore.initEquipmentWatcher();
 });
+
+const skill = ref("Attack");
+const skillOptions = [
+    {
+        label: "Attack",
+        value: "Attack",
+    },
+];
 </script>
 
 <template>
     <AppLayout title="Planner" wide>
-        <h1 class="font-bold text-3xl">Planner</h1>
-        <p class="text-zinc-400 text-sm mb-6">
-            Play around with the planner to find the best items for your.
-        </p>
-
         <div v-if="isLoading">
             <!-- Show loading screen -->
             <p>Loading...</p>
@@ -41,14 +49,27 @@ onMounted(() => {
                 {{ characterStore.error }}
             </div>
 
-            <div class="flex space-x-4">
-                <div class="w-[320px]">
+            <div class="flex space-x-8">
+                <div class="w-[320px] shrink-0">
                     <CharacterInputs />
                     <SideTabs class="mt-2" />
                 </div>
 
                 <div class="flex-1 flex space-x-6">
                     <MainTabs :has-class-data="hasClassData" />
+                </div>
+
+                <div class="w-[196px]">
+                    <!-- Main skill -->
+                    <div class="mb-4">
+                        <SelectInput v-model="skill" :options="skillOptions" />
+                        <p class="text-xs mt-1 text-zinc-500 text-center">
+                            Main skill
+                        </p>
+                    </div>
+
+                    <!-- Stat summary -->
+                    <StatSummary />
                 </div>
             </div>
         </div>

@@ -64,7 +64,7 @@ watch(
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout title="Items">
         <h1 class="text-3xl font-bold mb-3">Items</h1>
 
         <div>

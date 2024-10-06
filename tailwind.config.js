@@ -13,7 +13,10 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ["Poppins", ...defaultTheme.fontFamily.sans],
+                sans: ["InterVariable", ...defaultTheme.fontFamily.sans],
+            },
+            maxWidth: {
+                "8xl": "1330px",
             },
         },
     },

@@ -86,7 +86,7 @@ const getBgImage = (page) => {
         <div
             v-for="(pageSkills, pageIndex) in [3, 2, 1]"
             :key="pageIndex"
-            class="relative bg-zinc-800 rounded-xl p-5 ring-1 ring-white/15"
+            class="relative bg-zinc-800 rounded-xl p-5"
             :style="{
                 width: maxWidth,
                 height: maxHeight,

@@ -66,7 +66,7 @@ const adjustTooltipPosition = () => {
         const tooltipRect = tooltip.value.getBoundingClientRect();
         const iconRect = icon.value.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
-        const marginBelowIcon = 12;
+        const marginBelowIcon = 15;
 
         // Calculate available space below and above the icon
         const spaceBelow = viewportHeight - iconRect.bottom;
@@ -152,9 +152,10 @@ watch(
             </div>
 
             <p
-                class="select-none absolute inline-flex items-center justify-center top-full left-full -translate-y-2 -translate-x-1 rounded-md text-xs font-semibold bg-black/40 text-center size-5"
+                class="select-none absolute inline-flex items-center justify-center top-full left-full -translate-y-[5px] -translate-x-1 rounded-md text-xs font-semibold bg-black/40 text-center size-5"
                 :class="{
                     'text-transparent': skillContext.lvl() === 0,
+                    'text-blue-400': skillContext.lvl() !== skillContext.blvl(),
                 }"
             >
                 {{ skillContext.lvl() }}

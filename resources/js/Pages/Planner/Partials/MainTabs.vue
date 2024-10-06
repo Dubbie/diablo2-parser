@@ -1,6 +1,5 @@
 <script setup>
 import ItemFinder from "@/Components/ItemFinder.vue";
-import StatSummary from "./StatSummary.vue";
 import CharacterSkills from "./CharacterSkills.vue";
 import TabContainer from "@/Components/TabContainer.vue";
 import { useItemStore } from "@/Stores/ItemStore";
@@ -48,9 +47,6 @@ watch(
             <div v-show="activeTab === 'equipment'" class="flex space-x-6">
                 <div class="flex-1">
                     <ItemFinder />
-                </div>
-                <div class="min-w-[180px] text-sm">
-                    <StatSummary />
                 </div>
             </div>
 

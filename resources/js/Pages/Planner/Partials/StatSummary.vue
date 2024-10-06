@@ -27,11 +27,11 @@ const dexterityBelowRequired = computed(() => {
 });
 
 const resistances = [
-    { label: "Fire", key: "fire", class: "text-red-300" },
-    { label: "Cold", key: "cold", class: "text-blue-300" },
-    { label: "Lightning", key: "lightning", class: "text-yellow-300" },
-    { label: "Poison", key: "poison", class: "text-green-300" },
-    { label: "Curse", key: "curse", class: "text-purple-300" },
+    { label: "Fire Resistance", key: "fire", class: "text-red-400" },
+    { label: "Cold Resistance", key: "cold", class: "text-blue-400" },
+    { label: "Lightning Resistance", key: "lightning", class: "text-yellow-400" },
+    { label: "Poison Resistance", key: "poison", class: "text-green-400" },
+    { label: "Curse Resistance", key: "curse", class: "text-purple-400" },
 ];
 
 const weaponElementalDamage = [
@@ -42,13 +42,13 @@ const weaponElementalDamage = [
     { label: "Magic", key: "magic", class: "text-blue-400" },
 ];
 
-const statGroupTitleClass = "font-semibold text-sm text-zinc-500 mb-1";
+const statGroupTitleClass = "font-semibold text-zinc-500 mb-1";
 </script>
 
 <template>
     <div class="space-y-4">
         <div>
-            <p :class="statGroupTitleClass">Attributes</p>
+            <!-- <p :class="statGroupTitleClass">Attributes</p> -->
             <StatDisplay
                 label="Strength"
                 :value="calculatedStats.attributes.strength"
@@ -70,7 +70,16 @@ const statGroupTitleClass = "font-semibold text-sm text-zinc-500 mb-1";
         </div>
 
         <div>
-            <p :class="statGroupTitleClass">Resistances</p>
+            <!-- <p :class="statGroupTitleClass">Defense</p> -->
+            <StatDisplay label="Defense" :value="calculatedStats.defense" />
+            <StatDisplay
+                label="Block Chance"
+                :value="calculatedStats.block + '%'"
+            />
+        </div>
+
+        <div>
+            <!-- <p :class="statGroupTitleClass">Resistances</p> -->
             <StatDisplay
                 v-for="resistance in resistances"
                 :key="resistance.key"
@@ -85,16 +94,7 @@ const statGroupTitleClass = "font-semibold text-sm text-zinc-500 mb-1";
         </div>
 
         <div>
-            <p :class="statGroupTitleClass">Defense</p>
-            <StatDisplay label="Defense" :value="calculatedStats.defense" />
-            <StatDisplay
-                label="Block Chance"
-                :value="calculatedStats.block + '%'"
-            />
-        </div>
-
-        <div>
-            <p :class="statGroupTitleClass">Weapon</p>
+            <!-- <p :class="statGroupTitleClass">Weapon</p> -->
             <StatDisplay
                 label="Attack Damage"
                 :value="

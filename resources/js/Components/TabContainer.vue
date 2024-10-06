@@ -70,7 +70,7 @@ watch(
 
 <template>
     <div
-        class="relative flex space-x-1 ring-1 ring-inset ring-white/10 p-1 rounded-xl"
+        class="relative flex space-x-1 items-center bg-zinc-800 p-1 rounded-xl"
     >
         <!-- Loop through tabs and bind ref for each one -->
         <AppTab
@@ -89,7 +89,7 @@ watch(
             class="absolute top-0 left-0 h-full p-1 pointer-events-none transition-all duration-200 ease-in-out"
             :style="indicatorStyle"
         >
-            <div class="bg-white/10 h-full w-full rounded-lg"></div>
+            <div class="bg-zinc-900 h-full rounded-lg"></div>
         </div>
     </div>
 </template>

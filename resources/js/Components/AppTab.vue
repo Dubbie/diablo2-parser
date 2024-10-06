@@ -17,10 +17,9 @@ const props = defineProps({
 
 <template>
     <div
-        class="text-sm font-semibold py-1 px-2 cursor-pointer select-none text-center rounded-lg"
+        class="text-sm font-medium py-1 px-2 cursor-pointer select-none text-center rounded-lg transition text-white"
         :class="{
-            'text-white': active,
-            'text-zinc-500 hover:text-white': !active,
+            'hover:bg-black/20': !active,
         }"
     >
         <p>{{ props.name }}</p>

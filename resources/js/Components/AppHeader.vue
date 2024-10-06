@@ -1,18 +1,11 @@
 <script setup>
-import { computed } from "vue";
 import NavLink from "./NavLink.vue";
-import SelectInput from "./SelectInput.vue";
-import { useSettingsStore } from "@/Stores/SettingsStore";
+import AppButton from "./AppButton.vue";
+import PlannerSettingsModal from "./PlannerSettingsModal.vue";
+import { ref } from "vue";
+import { IconSettingsFilled } from "@tabler/icons-vue";
 
-const settingsStore = useSettingsStore();
-settingsStore.getTheme();
-
-const theme = computed(() => settingsStore.theme);
-const loading = computed(() => settingsStore.loading);
-
-const handleNewTheme = async (value) => {
-    settingsStore.setTheme(value);
-};
+const showingSettingsModal = ref(false);
 </script>
 
 <template>
@@ -24,30 +17,28 @@ const handleNewTheme = async (value) => {
 
         <div class="flex-1 flex items-center space-x-2 -mx-2">
             <NavLink
-                :href="route('items.index')"
-                :active="route().current('items.index')"
-                >Items</NavLink
-            >
-            <NavLink
                 :href="route('planner')"
                 :active="route().current('planner')"
                 >Planner</NavLink
+            >
+            <NavLink
+                :href="route('items.index')"
+                :active="route().current('items.index')"
+                >Items</NavLink
             >
         </div>
 
         <div>
             <div>
-                <p class="text-xs font-semibold text-right mb-1">Theme</p>
-                <SelectInput
-                    :model-value="theme"
-                    :options="settingsStore.getThemes()"
-                    :class="{
-                        'pointer-events-none opacity-50': loading,
-                    }"
-                    dropdown-position="right"
-                    @update:model-value="handleNewTheme"
-                />
+                <AppButton plain square @click="showSettingsModal = true">
+                    <IconSettingsFilled class="size-5" />
+                </AppButton>
             </div>
         </div>
+
+        <PlannerSettingsModal
+            :show="showSettingsModal"
+            @close="showSettingsModal = false"
+        />
     </div>
 </template>

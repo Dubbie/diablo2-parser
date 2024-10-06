@@ -91,32 +91,12 @@ export const useSkillStore = defineStore("skill", {
                     const level =
                         this.tempLevel > 0 ? this.tempLevel : this.lvl;
 
-                    // return (
-                    //     (110 * level * (param2 - param1)) / (100 * (level + 6))
-                    // );
-                    // FIRST VERSION
-
                     return Math.floor(
                         (Math.floor((110 * level) / (level + 6)) *
                             (param2 - param1)) /
                             100 +
                             param1
                     );
-
-                    // SECOND VERSION
-                    // const first = 110 * level * (param2 - param1);
-                    // console.log("First: " + first);
-
-                    // const divisor = 100 * (level + 6);
-                    // console.log("Divisor: " + divisor);
-
-                    // const flooredResult = Math.floor(first / divisor);
-
-                    // console.log("Result: " + flooredResult);
-                    // console.log("Param1: " + param1);
-                    // console.log("Param2: " + param2);
-
-                    // return flooredResult;
                 },
 
                 ln12: function () {

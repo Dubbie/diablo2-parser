@@ -45,7 +45,7 @@ const handleRightClick = (event, skill) => {
     event.preventDefault();
 
     if (event.ctrlKey) {
-        skillStore.removeLevel(skill, skill.level); // Remove all points if shift is pressed
+        skillStore.removeLevel(skill, skill.base_level); // Remove all points if shift is pressed
     } else {
         skillStore.removeLevel(skill, 1); // Remove 1 point on normal right-click
     }
@@ -120,7 +120,10 @@ const getBgImage = (page) => {
                 :is-usable="skillStore.isUsable(skill)"
                 @click="skillStore.addLevel(skill, 1)"
                 @click.ctrl="
-                    skillStore.addLevel(skill, skill.max_level - skill.level)
+                    skillStore.addLevel(
+                        skill,
+                        skill.max_level - skill.base_level
+                    )
                 "
                 @click.right.prevent="handleRightClick($event, skill)"
             />

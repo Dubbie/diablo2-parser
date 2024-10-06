@@ -80,43 +80,68 @@ export const useSkillStore = defineStore("skill", {
                 par6: skill.param_6 ? parseInt(skill.param_6) : 0,
                 par7: skill.param_7 ? parseInt(skill.param_7) : 0,
                 par8: skill.param_8 ? parseInt(skill.param_8) : 0,
-                ln12: function () {
-                    if (this.tempLevel > 0) {
-                        return this.par1 + (this.tempLevel - 1) * this.par2;
-                    }
 
-                    return effectiveLevel > 0
-                        ? this.par1 + (this.lvl - 1) * this.par2
-                        : 0;
+                // Helper function for calculations
+                calculateLinear: function (param1, param2) {
+                    const level =
+                        this.tempLevel > 0 ? this.tempLevel : this.lvl;
+                    return level > 0 ? param1 + (level - 1) * param2 : 0;
+                },
+                calculateDiminishing: function (param1, param2) {
+                    const level =
+                        this.tempLevel > 0 ? this.tempLevel : this.lvl;
+
+                    // return (
+                    //     (110 * level * (param2 - param1)) / (100 * (level + 6))
+                    // );
+                    // FIRST VERSION
+
+                    return Math.floor(
+                        (Math.floor((110 * level) / (level + 6)) *
+                            (param2 - param1)) /
+                            100 +
+                            param1
+                    );
+
+                    // SECOND VERSION
+                    // const first = 110 * level * (param2 - param1);
+                    // console.log("First: " + first);
+
+                    // const divisor = 100 * (level + 6);
+                    // console.log("Divisor: " + divisor);
+
+                    // const flooredResult = Math.floor(first / divisor);
+
+                    // console.log("Result: " + flooredResult);
+                    // console.log("Param1: " + param1);
+                    // console.log("Param2: " + param2);
+
+                    // return flooredResult;
+                },
+
+                ln12: function () {
+                    return this.calculateLinear(this.par1, this.par2);
                 },
                 ln34: function () {
-                    console.log("Temp level is ", this.tempLevel);
-
-                    if (this.tempLevel > 0) {
-                        return this.par3 + (this.tempLevel - 1) * this.par4;
-                    }
-
-                    return effectiveLevel > 0
-                        ? this.par3 + (this.lvl - 1) * this.par4
-                        : 0;
+                    return this.calculateLinear(this.par3, this.par4);
                 },
                 ln56: function () {
-                    if (this.tempLevel > 0) {
-                        return this.par5 + (this.tempLevel - 1) * this.par6;
-                    }
-
-                    return effectiveLevel > 0
-                        ? this.par5 + (this.lvl - 1) * this.par6
-                        : 0;
+                    return this.calculateLinear(this.par5, this.par6);
                 },
                 ln78: function () {
-                    if (this.tempLevel > 0) {
-                        return this.par7 + (this.tempLevel - 1) * this.par8;
-                    }
-
-                    return effectiveLevel > 0
-                        ? this.par7 + (this.lvl - 1) * this.par8
-                        : 0;
+                    return this.calculateLinear(this.par7, this.par8);
+                },
+                dm12: function () {
+                    return this.calculateDiminishing(this.par1, this.par2);
+                },
+                dm34: function () {
+                    return this.calculateDiminishing(this.par3, this.par4);
+                },
+                dm56: function () {
+                    return this.calculateDiminishing(this.par5, this.par6);
+                },
+                dm78: function () {
+                    return this.calculateDiminishing(this.par7, this.par8);
                 },
                 setPreview: function () {
                     this.tempLevel = this.lvl + 1;

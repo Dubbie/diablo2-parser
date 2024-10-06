@@ -6,6 +6,7 @@ const HANDLED_SKILLS = [
     "Werebear",
     "Werewolf",
     "Lycanthropy",
+    "Hunger",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {

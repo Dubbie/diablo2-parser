@@ -9,16 +9,18 @@ import {
 
 const HANDLED_SKILLS = [
     // Tested skills
-    "Werebear",
-    "Werewolf",
-    "Lycanthropy",
-    "Hunger",
-    "Maul",
-    "Feral Rage",
-    "Rabies",
+    // "Werebear",
+    // "Werewolf",
+    // "Lycanthropy",
+    // "Hunger",
+    // "Maul",
+    // "Feral Rage",
+    // "Rabies",
     "Shock Wave",
-    "Fire Claws",
-    "Fury",
+    // "Fire Claws",
+    // "Fury",
+
+    "Raven",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -41,6 +43,7 @@ const TEMPLATES = {
     18: "S1",
     19: "S1 C1 Yards",
     27: "Average Fire Damage: X-Y Per Second",
+    38: "S1C1-C2S2",
     40: "(C1:Color)S2S1",
     51: "S1",
     52: "S1+C1-C2S2",
@@ -267,7 +270,7 @@ export function useSkillDescription() {
     };
 
     const formatText = (text) => {
-        return text ? text.split("\\n").reverse().join("<br />") : null;
+        return text ? text.split("\\n").reverse().join("<br />") : "";
     };
 
     const handlePoison = (skill, isPreview = false) => {

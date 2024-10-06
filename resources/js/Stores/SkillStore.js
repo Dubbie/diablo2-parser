@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { useSkillDescription } from "@/Composables/useSkillDescription";
 import { useCharacterStore } from "./CharacterStore"; // Ensure you import CharacterStore to access character-related data
+import { calculateElementalDamage } from "@/Composables/useSkillCalculations";
 import axios from "axios";
 
 export const useSkillStore = defineStore("skill", {
@@ -110,6 +111,16 @@ export const useSkillStore = defineStore("skill", {
                     return baseToHit + toHitPerLev * level;
                 },
 
+                calculateMinElementalDamage() {
+                    const dmg = calculateElementalDamage(skill);
+                    return dmg.min;
+                },
+
+                calculateMaxElementalDamage() {
+                    const dmg = calculateElementalDamage(skill);
+                    return dmg.max;
+                },
+
                 ln12: function () {
                     return this.calculateLinear(this.par1, this.par2);
                 },
@@ -136,6 +147,12 @@ export const useSkillStore = defineStore("skill", {
                 },
                 toht: function () {
                     return this.calculateToHit();
+                },
+                edmn: function () {
+                    return this.calculateMinElementalDamage();
+                },
+                edmx: function () {
+                    return this.calculateMaxElementalDamage();
                 },
                 setPreview: function () {
                     const currentLevel = this.blvl();

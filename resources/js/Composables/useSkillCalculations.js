@@ -1,14 +1,15 @@
 import { useSkillStore } from "@/Stores/SkillStore";
 
 export function useSkillCalculations() {
-    const DEBUG = true;
+    const DEBUG = false;
     const skillStore = useSkillStore();
 
     const tryCalculate = (skill, calcString, passives, isPreview) => {
         if (!calcString) return null;
 
         // Check ctx
-        const ctx = skill.context;
+        const skillStore = useSkillStore();
+        const ctx = skillStore.getSkillContext(skill.name);
         if (isPreview) {
             ctx.setPreview();
         }
@@ -23,6 +24,10 @@ export function useSkillCalculations() {
         transformedCalcString = replaceSkillReferences(transformedCalcString);
         if (DEBUG)
             console.log("- After Skill Reference: ", transformedCalcString);
+
+        transformedCalcString = replaceStatReferences(transformedCalcString);
+        if (DEBUG)
+            console.log("- After Stat Reference: ", transformedCalcString);
 
         transformedCalcString = replaceContextReferences(
             transformedCalcString,
@@ -45,7 +50,7 @@ export function useSkillCalculations() {
         transformedCalcString = applyIntegerMath(transformedCalcString);
 
         const result = evaluateExpression(transformedCalcString, calcString);
-        console.log(" - Result: ", result);
+        if (DEBUG) console.log("- Result: ", transformedCalcString);
 
         return result;
     };
@@ -72,6 +77,20 @@ export function useSkillCalculations() {
                 }
 
                 return refContext[key] || 0;
+            }
+        );
+
+        return replacedCalcString;
+    };
+
+    const replaceStatReferences = (calculation) => {
+        const statPattern = /stat\('([^']+)'\.(\w+)\)/g;
+
+        const replacedCalcString = calculation.replace(
+            statPattern,
+            (match, refSkillName, key) => {
+                // TODO: Implement stat handling for skills
+                return 0;
             }
         );
 
@@ -134,7 +153,12 @@ export function calculatePoisonDamage(skill, isPreview = false) {
 }
 
 export const calculateElementalDamage = (skill, isPreview = false) => {
-    let sLvl = isPreview ? skill.context.lvl() + 1 : skill.context.lvl();
+    const skillStore = useSkillStore();
+    const context = skillStore.getSkillContext(skill.name);
+
+    let sLvl = isPreview ? context.lvl() + 1 : context.lvl();
+    console.log("Slvl: ", sLvl);
+
     let edmn = skill.e_min;
     let edmx = skill.e_max;
     let edln = skill.e_len;
@@ -171,10 +195,17 @@ export const calculateElementalDamage = (skill, isPreview = false) => {
         }
     }
 
+    const min =
+        Math.floor((edmn + edmnAdd) * multiplier) /
+        (256 / Math.pow(2, skill.hit_shift));
+    const max =
+        Math.floor((edmx + edmxAdd) * multiplier) /
+        (256 / Math.pow(2, skill.hit_shift));
+
     return {
         len: edln + edlnAdd,
-        min: (edmn + edmnAdd) * multiplier,
-        max: (edmx + edmxAdd) * multiplier,
+        min,
+        max,
     };
 };
 
@@ -213,9 +244,16 @@ export function calculateDamage(skill, isPreview = false) {
         }
     }
 
+    min =
+        Math.floor((min + minAdd) * multiplier) /
+        (256 / Math.pow(2, skill.hit_shift));
+    max =
+        Math.floor((max + maxAdd) * multiplier) /
+        (256 / Math.pow(2, skill.hit_shift));
+
     return {
-        min: Math.floor((min + minAdd) * multiplier),
-        max: Math.floor((max + maxAdd) * multiplier),
+        min,
+        max,
     };
 }
 

@@ -143,18 +143,6 @@ export function useSkillCalculations() {
 export function calculatePoisonDamage(skill, isPreview = false) {
     const { min, max, len } = calculateElementalDamage(skill, isPreview, false);
     const hitShift = Math.pow(2, skill.hit_shift);
-
-    console.log(
-        "min: ",
-        min,
-        "max: ",
-        max,
-        "len: ",
-        len,
-        "hitShift: ",
-        hitShift
-    );
-
     const x = Math.floor((min * len) / (256 / hitShift));
     const y = Math.floor((max * len) / (256 / hitShift));
     const z = Math.floor(len / 25);
@@ -175,7 +163,6 @@ export const calculateElementalDamage = (
     const context = skillStore.getSkillContext(skill.name);
 
     let sLvl = isPreview ? context.lvl() + 1 : context.lvl();
-    console.log("Slvl: ", sLvl);
 
     let edmn = skill.e_min;
     let edmx = skill.e_max;
@@ -247,16 +234,8 @@ export function calculateDamage(skill, isPreview = false, bonus) {
         }
 
         if (currentBreakpoint > 0) {
-            let _minAdd = skill[`min_dam_level_${currentBreakpoint}`];
-            let _maxAdd = skill[`max_dam_level_${currentBreakpoint}`];
-
-            // if (bonus > 0) {
-            //     _minAdd = Math.floor(_minAdd * (bonus / 100 + 1));
-            //     _maxAdd = Math.floor(_maxAdd * (bonus / 100 + 1));
-            // }
-
-            maxAdd += _maxAdd;
-            minAdd += _minAdd;
+            maxAdd += skill[`min_dam_level_${currentBreakpoint}`];
+            minAdd += skill[`max_dam_level_${currentBreakpoint}`];
         }
     }
 

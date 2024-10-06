@@ -1,13 +1,18 @@
 import { useSkillStore } from "@/Stores/SkillStore";
-import { useSkillCalculations } from "@/Composables/useSkillCalculations";
+import {
+    useSkillCalculations,
+    calculatePoisonDamage,
+} from "@/Composables/useSkillCalculations";
 
 const HANDLED_SKILLS = [
     // Tested skills
-    "Werebear",
-    "Werewolf",
-    "Lycanthropy",
-    "Hunger",
-    "Maul",
+    // "Werebear",
+    // "Werewolf",
+    // "Lycanthropy",
+    // "Hunger",
+    // "Maul",
+    // "Feral Rage",
+    "Rabies",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -26,6 +31,7 @@ const TEMPLATES = {
     9: "S1 S2 Damage: +C2",
     10: "(Elem) Damage: X-Y",
     12: "S1 C1 seconds",
+    14: "Poison Damage: X-Y Over Z Seconds",
     18: "S1",
     19: "S1 C1 Yards",
     40: "(C1:Color)S2S1",
@@ -201,6 +207,8 @@ export function useSkillDescription() {
                 return handleDmgBonus(skill, level);
             case 10:
                 return handleElemBonus(skill, level);
+            case 14:
+                return handlePoison(skill, isPreview);
             case 12:
                 // Floor frenzy, as it shows only integers
                 if (skill.description.name === "Frenzy") {
@@ -251,6 +259,11 @@ export function useSkillDescription() {
 
     const formatText = (text) => {
         return text ? text.split("\\n").reverse().join("<br />") : null;
+    };
+
+    const handlePoison = (skill, isPreview = false) => {
+        const dmg = calculatePoisonDamage(skill, isPreview);
+        return `Poison Damage: ${dmg.min}-${dmg.max}<br />Over ${dmg.len} Seconds`;
     };
 
     // Exported functions

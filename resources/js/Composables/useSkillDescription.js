@@ -47,6 +47,7 @@ const TEMPLATES = {
     27: "Average Fire Damage: X-Y Per Second",
     38: "S1C1-C2S2",
     40: "(C1:Color)S2S1",
+    47: "S1C1-C2",
     51: "S1",
     52: "S1+C1-C2S2",
     63: "S1: +C1% S2",

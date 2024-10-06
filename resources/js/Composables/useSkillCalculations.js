@@ -1,7 +1,7 @@
 import { useSkillStore } from "@/Stores/SkillStore";
 
 export function useSkillCalculations() {
-    const DEBUG = true;
+    const DEBUG = false;
     const skillStore = useSkillStore();
 
     const tryCalculate = (skill, calcString, passives, isPreview) => {

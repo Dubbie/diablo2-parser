@@ -16,11 +16,12 @@ const HANDLED_SKILLS = [
     // "Maul",
     // "Feral Rage",
     // "Rabies",
-    "Shock Wave",
+    // "Shock Wave",
     // "Fire Claws",
     // "Fury",
-
-    "Raven",
+    // "Raven",
+    "Poison Creeper",
+    "Carrion Vine",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
@@ -39,6 +40,7 @@ const TEMPLATES = {
     9: "S1 S2 Damage: +C2",
     10: "(Elem) Damage: X-Y",
     12: "S1 C1 seconds",
+    13: "Life: C1",
     14: "Poison Damage: X-Y Over Z Seconds",
     18: "S1",
     19: "S1 C1 Yards",
@@ -50,7 +52,7 @@ const TEMPLATES = {
     63: "S1: +C1% S2",
     73: "C1/C2 S1",
 };
-const DEBUG = true;
+const DEBUG = false;
 
 export function useSkillDescription() {
     const { skills } = useSkillStore();
@@ -179,6 +181,7 @@ export function useSkillDescription() {
         if (debug) {
             const calcAWithOriginal = calcA + " (" + line.calc_a + ")";
             const calcBWithOriginal = calcB + " (" + line.calc_b + ")";
+            template = template.replace("Unknown Function ", "");
             return template
                 .replace("FN", func)
                 .replace("S1", textA)
@@ -227,6 +230,9 @@ export function useSkillDescription() {
                     calcA = Math.round((calcA / 25) * 10) / 10;
                 }
 
+                break;
+            case 13:
+                calcA = "Not implemented";
                 break;
             case 19:
                 calcA = Math.round(((calcA * 2) / 3) * 10) / 10;

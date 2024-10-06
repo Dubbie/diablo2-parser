@@ -1,7 +1,7 @@
 import { useSkillStore } from "@/Stores/SkillStore";
 
 export function useSkillCalculations() {
-    const DEBUG = false;
+    const DEBUG = true;
     const skillStore = useSkillStore();
 
     const tryCalculate = (skill, calcString, passives, isPreview) => {
@@ -48,6 +48,7 @@ export function useSkillCalculations() {
 
         // Apply integer math (specifically for division)
         transformedCalcString = applyIntegerMath(transformedCalcString);
+        if (DEBUG) console.log("- After integer math: ", transformedCalcString);
 
         const result = evaluateExpression(transformedCalcString, calcString);
         if (DEBUG) console.log("- Result: ", transformedCalcString);
@@ -114,20 +115,22 @@ export function useSkillCalculations() {
     };
 
     const evaluateExpression = (calcString, originalCalcString) => {
-        // Remove any surrounding quotes, if present
-        calcString = calcString.replace(/^["']|["']$/g, "");
+        // Remove all quotes from the calculation string
+        calcString = calcString.replace(/['"]/g, "");
 
-        if (DEBUG)
+        if (DEBUG) {
             console.log(
                 "- Final Calculation String Before Evaluation:",
                 calcString
             );
+        }
 
         try {
-            // return Function(`'use strict'; return (${calcString})`)();
+            // Evaluate the expression
             return eval(`(${calcString})`);
         } catch (error) {
             console.error("Error evaluating calculation:", error.message);
+            console.error("Failed Calculation String:", calcString); // Log the problematic string
             return originalCalcString; // Return original string in case of an error
         }
     };
@@ -138,7 +141,7 @@ export function useSkillCalculations() {
 }
 
 export function calculatePoisonDamage(skill, isPreview = false) {
-    const { min, max, len } = calculateElementalDamage(skill, isPreview);
+    const { min, max, len } = calculateElementalDamage(skill, isPreview, false);
     const hitShift = Math.pow(2, skill.hit_shift);
 
     const x = Math.floor((min * len) / (256 / hitShift));
@@ -152,7 +155,11 @@ export function calculatePoisonDamage(skill, isPreview = false) {
     };
 }
 
-export const calculateElementalDamage = (skill, isPreview = false) => {
+export const calculateElementalDamage = (
+    skill,
+    isPreview = false,
+    doHitShift = true
+) => {
     const skillStore = useSkillStore();
     const context = skillStore.getSkillContext(skill.name);
 
@@ -195,13 +202,13 @@ export const calculateElementalDamage = (skill, isPreview = false) => {
         }
     }
 
-    const min =
-        Math.floor((edmn + edmnAdd) * multiplier) /
-        (256 / Math.pow(2, skill.hit_shift));
-    const max =
-        Math.floor((edmx + edmxAdd) * multiplier) /
-        (256 / Math.pow(2, skill.hit_shift));
+    let min = Math.floor((edmn + edmnAdd) * multiplier);
+    let max = Math.floor((edmx + edmxAdd) * multiplier);
 
+    if (doHitShift) {
+        min = Math.floor(min / (256 / Math.pow(2, skill.hit_shift)));
+        max = Math.floor(max / (256 / Math.pow(2, skill.hit_shift)));
+    }
     return {
         len: edln + edlnAdd,
         min,
@@ -258,7 +265,7 @@ export function calculateDamage(skill, isPreview = false) {
 }
 
 export const calculateAvgFireDmgPerSec = (skill, isPreview = false) => {
-    const dmg = calculateElementalDamage(skill, isPreview);
+    const dmg = calculateElementalDamage(skill, isPreview, false);
     const x = (dmg.min * 14) / 3 / Math.pow(2, skill.hit_shift);
     const y = (dmg.max * 14) / 3 / Math.pow(2, skill.hit_shift);
     return {

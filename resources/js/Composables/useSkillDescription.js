@@ -9,15 +9,16 @@ import {
 
 const HANDLED_SKILLS = [
     // Tested skills
-    // "Werebear",
-    // "Werewolf",
-    // "Lycanthropy",
-    // "Hunger",
-    // "Maul",
-    // "Feral Rage",
-    // "Rabies",
-    // "Shock Wave",
+    "Werebear",
+    "Werewolf",
+    "Lycanthropy",
+    "Hunger",
+    "Maul",
+    "Feral Rage",
+    "Rabies",
+    "Shock Wave",
     "Fire Claws",
+    "Fury",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {

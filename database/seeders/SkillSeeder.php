@@ -52,6 +52,9 @@ class SkillSeeder extends FromFileSeeder
                 'client_calc_3' => $this->getActualValue($skillData['cltcalc3']),
                 'passive_state' => $this->getActualValue($skillData['passivestate']),
 
+                'server_start_function' => $this->getActualValue($skillData['srvstfunc']),
+                'server_do_function' => $this->getActualValue($skillData['srvdofunc']),
+
                 'aura_filter' => $this->getActualValue($skillData['aurafilter']),
                 'aura_state' => $this->getActualValue($skillData['aurastate']),
                 'aura_target_state' => $this->getActualValue($skillData['auratargetstate']),

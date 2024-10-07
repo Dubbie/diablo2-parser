@@ -1,7 +1,6 @@
 <script setup>
-import { ref, computed } from "vue";
+import { computed } from "vue";
 import { useItemStore } from "@/Stores/ItemStore";
-import { useCharacterStore } from "@/Stores/CharacterStore";
 import Modal from "@/Components/Modal.vue";
 import ItemDisplay from "@/Components/ItemDisplay.vue";
 import AppButton from "@/Components/AppButton.vue";

@@ -5,7 +5,7 @@ import PlannerSettingsModal from "./PlannerSettingsModal.vue";
 import { ref } from "vue";
 import { IconSettingsFilled } from "@tabler/icons-vue";
 
-const showingSettingsModal = ref(false);
+const showSettingsModal = ref(false);
 </script>
 
 <template>

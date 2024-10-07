@@ -65,6 +65,8 @@ class Skill extends Model
         'aura_calc_4',
         'aura_calc_5',
         'aura_calc_6',
+        'server_start_function',
+        'server_do_function',
         'passive_state',
         'passive_item_type',
         'passive_stat_1',

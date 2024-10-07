@@ -18,7 +18,11 @@ class SkillController extends Controller
             return response()->json('Class not found', 404);
         }
 
-        $data = Skill::whereHas('description')->with('description', 'skillPrerequisites')->where('character_class', $mappedClass)->get();
+        $data = Skill::whereHas('description')
+            ->with('description', 'skillPrerequisites')
+            ->where('character_class', $mappedClass)
+            ->orWhereIn('name', ['Attack', 'Throw'])
+            ->get();
         return response()->json($data);
     }
 }

@@ -1,4 +1,5 @@
 import { useSkillStore } from "@/Stores/SkillStore";
+import { MAX_PASSIVES } from "@/constants";
 
 export function useSkillCalculations() {
     const DEBUG = false;
@@ -37,10 +38,9 @@ export function useSkillCalculations() {
             console.log("- After Context Reference: ", transformedCalcString);
 
         // Replace min function with Math.min
-        transformedCalcString = transformedCalcString.replace(
-            /min/g,
-            "Math.min"
-        );
+        transformedCalcString = replaceMathFunctions(transformedCalcString);
+        if (DEBUG)
+            console.log("- After Math Function: ", transformedCalcString);
 
         if (isPreview) {
             ctx.resetPreview();
@@ -107,6 +107,12 @@ export function useSkillCalculations() {
         return calculation;
     };
 
+    const replaceMathFunctions = (calculation) => {
+        calculation = calculation.replace(/min/g, "Math.min");
+        calculation = calculation.replace(/max/g, "Math.max");
+        return calculation;
+    };
+
     const applyIntegerMath = (calculation) => {
         return calculation.replace(
             /(\d+)\s*\/\s*(\d+)/g,
@@ -161,9 +167,8 @@ export const calculateElementalDamage = (
 ) => {
     const skillStore = useSkillStore();
     const context = skillStore.getSkillContext(skill.name);
-
+    const breakpoints = [2, 9, 17, 23, 28];
     let sLvl = isPreview ? context.lvl() + 1 : context.lvl();
-
     let edmn = skill.e_min;
     let edmx = skill.e_max;
     let edln = skill.e_len;
@@ -171,7 +176,6 @@ export const calculateElementalDamage = (
     let edmxAdd = 0;
     let edlnAdd = 0;
     let multiplier = 1;
-    const breakpoints = [2, 9, 17, 23, 28];
     let currentBreakpoint = 0;
 
     // Loop until we hit blvl, and add to the appropriate breakpoints
@@ -217,17 +221,13 @@ export const calculateElementalDamage = (
 export function calculateDamage(skill, isPreview = false, bonus) {
     const skillStore = useSkillStore();
     const context = skillStore.getSkillContext(skill.name);
-    console.log("Skill", skill);
-
+    const breakpoints = [2, 9, 17, 23, 28];
     let sLvl = isPreview ? context.lvl() + 1 : context.lvl();
     let min = skill.min_dam;
     let max = skill.max_dam;
     let minAdd = 0;
     let maxAdd = 0;
-    console.log("Min", min, "Max", max, "MinAdd", minAdd, "MaxAdd", maxAdd);
     let multiplier = 1;
-
-    const breakpoints = [2, 9, 17, 23, 28];
     let currentBreakpoint = 0;
 
     // Loop until we hit blvl, and add to the appropriate breakpoints
@@ -237,8 +237,8 @@ export function calculateDamage(skill, isPreview = false, bonus) {
         }
 
         if (currentBreakpoint > 0) {
-            maxAdd += skill[`min_dam_level_${currentBreakpoint}`];
-            minAdd += skill[`max_dam_level_${currentBreakpoint}`];
+            minAdd += skill[`min_dam_level_${currentBreakpoint}`];
+            maxAdd += skill[`max_dam_level_${currentBreakpoint}`];
         }
     }
 
@@ -256,7 +256,6 @@ export function calculateDamage(skill, isPreview = false, bonus) {
     }
 
     const bonusMulti = bonus > 0 ? bonus / 100 + 1 : 1;
-
     min = Math.floor(
         Math.floor(Math.floor((min + minAdd) * multiplier) * bonusMulti) /
             (256 / Math.pow(2, skill.hit_shift))
@@ -272,13 +271,39 @@ export function calculateDamage(skill, isPreview = false, bonus) {
     };
 }
 
-export const calculateAvgFireDmgPerSec = (skill, isPreview = false) => {
+export const calculateAvgFireDmgPerSec = (
+    skill,
+    isPreview = false,
+    multiplier,
+    divisor,
+    missile = false
+) => {
     const dmg = calculateElementalDamage(skill, isPreview, false);
-    const x = (dmg.min * 14) / 3 / Math.pow(2, skill.hit_shift);
-    const y = (dmg.max * 14) / 3 / Math.pow(2, skill.hit_shift);
+    let min = dmg.min;
+    let max = dmg.min === dmg.max ? dmg.min + 1 : dmg.max;
+    let x = (min * multiplier) / divisor / Math.pow(2, skill.hit_shift);
+    let y = (max * multiplier) / divisor / Math.pow(2, skill.hit_shift);
+
+    if (missile) {
+        x = (min * multiplier) / divisor;
+        y = (max * multiplier) / divisor;
+    }
+
     return {
         min: Math.floor(x),
         max: Math.floor(y),
+    };
+};
+
+export const calculateAvgElemDmgPerSec = (skill, isPreview = false) => {
+    const dmg = calculateElementalDamage(skill, isPreview, false);
+    const x = (dmg.min * 25) / (256 / Math.pow(2, skill.hit_shift));
+    const y = (dmg.max * 25) / (256 / Math.pow(2, skill.hit_shift));
+
+    return {
+        min: Math.floor(x),
+        max: Math.floor(y),
+        len: dmg.len / 25,
     };
 };
 
@@ -287,7 +312,7 @@ export const calculateManaCost = (skill, isPreview = false, usmc = false) => {
     const context = skillStore.getSkillContext(skill.name);
     const sLvl = isPreview ? context.lvl() + 1 : context.lvl();
     let manaCost =
-        ((skill.mana + skill.mana_per_level * sLvl) *
+        ((skill.mana + skill.mana_per_level * (sLvl - 1)) *
             Math.pow(2, skill.mana_shift)) /
         (usmc ? 1 : 256);
 
@@ -296,3 +321,72 @@ export const calculateManaCost = (skill, isPreview = false, usmc = false) => {
         Number.isInteger(manaCost) ? manaCost : Math.floor(manaCost * 10) / 10
     );
 };
+
+export const calculateManaCostPerSecond = (skill, isPreview = false) => {
+    // TODO: Fix this calculation
+    const manaCost = calculateManaCost(skill, isPreview);
+    return manaCost * 10;
+};
+
+export const calculateToHit = (skill, isPreview = false) => {
+    const skillStore = useSkillStore();
+    const context = skillStore.getSkillContext(skill.name);
+    const baseToHit = skill.to_hit;
+    const toHitPerLev = skill.to_hit_per_level;
+    const level = isPreview ? context.lvl() + 1 : context.lvl();
+
+    if (skill.to_hit_calc) {
+        const skillCalc = useSkillCalculations();
+
+        // Call tryCalculate from the skillCalc
+        return skillCalc.tryCalculate(skill, skill.to_hit_calc, level); // percent increase
+    }
+
+    return baseToHit + toHitPerLev * (level - 1);
+};
+
+export const getMasteryBySkill = (skill, passiveType, isPreview = false) => {
+    // Check which passive we are looking for
+    let passiveKey = null;
+    let passiveCalc = null;
+
+    for (let i = 1; i <= MAX_PASSIVES; i++) {
+        const passiveStatKey = `passive_stat_${i}`;
+        const passiveCalcKey = `passive_calc_${i}`;
+        const passiveStatName = skill[passiveStatKey];
+
+        if (!passiveStatName) continue; // Early return for empty passives
+
+        // Split it up and check for the type
+        const split = passiveStatName.split("_");
+        if (split.includes(passiveType)) {
+            passiveKey = passiveStatName; // Found the passive
+            passiveCalc = skill[passiveCalcKey];
+            break;
+        }
+    }
+
+    if (!passiveKey) {
+        return 0;
+    }
+
+    // Get mod
+    const mod = useSkillCalculations().tryCalculate(
+        skill,
+        passiveCalc,
+        null,
+        isPreview
+    );
+
+    // Return
+    return mod;
+};
+
+export const getCritMasteryBySkill = (skill, isPreview = false) =>
+    getMasteryBySkill(skill, "crit", isPreview);
+
+export const getAttackRatingMasteryBySkill = (skill, isPreview = false) =>
+    getMasteryBySkill(skill, "th", isPreview);
+
+export const getDamageMasteryBySkill = (skill, isPreview = false) =>
+    getMasteryBySkill(skill, "dmg", isPreview);

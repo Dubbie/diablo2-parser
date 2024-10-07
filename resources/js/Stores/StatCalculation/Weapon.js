@@ -53,7 +53,7 @@ export const updateWeapon = (characterStore, statStore) => {
     const mainHandWeapon = characterStore.character.equippedItems.larm;
     const { strength, dexterity } = statStore.attributes;
 
-    let physicalDamageMultiplier = 1 + (strength > 0 ? strength / 100 : 0);
+    let physicalDamageMultiplier = 1;
     let physicalMinAdd = 0;
     let physicalMaxAdd = 0;
     let elementalDamage = Object.fromEntries(
@@ -162,13 +162,17 @@ const addElementalDamage = (
 const updateWeaponDamage = (
     weapon,
     statStore,
-    physicalMultiplier,
-    physicalMinAdd,
-    physicalMaxAdd,
-    elementalDamage
+    physicalMultiplier = 1,
+    physicalMinAdd = 0,
+    physicalMaxAdd = 0,
+    elementalDamage = 0
 ) => {
+    // Default values for physical damage
     let basePhysicalMin = 1;
     let basePhysicalMax = 2;
+    let strBonus = weapon?.str_bonus || 0; // Default to 0 if not present
+    let dexBonus = weapon?.dex_bonus || 0; // Default to 0 if not present
+    const { strength, dexterity } = statStore.attributes;
 
     if (weapon && isItemUsable(weapon)) {
         const { two_handed, calculated_stats } = weapon;
@@ -176,17 +180,25 @@ const updateWeaponDamage = (
             calculated_stats?.damage?.[two_handed ? "two_handed" : "one_handed"]
                 ?.value || {};
 
-        basePhysicalMin = damageStats.min;
-        basePhysicalMax = damageStats.max || 2;
+        basePhysicalMin = damageStats.min || basePhysicalMin; // Fallback to default if not available
+        basePhysicalMax = damageStats.max || basePhysicalMax; // Fallback to default if not available
     }
 
-    statStore.weapon.attackDamage.physical.min = Math.floor(
-        basePhysicalMin * physicalMultiplier + physicalMinAdd
+    // Calculate the effective bonuses based on strength and dexterity
+    const dexMod = (dexBonus / 100) * (dexterity / 100);
+    const strMod = (strBonus / 100) * (strength / 100);
+
+    // Calculate total minimum and maximum damage
+    const totalMin = Math.floor(
+        basePhysicalMin + basePhysicalMin * strMod + basePhysicalMin * dexMod
     );
-    statStore.weapon.attackDamage.physical.max = Math.floor(
-        basePhysicalMax * physicalMultiplier + physicalMaxAdd
+    const totalMax = Math.floor(
+        basePhysicalMax + basePhysicalMax * strMod + basePhysicalMax * dexMod
     );
 
+    // Update the statStore with calculated damage
+    statStore.weapon.attackDamage.physical.min = totalMin + physicalMinAdd; // Add any physicalMinAdd
+    statStore.weapon.attackDamage.physical.max = totalMax + physicalMaxAdd; // Add any physicalMaxAdd
     statStore.weapon.attackDamage.elemental = elementalDamage;
 };
 

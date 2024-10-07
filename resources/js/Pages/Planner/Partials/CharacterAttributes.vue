@@ -6,27 +6,59 @@ import { computed } from "vue";
 
 const characterStore = useCharacterStore();
 
+const requiredStrength = computed(() => {
+    let required = 0;
+
+    Object.values(characterStore.character.equippedItems).forEach((item) => {
+        const itemReq = item?.calculated_stats?.required_str?.value || 0;
+
+        if (itemReq > required) {
+            required = itemReq;
+        }
+    });
+
+    return required;
+});
+
+const requiredDex = computed(() => {
+    let required = 0;
+
+    Object.values(characterStore.character.equippedItems).forEach((item) => {
+        const itemReq = item?.calculated_stats?.required_dex?.value || 0;
+
+        if (itemReq > required) {
+            required = itemReq;
+        }
+    });
+
+    return required;
+});
+
 const finalAttributes = computed(() => {
     return {
         str: {
             label: "Strength",
             base: characterStore.character.attributes.str,
             mod: characterStore.character.modified_attributes.str,
+            required: requiredStrength.value,
         },
         dex: {
             label: "Dexterity",
             base: characterStore.character.attributes.dex,
             mod: characterStore.character.modified_attributes.dex,
+            required: requiredDex.value,
         },
         vit: {
             label: "Vitality",
             base: characterStore.character.attributes.vit,
             mod: characterStore.character.modified_attributes.vit,
+            required: 0,
         },
         int: {
             label: "Energy",
             base: characterStore.character.attributes.int,
             mod: characterStore.character.modified_attributes.int,
+            required: 0,
         },
     };
 });
@@ -44,8 +76,22 @@ const finalAttributes = computed(() => {
                     class="flex-1 justify-self-start flex justify-between items-baseline mr-2"
                 >
                     <span>{{ value.label }}</span>
-                    <span class="text-xs font-semibold text-zinc-500">
-                        (Base: {{ value.base }})
+                    <span
+                        class="text-xs font-semibold"
+                        :class="{
+                            'text-red-400':
+                                value.required > value.base + value.mod,
+                            'text-zinc-500':
+                                value.required <= value.base + value.mod,
+                        }"
+                    >
+                        ({{ value.base + value.mod
+                        }}{{
+                            value.required > 0 &&
+                            value.mod + value.base < value.required
+                                ? ` / ${value.required}`
+                                : ""
+                        }})
                     </span>
                 </p>
 

@@ -1,6 +1,6 @@
 export function useItemCalculator(item, level) {
     const calculateStats = () => {
-        if (!item || !item.modifiers) {
+        if (!item) {
             return;
         }
 
@@ -132,6 +132,8 @@ export function useItemCalculator(item, level) {
 
         const finalMin = Math.floor(_min * dmgMultiplier + _minAdd);
         const finalMax = Math.floor(_max * dmgMultiplier + _maxAdd);
+
+        console.log("Calculated final damage:", finalMin, finalMax);
 
         return {
             value: { min: finalMin, max: finalMax },

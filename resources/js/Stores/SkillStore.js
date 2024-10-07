@@ -1,13 +1,27 @@
 import { defineStore } from "pinia";
 import { useSkillDescription } from "@/Composables/useSkillDescription";
 import { useCharacterStore } from "@/Stores/CharacterStore";
-import { calculateElementalDamage } from "@/Composables/useSkillCalculations";
+import {
+    useSkillCalculations,
+    calculateElementalDamage,
+    calculateManaCost,
+    calculateManaCostPerSecond,
+    calculateToHit,
+    getAttackRatingMasteryBySkill,
+    getCritMasteryBySkill,
+    getDamageMasteryBySkill,
+} from "@/Composables/useSkillCalculations";
+import { MAX_PASSIVES } from "@/constants";
 import { isItemUsable } from "@/Stores/StatCalculation/Utils";
 import axios from "axios";
 import { watch } from "vue";
+import { useSkillDamageCalculations } from "@/Composables/useSkillDamageCalculation";
+
+const BASIC_SKILLS = ["Attack", "Throw"];
 
 export const useSkillStore = defineStore("skill", {
     state: () => ({
+        selectedSkill: null,
         class: null,
         skills: [], // Array of skills loaded from the backend
         skillLookup: {}, // Quick access to skills by name
@@ -70,6 +84,9 @@ export const useSkillStore = defineStore("skill", {
 
             // Generate descriptions
             this.updateDescriptions();
+
+            // Set default skill
+            this.selectedSkill = this.skills[0];
         },
 
         initializeSkillContext(skill, state) {
@@ -116,10 +133,7 @@ export const useSkillStore = defineStore("skill", {
                 },
                 calculateToHit() {
                     // For now, only handle the basics.
-                    const baseToHit = skill.to_hit;
-                    const toHitPerLev = skill.to_hit_per_level;
-                    const level = this.lvl() - 1;
-                    return baseToHit + toHitPerLev * level;
+                    return calculateToHit(skill);
                 },
 
                 calculateMinElementalDamage() {
@@ -130,6 +144,11 @@ export const useSkillStore = defineStore("skill", {
                 calculateMaxElementalDamage() {
                     const dmg = calculateElementalDamage(skill);
                     return dmg.max;
+                },
+
+                calculateElementalDamageLength() {
+                    const dmg = calculateElementalDamage(skill);
+                    return dmg.len;
                 },
 
                 ln12: function () {
@@ -164,6 +183,46 @@ export const useSkillStore = defineStore("skill", {
                 },
                 edmx: function () {
                     return this.calculateMaxElementalDamage();
+                },
+                edln: function () {
+                    return this.calculateElementalDamageLength();
+                },
+                enma: function () {
+                    return this.calculateMinElementalDamage();
+                },
+                exma: function () {
+                    return this.calculateMaxElementalDamage();
+                },
+                mps: function () {
+                    return calculateManaCostPerSecond(skill);
+                },
+                usmc: function () {
+                    return calculateManaCost(skill, false, true);
+                },
+                clc1: function () {
+                    const skillCalc = useSkillCalculations();
+                    return skillCalc.tryCalculate(skill, skill.calc_1);
+                },
+                clc2: function () {
+                    const skillCalc = useSkillCalculations();
+                    return skillCalc.tryCalculate(skill, skill.calc_2);
+                },
+                clc3: function () {
+                    const skillCalc = useSkillCalculations();
+                    return skillCalc.tryCalculate(skill, skill.calc_3);
+                },
+                clc4: function () {
+                    const skillCalc = useSkillCalculations();
+                    return skillCalc.tryCalculate(skill, skill.calc_4);
+                },
+                macr: function () {
+                    return getCritMasteryBySkill(skill);
+                },
+                math: function () {
+                    return getAttackRatingMasteryBySkill(skill);
+                },
+                madm: function () {
+                    return getDamageMasteryBySkill(skill);
                 },
                 setPreview: function () {
                     const currentLevel = this.blvl();
@@ -208,12 +267,7 @@ export const useSkillStore = defineStore("skill", {
 
         initializePassives() {
             // Initialize passives based on skills with relevant data
-            this.passives = this.skills.reduce((acc, skill) => {
-                if (skill.passiveEffect) {
-                    acc[skill.name] = skill.passiveEffect;
-                }
-                return acc;
-            }, {});
+            this.passives = {};
         },
 
         addLevel(skill, amount) {
@@ -244,19 +298,33 @@ export const useSkillStore = defineStore("skill", {
         },
 
         updatePassives() {
-            // Re-initialize passives based on current skills and their effective levels
-            this.passives = this.skills.reduce((acc, skill) => {
-                if (skill.passiveEffect) {
-                    acc[skill.name] = this.calculatePassiveEffect(skill);
+            // Reset passives
+            this.initializePassives();
+            // Calculate passives
+            this.skills.forEach((skill) => {
+                if (skill.base_level === 0) {
+                    return;
                 }
-                return acc;
-            }, {});
+                // Has a hard point, add the passive effect.
+                for (let i = 1; i <= MAX_PASSIVES; i++) {
+                    const statKey = `passive_stat_${i}`;
+                    const calcKey = `passive_calc_${i}`;
+                    const stat = skill[statKey];
+                    const calcString = skill[calcKey];
+                    if (!stat || !calcString) continue; // Early return for empty passives
+                    this.passives[stat] = this.passives[stat] || 0; // Initialize stat if it doesn't exist
+                    // Apply calculations
+                    this.passives[stat] += this.calculatePassiveEffect(
+                        skill,
+                        calcString
+                    );
+                }
+            });
         },
 
-        calculatePassiveEffect(skill) {
-            // Logic to calculate the effect of the passive based on the skill's context
-            const effectiveLevel = skill.context.lvl; // Get the effective level
-            return effectiveLevel * skill.passiveMultiplier; // Example logic for passive calculation
+        calculatePassiveEffect(skill, calcString) {
+            const skillCalc = useSkillCalculations();
+            return skillCalc.tryCalculate(skill, calcString);
         },
 
         updateDescriptions() {
@@ -285,9 +353,21 @@ export const useSkillStore = defineStore("skill", {
             return prerequisitesMet && sufficientLevel;
         },
 
-        isUsable(skill) {
+        isUsable(skill, ignorePassive = false) {
             // Check if the effective level of the skill is greater than 0
-            return skill.context.lvl > 0;
+            const hasLevel = skill.context.lvl() > 0;
+
+            if (ignorePassive && skill.passive_state !== null) {
+                return null;
+            }
+
+            return hasLevel;
+        },
+
+        getDetails(skill) {
+            // Get damage for this skill
+            const skillDamageCalc = useSkillDamageCalculations();
+            return skillDamageCalc.calculateSkillDamage(skill);
         },
 
         initWatchers() {
@@ -317,6 +397,24 @@ export const useSkillStore = defineStore("skill", {
             }
 
             return skillContext;
+        },
+        getAvailableSkills: (state) => {
+            return state.skills.filter((skill) => {
+                return (
+                    state.isUsable(skill, true) ||
+                    BASIC_SKILLS.includes(skill.name)
+                );
+            });
+        },
+        selectedSkillDetails: (state) => {
+            const skill = state.selectedSkill;
+            console.log("Selected skill for grabbing details is :");
+            console.log(skill);
+
+            if (!skill) {
+                return null;
+            }
+            return state.getDetails(skill);
         },
     },
 });

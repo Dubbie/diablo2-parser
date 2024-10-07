@@ -91,11 +91,19 @@ export const useItemStore = defineStore("item", {
             console.log(item);
 
             this.selectedItem = { ...item }; // Create a copy of the item for editing
+
+            // Calculate default stats
+            this.calculateStats();
         },
 
         updateModifier(index, values) {
             this.selectedItem.modifiers[index].values = values;
 
+            // Calculate stats
+            this.calculateStats();
+        },
+
+        calculateStats() {
             // Calculate the stats after modifier updates
             const characterStore = useCharacterStore();
             const { calculateStats } = useItemCalculator(

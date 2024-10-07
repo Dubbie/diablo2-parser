@@ -5,37 +5,73 @@ import {
     calculateDamage,
     calculateElementalDamage,
     calculateAvgFireDmgPerSec,
+    calculateAvgElemDmgPerSec,
     calculateManaCost,
+    calculateToHit,
 } from "@/Composables/useSkillCalculations";
 
 const HANDLED_SKILLS = [
     // Tested skills
-    "Werebear",
-    "Werewolf",
-    "Lycanthropy",
-    "Hunger",
-    "Maul",
-    "Feral Rage",
-    "Rabies",
-    "Shock Wave",
-    "Fire Claws",
-    "Fury",
-    "Raven",
-    "Poison Creeper",
-    "Carrion Vine",
-    "Summon Spirit Wolf",
-    "Heart of Wolverine",
-    "Spirit of Barbs",
-    "Summon Dire Wolf",
-    "Solar Creeper",
-    "Oak Sage",
-    "Summon Grizzly",
+    // "Werebear",
+    // "Werewolf",
+    // "Lycanthropy",
+    // "Hunger",
+    // "Maul",
+    // "Feral Rage",
+    // "Rabies",
+    // "Shock Wave",
+    // "Fire Claws",
+    // "Fury",
+    // "Raven",
+    // "Poison Creeper",
+    // "Carrion Vine",
+    // "Summon Spirit Wolf",
+    // "Heart of Wolverine",
+    // "Spirit of Barbs",
+    // "Summon Dire Wolf",
+    // "Solar Creeper",
+    // "Oak Sage",
+    // "Summon Grizzly",
+    // "Arctic Blast",
+    // "Firestorm",
+    // "Molten Boulder",
+    // "Fire Claws",
+    // "Fissure",
+    // "Twister",
+
+    // Barbarian
+    "Bash",
+    "Double Swing",
+    "Stun",
+    "Frenzy",
+    "Leap",
+    "Concentrate",
+    "Double Throw",
+    "Leap Attack",
+    "Berserk",
+    "Whirlwind",
+
+    "General Mastery",
+    "Throwing Mastery",
+    "Natural Resistance",
+    "Polearm And Spear Mastery",
+    "Increased Speed",
+    "Combat Reflexes",
+    "Iron Skin",
+    "Deep Wounds",
 ];
 const MAX_PASSIVES = 5;
 const DESC_TYPES = {
     DESC: 1,
     DSC2: 2,
     DSC3: 3,
+};
+const ELEM_TYPES = {
+    cold: "Cold",
+    fire: "Fire",
+    ltng: "Lightning",
+    pois: "Poison",
+    mag: "Magic",
 };
 const TEMPLATES = {
     2: "S1 +C1 S2",
@@ -47,12 +83,16 @@ const TEMPLATES = {
     8: "Attack Rating Hardcode",
     9: "S1 S2 Damage: +C2",
     10: "(Elem) Damage: X-Y",
+    11: "^ S1 S2",
     12: "S1 C1 seconds",
     13: "Life: C1",
     14: "Poison Damage: X-Y Over Z Seconds",
     18: "S1",
     19: "S1 C1 Yards",
+    22: "Average Fire Damage: X-Y Per Second",
+    26: "Average (Elem) Damage: X-Y Per Second",
     27: "Average Fire Damage: X-Y Per Second",
+    35: "S1: C1-C2",
     38: "S1C1-C2S2",
     40: "(C1:Color)S2S1",
     42: "S1: +C1.C2 S2",
@@ -62,7 +102,7 @@ const TEMPLATES = {
     63: "S1: +C1% S2",
     73: "C1/C2 S1",
 };
-const DEBUG = false;
+const DEBUG = true;
 
 export function useSkillDescription() {
     const { skills } = useSkillStore();
@@ -70,10 +110,10 @@ export function useSkillDescription() {
 
     const generateDescriptions = () => {
         skills.forEach((skill) => {
-            // if (HANDLED_SKILLS.includes(skill.description.name)) {
-            //     skill.descriptionLines = generateDescription(skill);
-            // }
-            skill.descriptionLines = generateDescription(skill);
+            if (HANDLED_SKILLS.includes(skill.description.name)) {
+                skill.descriptionLines = generateDescription(skill);
+            }
+            // skill.descriptionLines = generateDescription(skill);
         });
     };
 
@@ -125,7 +165,6 @@ export function useSkillDescription() {
     };
 
     const calculatePassivesForSkill = (skill, isPreview) => {
-        // TODO: Fix
         // const values = {};
         // for (let i = 1; i <= MAX_PASSIVES; i++) {
         //     const statKey = `passive_stat_${i}`;
@@ -135,8 +174,9 @@ export function useSkillDescription() {
         //     if (!stat || !calcString) continue; // Early return for empty passives
         //     values[stat] = values[stat] || 0; // Initialize stat if it doesn't exist
         //     // Apply calculations
-        //     values[stat] += tryCalculate(skill, calcString, level);
+        //     values[stat] += tryCalculate(skill, calcString);
         // }
+        // console.log("Passives: ", values);
         // return values;
     };
 
@@ -219,17 +259,20 @@ export function useSkillDescription() {
                 ) {
                     return null;
                 }
+                break;
             case 4:
             case 5:
                 calcA = Math.floor(calcA);
                 break;
             case 8:
-                break;
+                return handleAttackRating(skill, isPreview);
             case 9:
                 const bonus = calcA;
                 return handleDmgBonus(skill, isPreview, bonus);
             case 10:
                 return handleElemBonus(skill, isPreview);
+            case 11:
+                return null;
             case 14:
                 return handlePoison(skill, isPreview);
             case 12:
@@ -237,7 +280,7 @@ export function useSkillDescription() {
                 if (skill.description.name === "Frenzy") {
                     calcA = Math.floor(calcA / 25);
                 } else {
-                    calcA = Math.round((calcA / 25) * 10) / 10;
+                    calcA = Math.floor((calcA / 25) * 10) / 10;
                 }
 
                 break;
@@ -245,12 +288,23 @@ export function useSkillDescription() {
                 calcA = "Not implemented";
                 break;
             case 19:
-                calcA = Math.round(((calcA * 2) / 3) * 10) / 10;
+                calcA = Math.floor(((calcA * 2) / 3) * 10) / 10;
                 break;
+            case 22:
+                return handleAvgFireDamage(skill, isPreview, 7, 3, true);
+            case 26:
+                return handleAvgElemDamage(skill, isPreview);
             case 27:
-                return handleAvgFireDamage(skill, isPreview);
+                return handleAvgFireDamage(skill, isPreview, 14, 3);
             case 51:
                 template = textA.replace("%d", calcA);
+                break;
+            case 52:
+                calcA = Math.floor(calcA);
+                calcB = Math.floor(calcB);
+                if (calcA === calcB) {
+                    template = template.replace("+C1-C2", "C1");
+                }
                 break;
             case 40:
                 template = textA.replace("%s", textB);
@@ -307,16 +361,46 @@ export function useSkillDescription() {
     const handleElemBonus = (skill, isPreview = false) => {
         const dmg = calculateElementalDamage(skill, isPreview);
 
-        if (dmg.min > 0 && dmg.max > 0) {
-            return `Ele Damage: ${dmg.min}-${dmg.max}`;
+        const elemType = ELEM_TYPES[skill.e_type] ?? skill.e_type;
+        const template = `${elemType} Damage: [value]`;
+        if (dmg.min === 0 && dmg.max === 0) {
+            return null;
         }
 
-        return null;
+        if (dmg.min === dmg.max) {
+            return template.replace("[value]", dmg.min);
+        }
+
+        return template.replace("[value]", `${dmg.min}-${dmg.max}`);
     };
 
-    const handleAvgFireDamage = (skill, isPreview = false) => {
-        const dmg = calculateAvgFireDmgPerSec(skill, isPreview);
+    const handleAvgFireDamage = (
+        skill,
+        isPreview = false,
+        multiplier,
+        divisor,
+        missile = false
+    ) => {
+        const dmg = calculateAvgFireDmgPerSec(
+            skill,
+            isPreview,
+            multiplier,
+            divisor,
+            missile
+        );
         return `Average Fire Damage: ${dmg.min}-${dmg.max} Per Second`;
+    };
+
+    const handleAvgElemDamage = (skill, isPreview = false) => {
+        const dmg = calculateAvgElemDmgPerSec(skill, isPreview);
+        const elemType = ELEM_TYPES[skill.e_type] ?? skill.e_type;
+
+        return `Average ${elemType} Damage: ${dmg.min}-${dmg.max} Per Second`;
+    };
+
+    const handleAttackRating = (skill, isPreview = false) => {
+        const toHit = calculateToHit(skill, isPreview);
+        return `Attack Rating: +${toHit} percent`;
     };
 
     // Exported functions

@@ -141,6 +141,9 @@ export const useCharacterStore = defineStore("character", {
 
         addItemToEquippedSlot(slot, item) {
             this.character.equippedItems[slot] = item;
+
+            console.log("Added item!");
+            console.log(item);
         },
 
         removeItemFromEquippedSlot(slot) {

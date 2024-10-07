@@ -52,6 +52,9 @@ return new class extends Migration
             $table->string('aura_calc_5')->nullable();
             $table->string('aura_calc_6')->nullable();
 
+            $table->unsignedInteger('server_start_function')->nullable();
+            $table->unsignedInteger('server_do_function')->nullable();
+
             $table->string('passive_state')->nullable();
             $table->string('passive_item_type')->nullable();
             $table->string('passive_stat_1')->nullable();

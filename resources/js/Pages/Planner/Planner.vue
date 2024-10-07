@@ -1,13 +1,13 @@
 <script setup>
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { useCharacterStore } from "@/Stores/CharacterStore";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted } from "vue";
 import CharacterInputs from "./Partials/CharacterInputs.vue";
 import SideTabs from "./Partials/SideTabs.vue";
 import MainTabs from "./Partials/MainTabs.vue";
 import { useSkillStore } from "@/Stores/SkillStore";
-import SelectInput from "@/Components/SelectInput.vue";
 import StatSummary from "./Partials/StatSummary.vue";
+import SelectInputComplex from "@/Components/SelectInputComplex.vue";
 
 const props = defineProps({
     debug: {
@@ -23,13 +23,31 @@ const hasClassData = computed(
     () => characterStore.character.classData.name ?? null
 );
 
-const skill = ref("Attack");
+const skill = computed(() => skillStore.selectedSkill);
+const availableSkills = computed(() => {
+    return skillStore.getAvailableSkills.map((skill) => {
+        return {
+            label: skill.description.name,
+            value: skill,
+        };
+    });
+});
 const skillOptions = [
     {
         label: "Attack",
         value: "Attack",
     },
+    {
+        label: "Throw",
+        value: "Throw",
+    },
 ];
+
+const handleSkillSelected = (skill) => {
+    if (skill) {
+        skillStore.selectedSkill = skill;
+    }
+};
 
 onMounted(() => {
     characterStore.fetchCharacterClasses();
@@ -62,7 +80,11 @@ onMounted(() => {
                 <div class="w-[196px]">
                     <!-- Main skill -->
                     <div class="mb-4">
-                        <SelectInput v-model="skill" :options="skillOptions" />
+                        <SelectInputComplex
+                            :model-value="skill"
+                            :options="availableSkills"
+                            @update:model-value="handleSkillSelected"
+                        />
                         <p class="text-xs mt-1 text-zinc-500 text-center">
                             Main skill
                         </p>

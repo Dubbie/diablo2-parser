@@ -5,6 +5,7 @@ import {
     calculateDamage,
     calculateElementalDamage,
     calculateAvgFireDmgPerSec,
+    calculateManaCost,
 } from "@/Composables/useSkillCalculations";
 
 const HANDLED_SKILLS = [
@@ -206,9 +207,7 @@ export function useSkillDescription() {
         // Handle some exceptions
         switch (func) {
             case 1:
-                // const manaCost = calculateManaCost(skill, level - 1);
-                const manaCost = 1;
-
+                const manaCost = calculateManaCost(skill, isPreview);
                 return skill.description.mana + manaCost;
             case 2:
                 // Only display if value is higher than 0

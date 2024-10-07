@@ -281,3 +281,18 @@ export const calculateAvgFireDmgPerSec = (skill, isPreview = false) => {
         max: Math.floor(y),
     };
 };
+
+export const calculateManaCost = (skill, isPreview = false, usmc = false) => {
+    const skillStore = useSkillStore();
+    const context = skillStore.getSkillContext(skill.name);
+    const sLvl = isPreview ? context.lvl() + 1 : context.lvl();
+    let manaCost =
+        ((skill.mana + skill.mana_per_level * sLvl) *
+            Math.pow(2, skill.mana_shift)) /
+        (usmc ? 1 : 256);
+
+    return Math.max(
+        skill.min_mana,
+        Number.isInteger(manaCost) ? manaCost : Math.floor(manaCost * 10) / 10
+    );
+};

@@ -225,7 +225,62 @@ export function d(mhWeapon, ohWeapon, animData, isPrimary) {
     return accelerationTables;
 }
 
-export const convertEIAStoVariable = (neededEIAS, EIASvalues) => {
+export const log = (...msg) => {
+    if (DEBUG) {
+        let message = "" + msg[0];
+        for (let i = 1; i < msg.length; i++) {
+            message = message.replace("%s", msg[i]);
+        }
+        console.log(message);
+    }
+};
+
+export const transformBreakpoints = (breakpoints) => {
+    let transformedBreakpoints = [];
+    let isFirstBp = true;
+
+    for (const bp of breakpoints.table) {
+        let v = convertEIAStoVariable(bp[0], breakpoints.EIASvalues);
+        if (isFirstBp && v < 0) v = 0;
+
+        transformedBreakpoints.push([v, bp[1]]);
+        isFirstBp = false;
+    }
+
+    return transformedBreakpoints;
+};
+
+export const handleWeaponUsage = (equippedItems) => {
+    let mhWeapon = equippedItems?.larm;
+    let ohWeapon = equippedItems?.rarm;
+
+    if (mhWeapon && !isItemUsable(mhWeapon)) {
+        mhWeapon = null;
+    }
+    if (ohWeapon && !isItemUsable(ohWeapon)) {
+        ohWeapon = null;
+    }
+
+    return { mhWeapon, ohWeapon };
+};
+
+export const calculateDPS = (
+    mainHandAvg,
+    offHandAvg,
+    transformedMHBPs,
+    transformedOHBPs = null
+) => {
+    const avgDivisor = offHandAvg > 0 ? 2 : 1;
+    const FPA1 = transformedMHBPs[0][1];
+    const FPA2 = transformedOHBPs ? transformedOHBPs[0][1] : null;
+    const FPA = FPA2 ? (FPA1 + FPA2) / 2 : FPA1;
+    const attacksPerSecond = 25 / FPA;
+    const DPS = ((mainHandAvg + offHandAvg) / avgDivisor) * attacksPerSecond;
+
+    return { aps: attacksPerSecond, fpa: FPA, dps: DPS };
+};
+
+const convertEIAStoVariable = (neededEIAS, EIASvalues) => {
     log("neededEIAS=%s", neededEIAS);
     let remainingEIAS = neededEIAS - EIASvalues[1] + EIASvalues[2];
 
@@ -283,16 +338,6 @@ const calculateEIAS = (mhWeapon, ohWeapon) => {
 
 const getWSM = (weapon) => {
     return weapon?.base_stats?.speed || 0;
-};
-
-export const log = (...msg) => {
-    if (DEBUG) {
-        let message = "" + msg[0];
-        for (let i = 1; i < msg.length; i++) {
-            message = message.replace("%s", msg[i]);
-        }
-        console.log(message);
-    }
 };
 
 const truncate = (int) => {

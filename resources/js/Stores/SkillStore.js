@@ -15,7 +15,7 @@ import { MAX_PASSIVES } from "@/constants";
 import { isItemUsable } from "@/Stores/StatCalculation/Utils";
 import axios from "axios";
 import { watch } from "vue";
-import { useSkillDamageCalculations } from "@/Composables/useSkillDamageCalculation";
+import { useSkillDamage } from "@/Composables/useSkillDamage";
 
 const BASIC_SKILLS = ["Attack", "Throw"];
 
@@ -365,9 +365,16 @@ export const useSkillStore = defineStore("skill", {
         },
 
         getDetails(skill) {
+            if (!skill) {
+                return null;
+            }
+
             // Get damage for this skill
-            const skillDamageCalc = useSkillDamageCalculations();
-            return skillDamageCalc.calculateSkillDamage(skill);
+            const skillDamage = useSkillDamage();
+            return {
+                name: skill.description.name,
+                damage: skillDamage.calculateSkillDamage(skill),
+            };
         },
 
         initWatchers() {
@@ -379,7 +386,11 @@ export const useSkillStore = defineStore("skill", {
                     characterStore.character.modified_attributes,
                 ],
                 () => {
+                    // Re-calculate bonuses
                     this.calculateItemBonuses();
+
+                    // Re-calculate damage
+                    this.getDetails(this.selectedSkill);
                 },
                 {
                     deep: true,
@@ -408,12 +419,6 @@ export const useSkillStore = defineStore("skill", {
         },
         selectedSkillDetails: (state) => {
             const skill = state.selectedSkill;
-            console.log("Selected skill for grabbing details is :");
-            console.log(skill);
-
-            if (!skill) {
-                return null;
-            }
             return state.getDetails(skill);
         },
     },

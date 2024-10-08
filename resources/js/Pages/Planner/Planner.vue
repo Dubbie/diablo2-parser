@@ -32,17 +32,6 @@ const availableSkills = computed(() => {
         };
     });
 });
-const skillOptions = [
-    {
-        label: "Attack",
-        value: "Attack",
-    },
-    {
-        label: "Throw",
-        value: "Throw",
-    },
-];
-
 const handleSkillSelected = (skill) => {
     if (skill) {
         skillStore.selectedSkill = skill;

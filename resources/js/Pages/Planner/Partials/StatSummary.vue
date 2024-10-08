@@ -6,6 +6,7 @@ import { computed } from "vue";
 import StatDisplay from "./StatDisplay.vue";
 import DamageStatDisplay from "./DamageStatDisplay.vue";
 import { useSkillStore } from "@/Stores/SkillStore";
+import SkillDamageDisplay from "@/Components/SkillDamageDisplay.vue";
 
 const statCalculationStore = useStatCalculationStore();
 const characterStore = useCharacterStore();
@@ -51,7 +52,7 @@ const statGroupTitleClass = "font-semibold text-zinc-500 mb-1";
 <template>
     <div class="space-y-4">
         <div>
-            <code><pre>{{ selectedSkillDetails }}</pre></code>
+            <SkillDamageDisplay :skill-damage="selectedSkillDetails" />
         </div>
 
         <div>

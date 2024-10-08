@@ -129,6 +129,8 @@ export const useStatCalculationStore = defineStore("statCalculation", {
     actions: {
         calculateStats() {
             // Call calculation functions from the respective modules
+            console.log("Recalculating stats.");
+
             calculateFinalAttributes();
             calculateFinalResistances();
             calculateFinalDefense();

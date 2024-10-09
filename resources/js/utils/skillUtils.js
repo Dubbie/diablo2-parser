@@ -1,6 +1,18 @@
 // utils/skillUtils.js
-import { isItemUsable } from "@/Stores/StatCalculation/Utils";
+import {
+    isItemUsable,
+    parseModifierValue,
+    ELEMENTAL_TYPES,
+} from "@/Stores/StatCalculation/Utils";
 import { CHAR_MAP, ANIM_DATA, DEBUG, OTHER } from "@/constants";
+
+const ELEMENTAL_MODIFIERS = {
+    fire: ["firemindam", "firemaxdam", "dmg_fire"],
+    lightning: ["lightmindam", "lightmaxdam", "dmg_lightning"],
+    cold: ["coldmindam", "coldmaxdam", "dmg_cold"],
+    poison: ["poismindam", "poismaxdam", "dmg_poison"],
+    magic: ["magicmindam", "magicmaxdam", "dmg_magic"],
+};
 
 class BreakpointTable {
     constructor(EIASvalues) {
@@ -30,6 +42,31 @@ export function calculateToHit(characterStats, tohitcalc) {
     return characterStats.dexterity * tohitcalc;
 }
 
+/**
+ * Calculates the weapon damage based on the attributes, selected weapon, and optional off-weapon modifiers.
+ *
+ * @param {Object} attributes - The character's attributes.
+ * @param {Object} attributes.strength - The character's strength value.
+ * @param {Object} attributes.dexterity - The character's dexterity value.
+ * @param {Object} selectedWeapon - The weapon currently selected by the character.
+ * @param {boolean} [useSecondary=false] - Indicates whether to use secondary weapon stats (if applicable).
+ * @param {number} [offWeaponPercentage=0] - The percentage of off-weapon damage increase to apply.
+ * @param {number} [offWeaponFlatDamage=0] - The flat damage increase to apply from off-weapon sources.
+ *
+ * @returns {Object} The calculated weapon damage.
+ * @returns {number} return.min - The minimum calculated weapon damage.
+ * @returns {number} return.max - The maximum calculated weapon damage.
+ *
+ * @example
+ * const damage = calculateWeaponDamage(
+ *     { strength: 100, dexterity: 75 },
+ *     selectedWeapon,
+ *     equippedItems,
+ *     false,
+ *     50, // 50% off-weapon increase
+ *     1   // 1 flat damage increase
+ * );
+ */
 export function calculateWeaponDamage(
     attributes,
     selectedWeapon,
@@ -82,6 +119,7 @@ export function calculateWeaponDamage(
         strengthBonusMultiplier +
         dexterityBonusMultiplier +
         offWeaponMultiplier;
+    console.log("Total Multiplier: ", totalDamageMultiplier);
 
     // Apply increases
     totalMin = Math.floor(totalMin * (1 + totalDamageMultiplier));
@@ -90,6 +128,15 @@ export function calculateWeaponDamage(
     // Add flats if present
     totalMin += offWeaponFlatDamage;
     totalMax += offWeaponFlatDamage;
+
+    // Add elemental flat damage.
+    const elementalDamage = getFlatElementalDamage(equippedItems);
+    for (const [type, damage] of Object.entries(elementalDamage)) {
+        if (damage.min > 0 && damage.max > 0) {
+            totalMin += damage.min;
+            totalMax += damage.max;
+        }
+    }
 
     // Return the calculated stuff
     return {
@@ -301,6 +348,67 @@ export const calculateDPS = (
     const DPS = ((mainHandAvg + offHandAvg) / avgDivisor) * attacksPerSecond;
 
     return { aps: attacksPerSecond, fpa: FPA, dps: DPS };
+};
+
+const getFlatElementalDamage = (equippedItems) => {
+    console.log("Calculating elemental damage!");
+
+    let elementalDamage = Object.fromEntries(
+        ELEMENTAL_TYPES.map((type) => [type, { min: 0, max: 0 }])
+    );
+
+    Object.keys(equippedItems).forEach((slot) => {
+        const item = equippedItems[slot];
+        if (!item || !isItemUsable(item)) return;
+
+        item.modifiers.forEach((modifier) => {
+            const modifierName = modifier.name.toLowerCase(); // Normalize the name to avoid case sensitivity
+
+            Object.entries(ELEMENTAL_MODIFIERS).forEach(([type, modifiers]) => {
+                if (modifiers.includes(modifierName)) {
+                    if (modifierName.startsWith("min")) {
+                        const minValue = parseModifierValue(modifier, "value");
+                        addElementalDamage(type, minValue, 0, elementalDamage);
+                    } else if (modifierName.startsWith("max")) {
+                        const maxValue = parseModifierValue(modifier, "value");
+                        addElementalDamage(type, 0, maxValue, elementalDamage);
+                    } else if (modifierName.startsWith("dmg_")) {
+                        const minValue = parseModifierValue(
+                            modifier,
+                            "minValue"
+                        );
+                        const maxValue = parseModifierValue(
+                            modifier,
+                            "maxValue"
+                        );
+                        addElementalDamage(
+                            type,
+                            minValue,
+                            maxValue,
+                            elementalDamage
+                        );
+                    }
+
+                    return;
+                }
+            });
+        });
+    });
+
+    console.log("Elemental Damage:");
+    console.log(elementalDamage);
+
+    return elementalDamage;
+};
+
+const addElementalDamage = (
+    damageType,
+    minValue,
+    maxValue,
+    elementalDamage
+) => {
+    elementalDamage[damageType].min += minValue;
+    elementalDamage[damageType].max += maxValue;
 };
 
 const convertEIAStoVariable = (neededEIAS, EIASvalues) => {

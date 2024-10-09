@@ -34,7 +34,9 @@ export function calculateWeaponDamage(
     attributes,
     selectedWeapon,
     equippedItems,
-    useSecondary = false
+    useSecondary = false,
+    offWeaponPercentage = 0,
+    offWeaponFlatDamage = 0
 ) {
     // Default values for physical damage
     let basePhysicalMin = 1;
@@ -56,22 +58,43 @@ export function calculateWeaponDamage(
         basePhysicalMax = damageStats?.max || 0; // Fallback to default if not available
     }
 
-    // Calculate the effective bonuses based on strength and dexterity
-    const dexMod = (dexBonus / 100) * (dexterity / 100);
-    const strMod = (strBonus / 100) * (strength / 100);
+    // Base damage calculation
+    let totalMin = basePhysicalMin;
+    let totalMax = basePhysicalMax;
 
-    // Calculate total minimum and maximum damage
-    const totalMin = Math.floor(
-        basePhysicalMin + basePhysicalMin * strMod + basePhysicalMin * dexMod
-    );
-    const totalMax = Math.floor(
-        basePhysicalMax + basePhysicalMax * strMod + basePhysicalMax * dexMod
-    );
+    // Calculate the effective bonuses based on strength and dexterity
+    const strengthMultiplier = strBonus / 100; // Convert strength bonus to multiplier
+    const dexterityMultiplier = dexBonus / 100; // Convert dexterity bonus to multiplier
+
+    // Calculate off-weapon bonuses
+    const strengthBonusMultiplier = (strengthMultiplier * strength) / 100; // Total bonus from strength
+    const dexterityBonusMultiplier = (dexterityMultiplier * dexterity) / 100; // Total bonus from dexterity
+    const offWeaponMultiplier = offWeaponPercentage / 100;
+
+    console.log("Base Min: ", basePhysicalMin);
+    console.log("Base Max: ", basePhysicalMax);
+    console.log("Str Bonus Multiplier: ", strengthBonusMultiplier);
+    console.log("Dex Bonus Multiplier: ", dexterityBonusMultiplier);
+    console.log("Off Weapon Multiplier: ", offWeaponMultiplier);
+
+    // Sum up all multipliers
+    const totalDamageMultiplier =
+        strengthBonusMultiplier +
+        dexterityBonusMultiplier +
+        offWeaponMultiplier;
+
+    // Apply increases
+    totalMin = Math.floor(totalMin * (1 + totalDamageMultiplier));
+    totalMax = Math.floor(totalMax * (1 + totalDamageMultiplier));
+
+    // Add flats if present
+    totalMin += offWeaponFlatDamage;
+    totalMax += offWeaponFlatDamage;
 
     // Return the calculated stuff
     return {
-        min: totalMin,
-        max: totalMax,
+        min: Math.floor(totalMin),
+        max: Math.floor(totalMax),
     };
 }
 

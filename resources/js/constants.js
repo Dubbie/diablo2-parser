@@ -1,4 +1,4 @@
-export const DEBUG = true;
+export const DEBUG = false;
 export const MAX_PASSIVES = 5;
 
 export const CHAR_MAP = {

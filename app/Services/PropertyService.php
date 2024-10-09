@@ -183,9 +183,9 @@ class PropertyService
                 }
 
                 // BIG DEBUG
-                // if ($stat->getStat()->stat === 'item_allskills') {
-                //     dd($stat);
-                // }
+                if ($stat->getStat()->stat === 'item_aura') {
+                    // dd($stat);
+                }
 
                 $this->modifiers[] = $this->statFunctionHandlerFactory
                     ->getHandler($stat->getFunction())

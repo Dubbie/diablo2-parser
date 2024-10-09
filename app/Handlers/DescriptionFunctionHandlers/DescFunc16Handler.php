@@ -22,17 +22,12 @@ class DescFunc16Handler implements DescriptionFunctionHandlerInterface
     public function handle(Modifier $modifier): ModifierLabel
     {
         $values = $modifier->getValues();
-        $skillParameter = $values['param'];
+        $skill = $values['skill'];
+        $skillName = $skill->name ?? $skill;
         $template = "Level [value] [skill] Aura When Equipped";
 
-        // Get the skill
-        $skill = $this->skillService->findByParam($skillParameter);
-        if (!$skill) {
-            throw new Exception("Skill not found with param: " . $skillParameter);
-        }
-
         // Replace placeholders
-        $template = str_replace('[skill]', $skill->name, $template);
+        $template = str_replace('[skill]', $skillName, $template);
 
         // Value
         $formattedValue = StatFormatter::formatValue($modifier->getMin(), $modifier->getMax());

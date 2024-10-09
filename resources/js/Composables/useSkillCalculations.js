@@ -2,7 +2,7 @@ import { useSkillStore } from "@/Stores/SkillStore";
 import { MAX_PASSIVES } from "@/constants";
 
 export function useSkillCalculations() {
-    const DEBUG = false;
+    const DEBUG = true;
     const skillStore = useSkillStore();
 
     const tryCalculate = (skill, calcString, passives, isPreview) => {
@@ -47,8 +47,8 @@ export function useSkillCalculations() {
         }
 
         // Apply integer math (specifically for division)
-        transformedCalcString = applyIntegerMath(transformedCalcString);
-        if (DEBUG) console.log("- After integer math: ", transformedCalcString);
+        // transformedCalcString = applyIntegerMath(transformedCalcString);
+        // if (DEBUG) console.log("- After integer math: ", transformedCalcString);
 
         const result = evaluateExpression(transformedCalcString, calcString);
         if (DEBUG) console.log("- Result: ", transformedCalcString);
@@ -70,7 +70,7 @@ export function useSkillCalculations() {
                     console.warn(
                         `Context for skill "${refSkillName}" not found.`
                     );
-                    return calculation;
+                    return 0;
                 }
 
                 if (typeof refContext[key] === "function") {

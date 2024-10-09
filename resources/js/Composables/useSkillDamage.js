@@ -1,6 +1,7 @@
 // composables/useSkillDamage.js
 import { useAttack } from "@/skills/attack";
 import { useBash } from "@/skills/bash";
+import { useConcentrate } from "@/skills/concentrate";
 import { useStun } from "@/skills/stun";
 import { useThrow } from "@/skills/throw";
 import { useCharacterStore } from "@/Stores/CharacterStore";
@@ -11,6 +12,7 @@ const skillModules = {
     Throw: useThrow,
     Bash: useBash,
     Stun: useStun,
+    Concentrate: useConcentrate,
 };
 
 export function useSkillDamage() {

@@ -3,11 +3,19 @@
 namespace App\Handlers\StatFunctionHandlers;
 
 use App\Handlers\StatFunctionHandlerInterface;
+use App\Services\SkillService;
 use App\ValueObjects\MappedStat;
 use App\ValueObjects\Modifier;
 
 class StatFunction22Handler implements StatFunctionHandlerInterface
 {
+    private SkillService $skillService;
+
+    public function __construct(SkillService $skillService)
+    {
+        $this->skillService = $skillService;
+    }
+
     public function handle(mixed $min, mixed $max, mixed $param, MappedStat $mappedStat): Modifier
     {
         $stat = $mappedStat->getStat();
@@ -23,7 +31,9 @@ class StatFunction22Handler implements StatFunctionHandlerInterface
             ]
         ]);
 
-        $modifier->setValues(['param' => $param]);
+        $skill = $this->skillService->findByParam($param) ?? $param;
+
+        $modifier->setValues(['skill' => $skill]);
         $modifier->setName($stat->stat);
         $modifier->setStat($stat);
         $modifier->setPriority($stat->description->priority ?? 999);

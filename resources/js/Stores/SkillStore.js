@@ -22,6 +22,7 @@ const BASIC_SKILLS = ["Attack", "Throw"];
 export const useSkillStore = defineStore("skill", {
     state: () => ({
         selectedSkill: null,
+        extraSkills: [],
         class: null,
         skills: [], // Array of skills loaded from the backend
         skillLookup: {}, // Quick access to skills by name
@@ -87,6 +88,9 @@ export const useSkillStore = defineStore("skill", {
 
             // Set default skill
             this.selectedSkill = this.skills[0];
+
+            // Reset extra skills
+            this.extraSkills = [];
         },
 
         initializeSkillContext(skill, state) {
@@ -192,6 +196,16 @@ export const useSkillStore = defineStore("skill", {
                 },
                 exma: function () {
                     return this.calculateMaxElementalDamage();
+                },
+                edns: function () {
+                    // elemental damage min, 256ths
+                    const dmg = calculateElementalDamage(skill);
+                    return dmg.min * 256;
+                },
+                edxs: function () {
+                    // elemental damage max, 256ths
+                    const dmg = calculateElementalDamage(skill);
+                    return dmg.max * 256;
                 },
                 mps: function () {
                     return calculateManaCostPerSecond(skill);
@@ -320,6 +334,26 @@ export const useSkillStore = defineStore("skill", {
                     );
                 }
             });
+
+            // Calculate more passives, this time for extra skills gained by items
+            this.extraSkills.forEach((skill) => {
+                // Has a hard point, add the passive effect.
+                for (let i = 1; i <= MAX_PASSIVES; i++) {
+                    const statKey = `passive_stat_${i}`;
+                    const calcKey = `passive_calc_${i}`;
+                    const stat = skill[statKey];
+                    const calcString = skill[calcKey];
+                    if (!stat || !calcString) continue; // Early return for empty passives
+                    this.passives[stat] = this.passives[stat] || 0; // Initialize stat if it doesn't exist
+                    // Apply calculations
+                    this.passives[stat] += this.calculatePassiveEffect(
+                        skill,
+                        calcString
+                    );
+                }
+            });
+
+            console.log("Passives:", this.passives);
         },
 
         calculatePassiveEffect(skill, calcString) {
@@ -377,6 +411,48 @@ export const useSkillStore = defineStore("skill", {
             };
         },
 
+        getExtraSkills() {
+            const { equippedItems } = useCharacterStore().character;
+
+            this.extraSkills = [];
+
+            // Get extra skills
+            let _extraSkills = [];
+            for (const [slot, item] of Object.entries(equippedItems)) {
+                if (item && item.modifiers && isItemUsable(item)) {
+                    console.log("Check for extra skill modifiers");
+
+                    item.modifiers.forEach((modifier) => {
+                        const { name } = modifier;
+                        if (name === "item_aura") {
+                            const blvl = parseInt(modifier.values.value);
+                            _extraSkills.push({
+                                ...modifier.values.skill,
+                                base_level: blvl,
+                            });
+                        }
+                    });
+                }
+            }
+
+            this.extraSkills = _extraSkills.map((skill) => {
+                // Now initialize context with the updated skill
+                const context = this.initializeSkillContext(skill, this);
+
+                return {
+                    ...skill,
+                    context, // Store the initialized context
+                };
+            });
+
+            // Add them to skill lookup
+            this.extraSkills.forEach((skill) => {
+                this.skillLookup[skill.name] = skill;
+            });
+
+            console.log("Extra skills: ", this.extraSkills);
+        },
+
         initWatchers() {
             const characterStore = useCharacterStore();
             watch(
@@ -391,6 +467,12 @@ export const useSkillStore = defineStore("skill", {
 
                     // Re-calculate damage
                     this.getDetails(this.selectedSkill);
+
+                    // Check extra skills
+                    this.getExtraSkills();
+
+                    // Re-calculate passive bonuses
+                    this.updatePassives();
                 },
                 {
                     deep: true,

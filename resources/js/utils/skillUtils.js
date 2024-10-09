@@ -1,5 +1,6 @@
 // utils/skillUtils.js
 import { calculateDamage } from "@/Composables/useSkillCalculations";
+import { useSkillStore } from "@/Stores/SkillStore";
 import {
     isItemUsable,
     parseModifierValue,
@@ -137,6 +138,15 @@ export function calculateWeaponDamage(
     // Add elemental flat damage.
     const elementalDamage = getFlatElementalDamage(equippedItems);
     for (const [type, damage] of Object.entries(elementalDamage)) {
+        if (damage.min > 0 && damage.max > 0) {
+            totalMin += damage.min * (srcDam / 128);
+            totalMax += damage.max * (srcDam / 128);
+        }
+    }
+
+    // Add passive elemental flat damage
+    const passiveElementalDamage = getPassiveElementalDamage();
+    for (const [type, damage] of Object.entries(passiveElementalDamage)) {
         if (damage.min > 0 && damage.max > 0) {
             totalMin += damage.min * (srcDam / 128);
             totalMax += damage.max * (srcDam / 128);
@@ -426,6 +436,37 @@ const getFlatElementalDamage = (equippedItems) => {
             });
         });
     });
+
+    return elementalDamage;
+};
+
+const getPassiveElementalDamage = () => {
+    const { passives } = useSkillStore();
+
+    // Calculating passive elemental damage
+    let elementalDamage = Object.fromEntries(
+        ELEMENTAL_TYPES.map((type) => [type, { min: 0, max: 0 }])
+    );
+
+    for (const [statName, value] of Object.entries(passives)) {
+        console.log("Passive: ", statName, value);
+
+        Object.entries(ELEMENTAL_MODIFIERS).forEach(([type, modifiers]) => {
+            if (modifiers.includes(statName)) {
+                if (statName.includes("mindam")) {
+                    addElementalDamage(type, value, 0, elementalDamage);
+                } else if (statName.includes("maxdam")) {
+                    addElementalDamage(type, 0, value, elementalDamage);
+                }
+
+                return;
+            }
+        });
+    }
+
+    console.log("------ ELEMENTAL DAMAGE FROM PASSIVES ------");
+    console.log(elementalDamage);
+    console.log("-------------------------------------------");
 
     return elementalDamage;
 };

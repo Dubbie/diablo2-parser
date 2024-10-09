@@ -1,8 +1,8 @@
-// skills/bash.js
+// skills/stun.js
 import { useSkillStore } from "@/Stores/SkillStore";
 import { calculateSkillDamage } from "@/utils/skillUtils"; // Import the new function
 
-export function useBash() {
+export function useStun() {
     const calculate = (skill, attributes, character) => {
         const skillStore = useSkillStore();
         const context = skillStore.getSkillContext(skill.name);
@@ -10,7 +10,7 @@ export function useBash() {
         const clc2 = context.clc2(); // Drain damage added to each hit
 
         // Calculate damage using the shared function
-        const bashDamage = calculateSkillDamage(
+        const stunDamage = calculateSkillDamage(
             skill,
             attributes,
             character,
@@ -18,7 +18,7 @@ export function useBash() {
             clc2
         );
 
-        return { bashDamage };
+        return { stunDamage };
     };
 
     return { calculate };

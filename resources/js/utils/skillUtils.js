@@ -1,4 +1,5 @@
 // utils/skillUtils.js
+import { calculateDamage } from "@/Composables/useSkillCalculations";
 import {
     isItemUsable,
     parseModifierValue,
@@ -71,10 +72,14 @@ export function calculateWeaponDamage(
     attributes,
     selectedWeapon,
     equippedItems,
+    srcDam = 128,
     useSecondary = false,
     offWeaponPercentage = 0,
     offWeaponFlatDamage = 0
 ) {
+    console.log("offWeaponPercentage:", offWeaponPercentage);
+    console.log("offWeaponFlatDamage:", offWeaponFlatDamage);
+
     // Default values for physical damage
     let basePhysicalMin = 1;
     let basePhysicalMax = 2;
@@ -96,8 +101,8 @@ export function calculateWeaponDamage(
     }
 
     // Base damage calculation
-    let totalMin = basePhysicalMin;
-    let totalMax = basePhysicalMax;
+    let totalMin = basePhysicalMin * (srcDam / 128);
+    let totalMax = basePhysicalMax * (srcDam / 128);
 
     // Calculate the effective bonuses based on strength and dexterity
     const strengthMultiplier = strBonus / 100; // Convert strength bonus to multiplier
@@ -133,8 +138,8 @@ export function calculateWeaponDamage(
     const elementalDamage = getFlatElementalDamage(equippedItems);
     for (const [type, damage] of Object.entries(elementalDamage)) {
         if (damage.min > 0 && damage.max > 0) {
-            totalMin += damage.min;
-            totalMax += damage.max;
+            totalMin += damage.min * (srcDam / 128);
+            totalMax += damage.max * (srcDam / 128);
         }
     }
 
@@ -142,6 +147,33 @@ export function calculateWeaponDamage(
     return {
         min: Math.floor(totalMin),
         max: Math.floor(totalMax),
+    };
+}
+
+export function calculateSkillDamage(skill, attributes, character, clc1, clc2) {
+    const { equippedItems } = character;
+
+    // Extract the weapon and source damage
+    const weapon = equippedItems?.larm;
+    const srcDam = skill.src_dmg;
+
+    // Calculate weapon damage
+    const { min, max } = calculateWeaponDamage(
+        attributes,
+        weapon,
+        equippedItems,
+        srcDam,
+        false,
+        clc1,
+        clc2 // Optional flat damage
+    );
+
+    // Add the damage from the skill itself
+    const skillDmg = calculateDamage(skill);
+
+    return {
+        min: min + skillDmg.min,
+        max: max + skillDmg.max,
     };
 }
 
@@ -394,9 +426,6 @@ const getFlatElementalDamage = (equippedItems) => {
             });
         });
     });
-
-    console.log("Elemental Damage:");
-    console.log(elementalDamage);
 
     return elementalDamage;
 };

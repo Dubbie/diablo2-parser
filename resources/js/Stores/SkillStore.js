@@ -352,8 +352,6 @@ export const useSkillStore = defineStore("skill", {
                     );
                 }
             });
-
-            console.log("Passives:", this.passives);
         },
 
         calculatePassiveEffect(skill, calcString) {
@@ -449,8 +447,6 @@ export const useSkillStore = defineStore("skill", {
             this.extraSkills.forEach((skill) => {
                 this.skillLookup[skill.name] = skill;
             });
-
-            console.log("Extra skills: ", this.extraSkills);
         },
 
         initWatchers() {

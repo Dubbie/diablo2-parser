@@ -78,8 +78,8 @@ export function calculateWeaponDamage(
     offWeaponPercentage = 0,
     offWeaponFlatDamage = 0
 ) {
-    console.log("offWeaponPercentage:", offWeaponPercentage);
-    console.log("offWeaponFlatDamage:", offWeaponFlatDamage);
+    log("offWeaponPercentage:", offWeaponPercentage);
+    log("offWeaponFlatDamage:", offWeaponFlatDamage);
 
     // Default values for physical damage
     let basePhysicalMin = 1;
@@ -114,18 +114,18 @@ export function calculateWeaponDamage(
     const dexterityBonusMultiplier = (dexterityMultiplier * dexterity) / 100; // Total bonus from dexterity
     const offWeaponMultiplier = offWeaponPercentage / 100;
 
-    console.log("Base Min: ", basePhysicalMin);
-    console.log("Base Max: ", basePhysicalMax);
-    console.log("Str Bonus Multiplier: ", strengthBonusMultiplier);
-    console.log("Dex Bonus Multiplier: ", dexterityBonusMultiplier);
-    console.log("Off Weapon Multiplier: ", offWeaponMultiplier);
+    log("Base Min: ", basePhysicalMin);
+    log("Base Max: ", basePhysicalMax);
+    log("Str Bonus Multiplier: ", strengthBonusMultiplier);
+    log("Dex Bonus Multiplier: ", dexterityBonusMultiplier);
+    log("Off Weapon Multiplier: ", offWeaponMultiplier);
 
     // Sum up all multipliers
     const totalDamageMultiplier =
         strengthBonusMultiplier +
         dexterityBonusMultiplier +
         offWeaponMultiplier;
-    console.log("Total Multiplier: ", totalDamageMultiplier);
+    log("Total Multiplier: ", totalDamageMultiplier);
 
     // Apply increases
     totalMin = Math.floor(totalMin * (1 + totalDamageMultiplier));
@@ -393,8 +393,6 @@ export const calculateDPS = (
 };
 
 const getFlatElementalDamage = (equippedItems) => {
-    console.log("Calculating elemental damage!");
-
     let elementalDamage = Object.fromEntries(
         ELEMENTAL_TYPES.map((type) => [type, { min: 0, max: 0 }])
     );
@@ -463,10 +461,6 @@ const getPassiveElementalDamage = () => {
             }
         });
     }
-
-    console.log("------ ELEMENTAL DAMAGE FROM PASSIVES ------");
-    console.log(elementalDamage);
-    console.log("-------------------------------------------");
 
     return elementalDamage;
 };
